@@ -2190,7 +2190,7 @@
                       <!-- Calendar View (New Tempo-style) -->
                       @if (isCalendarView) {
                         <!-- Debug Info Panel for Calendar -->
-                        <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px; border-radius: 4px;">
+                        <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px; border-radius: 4px;color: black;">
                           <strong>Calendar Debug Info:</strong><br>
                           Total Entries: {{ getAllTimesheetEntries().length }}<br>
                           Week Days: {{ getSafeTimesheetWeek().days.length || 0 }}<br>
@@ -2201,6 +2201,8 @@
                           @if (getAllTimesheetEntries().length > 0) {
                             Sample Entry Date: {{ getAllTimesheetEntries()[0].date | date:'shortDate' }}<br>
                             Sample Entry Time: {{ getAllTimesheetEntries()[0].startTime }}<br>
+                            Sample Entry Time: {{ getAllTimesheetEntries()[0].duration }}<br>
+                            Sample Entry Time: {{ getAllTimesheetEntries()[0].description }}<br>
                           }
                         </div>
 
@@ -2219,12 +2221,12 @@
                                 <div class="day-info">
                                   <div class="day-name">{{ day.dayName }}</div>
                                   <div class="day-date">{{ day.date | date:'d' }}</div>
-                                  <div class="day-total">{{ getDurationInHours(day.totalHours * 60) }}</div>
+                                  <div class="day-total">{{ getDurationInHours(day.totalHours * 60) }} -- {{ day.totalHours }}</div>
                                 </div>
                                 @if (currentUserRole.permissions.canLogTime && !isWeekend(day.date)) {
                                   <button class="log-activities-btn" (click)="openTimeEntryModal(day.date)">
                                     <i class="pi pi-plus"></i>
-                                    Log Activities
+                                    Log Time
                                   </button>
                                 }
                               </div>

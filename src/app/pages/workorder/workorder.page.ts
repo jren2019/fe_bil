@@ -1880,23 +1880,78 @@ export class WorkorderPageComponent implements OnInit {
     };
   }
 
-  // Safe getter for timesheet week data
+  /**
+   * Cached timesheet week data to prevent Angular change detection issues.
+   * 
+   * Angular's change detection can call getter methods multiple times during a single
+   * detection cycle. If getSafeTimesheetWeek() returns different values on each call,
+   * it triggers ExpressionChangedAfterItHasBeenCheckedError.
+   * 
+   * This cache ensures consistent data throughout a single change detection cycle.
+   */
+  private _cachedTimesheetWeek: TimesheetWeek | null = null;
+
+  /**
+   * Clears the cached timesheet week data.
+   * 
+   * CRITICAL: This method must be called whenever:
+   * 1. The week navigation changes (navigateTimesheetWeek)
+   * 2. Timesheet entries are modified (initializeSampleTimesheetEntries)
+   * 3. Switching to calendar view (setTimesheetView)
+   * 4. Any other operation that changes the underlying timesheet data
+   * 
+   * Why this is needed:
+   * - Without clearing the cache, stale data would be displayed after changes
+   * - The template bindings like [style.grid-column]="i + 2" depend on fresh data
+   * - Prevents visual inconsistencies between the data and the UI
+   */
+  private clearTimesheetWeekCache(): void {
+    this._cachedTimesheetWeek = null;
+  }
+
+  /**
+   * Safe getter for timesheet week data with caching to prevent change detection errors.
+   * 
+   * This method is called multiple times by Angular during template rendering:
+   * - Once for each day header: getSafeTimesheetWeek().days
+   * - Once for each day column in the grid
+   * - Potentially more times during change detection cycles
+   * 
+   * Without caching, each call could return different data (especially during initialization),
+   * causing ExpressionChangedAfterItHasBeenCheckedError when template bindings like
+   * [style.grid-column]="i + 2" change between detection cycles.
+   * 
+   * The cache ensures all calls within a single change detection cycle return identical data.
+   */
   getSafeTimesheetWeek(): TimesheetWeek {
+    // Return cached version if available - this prevents multiple calculations
+    // during the same change detection cycle
+    if (this._cachedTimesheetWeek) {
+      return this._cachedTimesheetWeek;
+    }
+
     try {
-      return this.getTimesheetWeek();
+      const week = this.getTimesheetWeek();
+      // Cache the result for subsequent calls in this change detection cycle
+      this._cachedTimesheetWeek = week;
+      return week;
     } catch (error) {
       console.error('Error getting timesheet week:', error);
-      // Return empty week structure
+      // Return empty week structure as fallback
       const today = new Date();
       const weekStart = this.getWeekStart(today);
       const weekEnd = this.getWeekEnd(weekStart);
 
-      return {
+      const emptyWeek = {
         weekStart,
         weekEnd,
-        days: [],
+        days: [], // Empty days array prevents undefined grid-column values
         totalHours: 0
       };
+      
+      // Cache the empty week to ensure consistency
+      this._cachedTimesheetWeek = emptyWeek;
+      return emptyWeek;
     }
   }
 
@@ -1915,6 +1970,9 @@ export class WorkorderPageComponent implements OnInit {
       currentWeek.setDate(currentWeek.getDate() + 7);
     }
     this.currentTimesheetWeek = currentWeek;
+    // CRITICAL: Clear cache because the week has changed - the days array will be different
+    // Without this, the old week's data would still be cached and displayed
+    this.clearTimesheetWeekCache();
     this.loadTimesheetData();
   }
 
@@ -2041,101 +2099,101 @@ export class WorkorderPageComponent implements OnInit {
       updatedAt: new Date()
     });
 
-    entries.push({
-      id: 'TE002',
-      workOrderId: workOrderId,
-      userId: 'user1',
-      userName: 'Jun Ren',
-      userType: 'staff',
-      date: monday,
-      startTime: '08:00',
-      duration: 90, // 1h 30m
-      description: 'Documentation and report writing',
-      status: 'submitted',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
+    // entries.push({
+    //   id: 'TE002',
+    //   workOrderId: workOrderId,
+    //   userId: 'user1',
+    //   userName: 'Jun Ren',
+    //   userType: 'staff',
+    //   date: monday,
+    //   startTime: '08:00',
+    //   duration: 90, // 1h 30m
+    //   description: 'Documentation and report writing',
+    //   status: 'submitted',
+    //   createdAt: new Date(),
+    //   updatedAt: new Date()
+    // });
 
-      entries.push({
-        id: 'TE002B',
-        workOrderId: workOrderId,
-        userId: 'user1',
-        userName: 'Jun Ren',
-        userType: 'staff',
-        date: monday,
-        startTime: '14:00',
-        duration: 120, // 2h
-        description: 'Afternoon system testing',
-        status: 'submitted',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+    //   entries.push({
+    //     id: 'TE002B',
+    //     workOrderId: workOrderId,
+    //     userId: 'user1',
+    //     userName: 'Jun Ren',
+    //     userType: 'staff',
+    //     date: monday,
+    //     startTime: '14:00',
+    //     duration: 120, // 2h
+    //     description: 'Afternoon system testing',
+    //     status: 'submitted',
+    //     createdAt: new Date(),
+    //     updatedAt: new Date()
+    //   });
 
-      entries.push({
-        id: 'TE002C',
-        workOrderId: workOrderId,
-        userId: 'user1',
-        userName: 'Jun Ren',
-        userType: 'staff',
-        date: monday,
-        startTime: '20:00',
-        duration: 60, // 1h
-        description: 'Evening security check',
-        status: 'submitted',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+    //   entries.push({
+    //     id: 'TE002C',
+    //     workOrderId: workOrderId,
+    //     userId: 'user1',
+    //     userName: 'Jun Ren',
+    //     userType: 'staff',
+    //     date: monday,
+    //     startTime: '20:00',
+    //     duration: 60, // 1h
+    //     description: 'Evening security check',
+    //     status: 'submitted',
+    //     createdAt: new Date(),
+    //     updatedAt: new Date()
+    //   });
 
-      // Tuesday entries
-      const tuesday = new Date(weekStart);
-      tuesday.setDate(weekStart.getDate() + 1);
-      entries.push({
-        id: 'TE003',
-        workOrderId: workOrderId,
-        userId: 'user1',
-        userName: 'Jun Ren',
-        userType: 'staff',
-        date: tuesday,
-        startTime: '02:00',
-        duration: 60, // 1h
-        description: 'Equipment setup and preparation',
-        status: 'approved',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+    //   // Tuesday entries
+    //   const tuesday = new Date(weekStart);
+    //   tuesday.setDate(weekStart.getDate() + 1);
+    //   entries.push({
+    //     id: 'TE003',
+    //     workOrderId: workOrderId,
+    //     userId: 'user1',
+    //     userName: 'Jun Ren',
+    //     userType: 'staff',
+    //     date: tuesday,
+    //     startTime: '02:00',
+    //     duration: 60, // 1h
+    //     description: 'Equipment setup and preparation',
+    //     status: 'approved',
+    //     createdAt: new Date(),
+    //     updatedAt: new Date()
+    //   });
 
-      entries.push({
-        id: 'TE004',
-        workOrderId: workOrderId,
-        userId: 'user1',
-        userName: 'Jun Ren',
-        userType: 'staff',
-        date: tuesday,
-        startTime: '10:30',
-        duration: 150, // 2h 30m
-        description: 'Main electrical work and connections',
-        status: 'approved',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+    //   entries.push({
+    //     id: 'TE004',
+    //     workOrderId: workOrderId,
+    //     userId: 'user1',
+    //     userName: 'Jun Ren',
+    //     userType: 'staff',
+    //     date: tuesday,
+    //     startTime: '10:30',
+    //     duration: 150, // 2h 30m
+    //     description: 'Main electrical work and connections',
+    //     status: 'approved',
+    //     createdAt: new Date(),
+    //     updatedAt: new Date()
+    //   });
 
-      // Wednesday entries
-      const wednesday = new Date(weekStart);
-      wednesday.setDate(weekStart.getDate() + 2);
-      entries.push({
-        id: 'TE005',
-        workOrderId: workOrderId,
-        userId: 'user1',
-        userName: 'Jun Ren',
-        userType: 'staff',
-        date: wednesday,
-        startTime: '09:15',
-        duration: 60, // 1h
-        description: 'Final testing and verification',
-        status: 'draft',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+    //   // Wednesday entries
+    //   const wednesday = new Date(weekStart);
+    //   wednesday.setDate(weekStart.getDate() + 2);
+    //   entries.push({
+    //     id: 'TE005',
+    //     workOrderId: workOrderId,
+    //     userId: 'user1',
+    //     userName: 'Jun Ren',
+    //     userType: 'staff',
+    //     date: wednesday,
+    //     startTime: '09:15',
+    //     duration: 60, // 1h
+    //     description: 'Final testing and verification',
+    //     status: 'draft',
+    //     createdAt: new Date(),
+    //     updatedAt: new Date()
+    //   });
 
     console.log(`Generated ${entries.length} sample timesheet entries for workOrder ${workOrderId}`);
     return entries;
@@ -2149,6 +2207,10 @@ export class WorkorderPageComponent implements OnInit {
     if (this.isCalendarView) {
       console.log('Switching to Calendar View------------------');
       console.log('Timesheet Entries:', this.timesheetEntries.length);
+      // CRITICAL: Clear cache before switching to calendar view
+      // The template will start rendering grid columns immediately, and we need fresh data
+      // to prevent ExpressionChangedAfterItHasBeenCheckedError on [style.grid-column]="i + 2"
+      this.clearTimesheetWeekCache();
 
       // If no timesheet entries exist, initialize sample data
       if (this.timesheetEntries.length === 0) {
@@ -2157,7 +2219,7 @@ export class WorkorderPageComponent implements OnInit {
       }
 
       // Reload timesheet data to ensure calendar has current week data
-      this.loadTimesheetData();
+      // this.loadTimesheetData();
 
       console.log('Current Week:', this.getTimesheetWeek());
       console.log('Timesheet Entries after loading:', this.timesheetEntries.length);
@@ -3069,6 +3131,11 @@ export class WorkorderPageComponent implements OnInit {
 
     // Clear existing entries
     this.timesheetEntries = [];
+    
+    // CRITICAL: Clear the cached week data since timesheet entries are changing
+    // The getTimesheetWeek() method depends on this.timesheetEntries to calculate daily totals
+    // Without clearing cache, the week would show old entry data in the days array
+    this.clearTimesheetWeekCache();
 
     // Get current week dates
     const today = new Date();
