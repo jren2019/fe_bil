@@ -2236,7 +2236,9 @@
                             <div class="time-column">
                               @for (timeSlot of getTimeSlots(); track timeSlot.time) {
                                 <div class="time-slot" [class.current-time]="isCurrentTime(timeSlot.time)">
-                                  <div class="time-label">{{ timeSlot.displayTime }}</div>
+                                  @if (timeSlot.showLabel) {
+                                    <div class="time-label hourly-label">{{ timeSlot.displayTime }}</div>
+                                  }
                                 </div>
                               }
                             </div>

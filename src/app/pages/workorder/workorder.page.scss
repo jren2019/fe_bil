@@ -8053,6 +8053,22 @@
           font-size: 0.7rem;
           color: #6b7280;
           font-weight: 500;
+
+          &.hourly-label {
+            position: absolute;
+            top: -10px; // Move up slightly to align better with the grid line
+            left: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+            z-index: 10;
+            background: #f8fafc;
+            padding: 0 0.25rem;
+            line-height: 20px; // Match the height of time-slot
+            
+            // Position the label slightly above the time slot to align with grid lines
+            // This creates better visual alignment with the horizontal dividers
+          }
         }
       }
     }

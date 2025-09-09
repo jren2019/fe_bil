@@ -2234,12 +2234,15 @@ export class WorkorderPageComponent implements OnInit {
     for (let hour = 0; hour <= 23; hour++) {
       for (let minute = 0; minute < 60; minute += 15) {
         const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        const displayTime = minute === 0 ? `${hour}:00` : `${hour}:${minute}`;
+        // Only show time labels on the hour (minute === 0), hide others
+        const displayTime = minute === 0 ? `${hour.toString().padStart(2, '0')}:00` : '';
+        const showLabel = minute === 0; // Flag to determine if label should be shown
         slots.push({
           time: time,
           displayTime: displayTime,
           hour: hour,
-          minute: minute
+          minute: minute,
+          showLabel: showLabel
         });
       }
     }
