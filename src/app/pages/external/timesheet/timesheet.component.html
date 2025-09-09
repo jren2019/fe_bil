@@ -1,0 +1,417 @@
+<!-- External Timesheet matching exact workorder UI -->
+<div class="workorder-layout">
+  <div class="workorder-main">
+    <!-- Timesheet Content (exact match to workorder) -->
+    <div class="card timesheet-content">
+      <!-- Timesheet Header -->
+      <div class="timesheet-header">
+        <div class="timesheet-title-section">
+          <h3>Timesheet - External Work</h3>
+          <div class="week-info">
+            Week: {{ getSafeTimesheetWeek().weekStart | date:'MMM d' }} - {{ getSafeTimesheetWeek().weekEnd | date:'MMM d, y' }}
+          </div>
+        </div>
+        <div class="timesheet-controls">
+          <div class="view-toggle">
+            <button class="view-btn" [class.active]="!isCalendarView" (click)="setTimesheetView('list')">
+              <i class="pi pi-list"></i>
+              <span>List</span>
+            </button>
+            <button class="view-btn" [class.active]="isCalendarView" (click)="setTimesheetView('calendar')">
+              <i class="pi pi-calendar"></i>
+              <span>Calendar</span>
+            </button>
+          </div>
+          <div class="timesheet-navigation">
+            <button class="nav-btn" (click)="navigateTimesheetWeek('prev')" title="Previous Week">
+              <i class="pi pi-chevron-left"></i>
+            </button>
+            <button class="nav-btn" (click)="navigateTimesheetWeek('next')" title="Next Week">
+              <i class="pi pi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Summary -->
+      <div class="weekly-summary">
+        <div class="summary-item">
+          <span class="summary-label">Total Hours:</span>
+          <span class="summary-value">{{ getDurationInHours(getSafeTimesheetWeek().totalHours * 60) }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Entries:</span>
+          <span class="summary-value">{{ getAllTimesheetEntries().length }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Week Status:</span>
+          <span class="status-badge" [class]="'status-' + getWeekStatus()">{{ getWeekStatus() | titlecase }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Employee:</span>
+          <span class="summary-value">{{ employeeInfo.name || 'External User' }}</span>
+        </div>
+      </div>
+
+      <!-- List View (Table) -->
+      @if (!isCalendarView) {
+        <div class="timesheet-table-container">
+          <div class="table-header">
+            <h4>Timesheet Entries</h4>
+            <div class="header-actions">
+              @if (currentUserRole.permissions.canLogTime) {
+                <button class="btn btn-primary" (click)="openAddEntryDialog()">
+                  <i class="pi pi-plus"></i>
+                  Add Entry
+                </button>
+              }
+              <!-- Demo buttons -->
+              <button class="btn btn-secondary btn-sm" (click)="initializeSampleTimesheetEntries()" title="Reload sample data">
+                <i class="pi pi-refresh"></i>
+                Reload Sample
+              </button>
+              <button class="btn btn-secondary btn-sm" (click)="clearAllTimesheetEntries()" title="Clear all entries">
+                <i class="pi pi-trash"></i>
+                Clear All
+              </button>
+              <button class="btn btn-secondary btn-sm" (click)="exportToCSV()" title="Export timesheet data">
+                <i class="pi pi-download"></i>
+                Export CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="timesheet-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Start Time</th>
+                  <th>Duration</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (entry of getAllTimesheetEntries(); track entry.id) {
+                  <tr [class.editing]="editingEntry?.id === entry.id">
+                    <!-- Date -->
+                    <td>
+                      @if (editingEntry?.id === entry.id) {
+                        <input type="date" [(ngModel)]="editingEntry!.date" class="form-input">
+                      } @else {
+                        {{ entry.date | date:'MMM d, y' }}
+                      }
+                    </td>
+
+                    <!-- Start Time -->
+                    <td>
+                      @if (editingEntry?.id === entry.id) {
+                        <input type="time" [(ngModel)]="editingEntry!.startTime" class="form-input">
+                      } @else {
+                        {{ entry.startTime }}
+                      }
+                    </td>
+
+                    <!-- Duration -->
+                    <td>
+                      @if (editingEntry?.id === entry.id) {
+                        <input type="number" [(ngModel)]="editingEntry!.duration" class="form-input" min="1" max="1440">
+                      } @else {
+                        {{ formatDuration(entry.duration) }}
+                      }
+                    </td>
+
+                    <!-- Description -->
+                    <td>
+                      @if (editingEntry?.id === entry.id) {
+                        <input type="text" [(ngModel)]="editingEntry!.description" class="form-input" placeholder="Enter description">
+                      } @else {
+                        {{ entry.description }}
+                      }
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                      @if (editingEntry?.id === entry.id) {
+                        <select [(ngModel)]="editingEntry!.status" class="form-input">
+                          <option value="draft">Draft</option>
+                          <option value="submitted">Submitted</option>
+                          <option value="approved">Approved</option>
+                        </select>
+                      } @else {
+                        <span class="status-badge" [class]="'status-' + entry.status">
+                          {{ entry.status | titlecase }}
+                        </span>
+                      }
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                      @if (editingEntry?.id === entry.id) {
+                        <div class="action-buttons">
+                          <button class="btn btn-success btn-sm" (click)="saveTimeEntry()" title="Save">
+                            <i class="pi pi-check"></i>
+                          </button>
+                          <button class="btn btn-secondary btn-sm" (click)="cancelEdit()" title="Cancel">
+                            <i class="pi pi-times"></i>
+                          </button>
+                        </div>
+                      } @else {
+                        <div class="action-buttons">
+                          <button class="btn btn-info btn-sm" (click)="viewTimeEntry(entry)" title="View Details">
+                            <i class="pi pi-eye"></i>
+                          </button>
+                          <button class="btn btn-warning btn-sm" (click)="editTimeEntry(entry)" title="Edit">
+                            <i class="pi pi-pencil"></i>
+                          </button>
+                          <button class="btn btn-danger btn-sm" (click)="deleteTimeEntry(entry.id)" title="Delete">
+                            <i class="pi pi-trash"></i>
+                          </button>
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                }
+
+                <!-- Empty state -->
+                @if (getAllTimesheetEntries().length === 0) {
+                  <tr>
+                    <td colspan="6" class="empty-state">
+                      <div class="empty-message">
+                        <i class="pi pi-calendar-times"></i>
+                        <p>No time entries found for this week</p>
+                        <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 1rem;">
+                          Start tracking your time by adding your first entry, or click "Reload Sample" to see demo data
+                        </p>
+                        @if (currentUserRole.permissions.canLogTime) {
+                          <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            <button class="btn btn-primary" (click)="openAddEntryDialog()">
+                              <i class="pi pi-plus"></i>
+                              Add Your First Entry
+                            </button>
+                            <button class="btn btn-secondary" (click)="initializeSampleTimesheetEntries()">
+                              <i class="pi pi-refresh"></i>
+                              Load Sample Data
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Summary Row -->
+          <div class="table-summary">
+            <div class="summary-stats">
+              <span class="stat-item">
+                <strong>Total Entries:</strong> {{ getAllTimesheetEntries().length }}
+              </span>
+              <span class="stat-item">
+                <strong>Total Hours:</strong> {{ getTotalHours() }}
+              </span>
+              <span class="stat-item">
+                <strong>Week:</strong> {{ getSafeTimesheetWeek().weekStart | date:'MMM d' }} - {{ getSafeTimesheetWeek().weekEnd | date:'MMM d, y' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Add Entry Modal Dialog -->
+      @if (showAddEntryModal) {
+        <div class="modal-overlay" (click)="closeAddEntryDialog()">
+          <div class="modal-dialog" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3>Add Timesheet Entry</h3>
+              <button class="modal-close" (click)="closeAddEntryDialog()">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <form class="timesheet-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="entryDate">Date *</label>
+                    <input
+                      type="date"
+                      id="entryDate"
+                      [(ngModel)]="newTimeEntry.date"
+                      class="form-input"
+                      name="entryDate"
+                      required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="startTime">Start Time *</label>
+                    <input
+                      type="time"
+                      id="startTime"
+                      [(ngModel)]="newTimeEntry.startTime"
+                      class="form-input"
+                      name="startTime"
+                      required>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="duration">Duration (minutes) *</label>
+                    <input
+                      type="number"
+                      id="duration"
+                      [(ngModel)]="newTimeEntry.duration"
+                      class="form-input"
+                      name="duration"
+                      min="1"
+                      max="1440"
+                      placeholder="e.g., 60 for 1 hour"
+                      required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="status">Status</label>
+                    <select
+                      id="status"
+                      [(ngModel)]="newTimeEntry.status"
+                      class="form-input"
+                      name="status">
+                      <option value="draft">Draft</option>
+                      <option value="submitted">Submitted</option>
+                      <option value="approved">Approved</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="description">Description *</label>
+                  <textarea
+                    id="description"
+                    [(ngModel)]="newTimeEntry.description"
+                    class="form-input"
+                    name="description"
+                    rows="3"
+                    placeholder="Describe the work performed..."
+                    required></textarea>
+                </div>
+              </form>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeAddEntryDialog()">
+                Cancel
+              </button>
+              <button type="button" class="btn btn-primary" (click)="saveNewTimeEntry()" [disabled]="!isNewEntryValid() || isLoading">
+                @if (isLoading) {
+                  <i class="pi pi-spin pi-spinner"></i>
+                  Saving...
+                } @else {
+                  <i class="pi pi-check"></i>
+                  Save Entry
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Calendar View -->
+      @if (isCalendarView) {
+
+        <div class="calendar-timesheet">
+          <!-- Calendar Grid -->
+          <div class="calendar-grid">
+            <!-- Time Column Header -->
+            <div class="time-header">
+              <div class="time-label">Time</div>
+            </div>
+
+            <!-- Day Headers -->
+            @for (day of getSafeTimesheetWeek().days; track day.date; let i = $index) {
+              <div class="day-header"
+                   [class.weekend]="isWeekend(day.date)"
+                   [attr.data-day]="day.dayName"
+                   [style.grid-column-start]="i + 2"
+                   [style.grid-column-end]="i + 3">
+                <div class="day-info">
+                  <div class="day-name">{{ day.dayName }}</div>
+                  <div class="day-date">{{ day.date | date:'d' }}</div>
+                  <div class="day-total">{{ getDurationInHours(day.totalHours * 60) }}</div>
+                </div>
+                @if (currentUserRole.permissions.canLogTime && !isWeekend(day.date)) {
+                  <button class="log-activities-btn" (click)="openTimeEntryModal(day.date)">
+                    <i class="pi pi-plus"></i>
+                    Log Activities
+                  </button>
+                }
+              </div>
+            }
+
+            <!-- Time Column -->
+            <div class="time-column">
+              @for (timeSlot of getTimeSlots(); track timeSlot.time) {
+                <div class="time-slot" [class.current-time]="isCurrentTime(timeSlot.time)">
+                  <div class="time-label">{{ timeSlot.displayTime }}</div>
+                </div>
+              }
+            </div>
+
+            <!-- Day Columns -->
+            @for (day of getSafeTimesheetWeek().days; track day.date; let i = $index) {
+              <div class="day-column"
+                   [class.weekend]="isWeekend(day.date)"
+                   [attr.data-column]="i + 2"
+                   [attr.data-day]="day.dayName"
+                   [style.grid-column-start]="i + 2"
+                   [style.grid-column-end]="i + 3">
+                <!-- Time Slots for All Days -->
+                @for (timeSlot of getTimeSlots(); track timeSlot.time) {
+                  <div class="time-slot-cell"
+                       [class.weekend-slot]="isWeekend(day.date)"
+                       (click)="!isWeekend(day.date) ? openTimeEntryModalForSlot(day.date, timeSlot.time) : null"
+                       [class.has-entry]="hasTimeEntryAtSlot(day, timeSlot.time)"
+                       [class.current-time]="isCurrentTime(timeSlot.time)">
+                    <!-- Time Entry Blocks -->
+                    @for (entry of getTimeEntriesForSlot(day, timeSlot.time); track entry.id) {
+                      <div class="time-entry-block"
+                           [class]="'status-' + entry.status"
+                           [style.top.%]="getEntryTopPosition(entry)"
+                           [style.height.%]="getEntryHeight(entry)"
+                           (click)="$event.stopPropagation()"
+                           [title]="entry.description + ' (' + formatDuration(entry.duration) + ')'">
+                        <div class="entry-content">
+                          <div class="entry-time">{{ entry.startTime }}</div>
+                          <div class="entry-description">{{ entry.description }}</div>
+                          <div class="entry-duration">{{ formatDuration(entry.duration) }}</div>
+                        </div>
+                        <div class="entry-actions">
+                          <button class="entry-action-btn" title="Edit" (click)="editTimeEntry(entry)">
+                            <i class="pi pi-pencil"></i>
+                          </button>
+                          <button class="entry-action-btn delete" (click)="deleteTimeEntry(entry.id)" title="Delete">
+                            <i class="pi pi-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    }
+                    <!-- Plus icon for empty slots (only on weekdays) -->
+                    @if (!hasTimeEntryAtSlot(day, timeSlot.time) && currentUserRole.permissions.canLogTime && !isWeekend(day.date)) {
+                      <div class="time-slot-plus">
+                        <i class="pi pi-plus"></i>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

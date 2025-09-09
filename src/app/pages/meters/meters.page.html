@@ -1,0 +1,101 @@
+<div class="meters-layout">
+  <app-nav-menu></app-nav-menu>
+  <div class="meters-main">
+    <div class="meters-header">
+      <div class="meters-title">Meters</div>
+      <div class="meters-view-dropdown">Panel View <span class="dropdown-arrow">▼</span></div>
+      <input pInputText type="text" placeholder="Search Meters" class="meters-search" />
+      <button pButton label="+ New Meter" class="p-button-primary new-meter-btn"></button>
+    </div>
+    <div class="meters-filter-bar">
+      <button pButton label="Type" class="p-button-text filter-btn"></button>
+      <button pButton label="Asset" class="p-button-text filter-btn"></button>
+      <button pButton label="Location" class="p-button-text filter-btn"></button>
+    </div>
+    <div class="meters-content">
+      <div class="meters-list-panel">
+        <div class="meters-sort-bar">Sort By: <span class="sort-name">Name: <b>Descending Order</b> <span class="arrow">▼</span></span></div>
+        <div class="meters-list scrollable">
+          <div class="meters-list-item selected">
+            <span class="item-icon">🧩</span>
+            <div class="item-main">
+              <div class="item-title">deposit</div>
+              <div class="item-meta"><span class="meta-asset">Test</span> · <span class="meta-location">General</span></div>
+            </div>
+            <span class="item-status overdue">Overdue</span>
+            <span class="item-unit">Volts</span>
+          </div>
+        </div>
+      </div>
+      <div class="meters-details-panel">
+        <div class="details-header">
+          <span class="details-title">deposit</span>
+          <span class="details-meta">🧩 Test · General</span>
+          <div class="details-actions">
+            <button pButton label="+ Record Reading" class="p-button-outlined p-button-sm"></button>
+            <button pButton label="Edit" class="p-button-outlined p-button-sm"></button>
+          </div>
+        </div>
+        <div class="details-scroll">
+          <div class="details-readings-section">
+            <div class="readings-header">
+              <span class="readings-title">Readings</span>
+              <div class="readings-range">
+                <button class="range-btn">1H</button>
+                <button class="range-btn">1D</button>
+                <button class="range-btn selected">1W</button>
+                <button class="range-btn">1M</button>
+                <button class="range-btn">3M</button>
+                <button class="range-btn">6M</button>
+                <button class="range-btn">1Y</button>
+                <button class="range-btn">Custom</button>
+              </div>
+            </div>
+            <p-chart type="line" [data]="lineChartData" [options]="lineChartOptions" style="height:300px;"></p-chart>
+            <div class="see-all-readings-row">
+              <button class="see-all-readings-btn">See All Readings <span>&#8594;</span></button>
+            </div>
+            <div class="meter-details-section">
+              <div class="meter-details-title">Meter Details</div>
+              <div class="meter-details-row">
+                <span class="meter-details-label">Measurement Unit</span>
+                <span class="meter-details-value"><b>🧩 Feet</b></span>
+              </div>
+              <div class="meter-details-row">
+                <span class="meter-details-label">Last Reading</span>
+                <span class="meter-details-value"><b>&#8635; 450 Feet</b></span>
+              </div>
+              <div class="meter-details-row">
+                <span class="meter-details-label">Reading Frequency</span>
+                <span class="meter-details-value"><b>&#9200; -</b></span>
+              </div>
+              <div class="meter-details-row">
+                <span class="meter-details-label">Next Reading</span>
+                <span class="meter-details-value"><b>&#9654; -</b></span>
+              </div>
+            </div>
+          </div>
+          <div class="details-description">
+            <div class="details-label">Description</div>
+            <div class="details-value">line deposit</div>
+          </div>
+          <div class="automations-section">
+            <div class="automations-title">Automations (0)</div>
+            <div class="automations-box">
+              <button class="create-automation-btn">+ Create Automation</button>
+            </div>
+          </div>
+          <div class="workorder-info-box">
+            <div class="workorder-info-text">Would you like to create a Work Order to read this Meter?</div>
+            <button class="create-workorder-btn">Create Meter Reading Work Order</button>
+          </div>
+          <div class="created-by-row">
+            Created By <span class="avatar">🧑‍💼</span> Jun Ren on 05/17/2025, 8:12 PM
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

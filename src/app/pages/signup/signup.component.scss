@@ -1,0 +1,154 @@
+.signup-bg {
+  position: fixed;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: url('/assets/images/background-splash-page.svg') no-repeat center;
+  background-size: cover;
+  z-index: 0;
+}
+
+.signup-page-center {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.signup-card {
+  position: relative;
+  min-width: 350px;
+  max-width: 400px;
+  background: rgba(22,36,71,0.98);
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.signup-card h2 {
+  color: #8ee6ed;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+}
+.signup-form input, .signup-form select {
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  border: 1.5px solid #8ee6ed;
+  font-size: 1.1rem;
+  background: #e0f6ff;
+  color: #222;
+  outline: none;
+}
+.signup-form input:focus, .signup-form select:focus {
+  border-color: #f7c6d9;
+}
+.signup-form button {
+  padding: 1rem 0;
+  border-radius: 8px;
+  border: none;
+  background: #8ee6ed;
+  color: #1a2540;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.signup-form button:hover {
+  background: #f7c6d9;
+  color: #1a2540;
+}
+.signup-error {
+  color: #ff4d4f;
+  background: #fff0f0;
+  border: 1px solid #ffb3b3;
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  margin-bottom: 1em;
+  text-align: center;
+  font-size: 1rem;
+}
+.signup-success {
+  color: #389e3d;
+  background: #eaffea;
+  border: 1px solid #b3ffb3;
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  margin-bottom: 1em;
+  text-align: center;
+  font-size: 1rem;
+}
+.signup-login-link {
+  margin-top: 1.5rem;
+  color: #e0e6f6;
+  font-size: 1rem;
+  text-align: center;
+}
+.signup-login-link a {
+  color: #8ee6ed;
+  text-decoration: underline;
+  font-weight: 600;
+}
+.signup-login-link a:hover {
+  color: #f7c6d9;
+}
+
+.help-link {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 1.1rem;
+}
+
+.help-link .help-icon {
+  font-size: 1.3em;
+}
+
+.help-link a {
+  color: #8ee6ed;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.help-link a:hover {
+  color: #f7c6d9;
+}
+
+.ufo-home-link {
+  position: absolute;
+  top: -1.7rem;
+  right: -0.7rem;
+  z-index: 2;
+  display: block;
+  border-radius: 50%;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.ufo-home-link:hover {
+  box-shadow: 0 0 0 4px #8ee6ed44;
+  transform: scale(1.08) rotate(-8deg);
+}
+
+.login-ufo {
+  width: 64px;
+  height: auto;
+  display: block;
+} 

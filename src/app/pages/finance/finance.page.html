@@ -1,0 +1,787 @@
+<div class="finance-page">
+  <app-nav-menu></app-nav-menu>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Finance Operations</h1>
+      <p>Day-to-day finance operations, subledger work, and external transactions</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="exportFinanceReport()">
+        <i class="pi pi-download"></i>
+        Export Report
+      </button>
+      <button class="btn btn-primary" (click)="openQuickEntryDialog()">
+        <i class="pi pi-plus"></i>
+        Quick Entry
+      </button>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="view-tabs">
+    <div class="tab-buttons">
+      <button class="tab-button"
+              [class.active]="selectedView === 'dashboard'"
+              (click)="setView('dashboard')">
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">Dashboard</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'ar'"
+              (click)="setView('ar')">
+        <span class="tab-icon">📄</span>
+        <span class="tab-label">Accounts Receivable</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'ap'"
+              (click)="setView('ap')">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label">Accounts Payable</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'cashbank'"
+              (click)="setView('cashbank')">
+        <span class="tab-icon">🏦</span>
+        <span class="tab-label">Cash & Bank</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'fixedassets'"
+              (click)="setView('fixedassets')">
+        <span class="tab-icon">🏢</span>
+        <span class="tab-label">Fixed Assets</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'inventory'"
+              (click)="setView('inventory')">
+        <span class="tab-icon">📦</span>
+        <span class="tab-label">Inventory</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'tax'"
+              (click)="setView('tax')">
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">Tax & Compliance</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Dashboard View -->
+  <div *ngIf="selectedView === 'dashboard'" class="content-section dashboard-view">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card cash">
+        <div class="kpi-header">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-trend positive">+5.2%</div>
+        </div>
+        <div class="kpi-value">${{ formatCurrency(2450000) }}</div>
+        <div class="kpi-label">Available Cash</div>
+        <div class="kpi-detail">Across 8 bank accounts</div>
+      </div>
+
+      <div class="kpi-card ar">
+        <div class="kpi-header">
+          <div class="kpi-icon">📄</div>
+          <div class="kpi-trend negative">+12.5%</div>
+        </div>
+        <div class="kpi-value">${{ formatCurrency(850000) }}</div>
+        <div class="kpi-label">Outstanding AR</div>
+        <div class="kpi-detail">127 open invoices</div>
+      </div>
+
+      <div class="kpi-card ap">
+        <div class="kpi-header">
+          <div class="kpi-icon">📋</div>
+          <div class="kpi-trend positive">-8.1%</div>
+        </div>
+        <div class="kpi-value">${{ formatCurrency(420000) }}</div>
+        <div class="kpi-label">Outstanding AP</div>
+        <div class="kpi-detail">89 pending bills</div>
+      </div>
+
+      <div class="kpi-card working-capital">
+        <div class="kpi-header">
+          <div class="kpi-icon">⚡</div>
+          <div class="kpi-trend positive">+3.8%</div>
+        </div>
+        <div class="kpi-value">${{ formatCurrency(1850000) }}</div>
+        <div class="kpi-label">Working Capital</div>
+        <div class="kpi-detail">Current assets - liabilities</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions & Charts -->
+    <div class="dashboard-content">
+      <div class="dashboard-left">
+        <!-- Cash Flow Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Cash Flow (30 Days)</h3>
+            <div class="chart-controls">
+              <button class="chart-btn active">30D</button>
+              <button class="chart-btn">90D</button>
+              <button class="chart-btn">1Y</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-placeholder">📈 Cash flow chart will display here</div>
+          </div>
+        </div>
+
+        <!-- AR/AP Aging -->
+        <div class="aging-cards">
+          <div class="aging-card ar-aging">
+            <h3>AR Aging Summary</h3>
+            <div class="aging-breakdown">
+              <div class="aging-item current">
+                <span class="aging-period">Current</span>
+                <span class="aging-amount">${{ formatCurrency(520000) }}</span>
+                <span class="aging-percent">61%</span>
+              </div>
+              <div class="aging-item days-30">
+                <span class="aging-period">1-30 days</span>
+                <span class="aging-amount">${{ formatCurrency(180000) }}</span>
+                <span class="aging-percent">21%</span>
+              </div>
+              <div class="aging-item days-60">
+                <span class="aging-period">31-60 days</span>
+                <span class="aging-amount">${{ formatCurrency(95000) }}</span>
+                <span class="aging-percent">11%</span>
+              </div>
+              <div class="aging-item days-90">
+                <span class="aging-period">60+ days</span>
+                <span class="aging-amount">${{ formatCurrency(55000) }}</span>
+                <span class="aging-percent">7%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="aging-card ap-aging">
+            <h3>AP Aging Summary</h3>
+            <div class="aging-breakdown">
+              <div class="aging-item current">
+                <span class="aging-period">Current</span>
+                <span class="aging-amount">${{ formatCurrency(280000) }}</span>
+                <span class="aging-percent">67%</span>
+              </div>
+              <div class="aging-item days-30">
+                <span class="aging-period">1-30 days</span>
+                <span class="aging-amount">${{ formatCurrency(98000) }}</span>
+                <span class="aging-percent">23%</span>
+              </div>
+              <div class="aging-item days-60">
+                <span class="aging-period">31-60 days</span>
+                <span class="aging-amount">${{ formatCurrency(32000) }}</span>
+                <span class="aging-percent">8%</span>
+              </div>
+              <div class="aging-item days-90">
+                <span class="aging-period">60+ days</span>
+                <span class="aging-amount">${{ formatCurrency(10000) }}</span>
+                <span class="aging-percent">2%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-right">
+        <!-- Quick Actions -->
+        <div class="quick-actions-card">
+          <h3>Quick Actions</h3>
+          <div class="quick-actions-grid">
+            <button class="quick-action-btn" (click)="quickAction('create-invoice')">
+              <i class="pi pi-file-plus"></i>
+              <span>Create Invoice</span>
+            </button>
+            <button class="quick-action-btn" (click)="quickAction('record-payment')">
+              <i class="pi pi-credit-card"></i>
+              <span>Record Payment</span>
+            </button>
+            <button class="quick-action-btn" (click)="quickAction('vendor-bill')">
+              <i class="pi pi-receipt"></i>
+              <span>Enter Bill</span>
+            </button>
+            <button class="quick-action-btn" (click)="quickAction('bank-transfer')">
+              <i class="pi pi-refresh"></i>
+              <span>Bank Transfer</span>
+            </button>
+            <button class="quick-action-btn" (click)="quickAction('expense-entry')">
+              <i class="pi pi-money-bill"></i>
+              <span>Expense Entry</span>
+            </button>
+            <button class="quick-action-btn" (click)="quickAction('journal-entry')">
+              <i class="pi pi-book"></i>
+              <span>Journal Entry</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pending Items -->
+        <div class="pending-items-card">
+          <h3>Pending Items</h3>
+          <div class="pending-list">
+            <div class="pending-item urgent">
+              <div class="pending-icon">⚠️</div>
+              <div class="pending-content">
+                <div class="pending-title">Overdue Invoice</div>
+                <div class="pending-detail">INV-2024-0823 - $15,000</div>
+              </div>
+              <div class="pending-amount">45 days</div>
+            </div>
+            <div class="pending-item">
+              <div class="pending-icon">📋</div>
+              <div class="pending-content">
+                <div class="pending-title">Bills to Approve</div>
+                <div class="pending-detail">12 vendor bills pending</div>
+              </div>
+              <div class="pending-amount">$85,000</div>
+            </div>
+            <div class="pending-item">
+              <div class="pending-icon">🏦</div>
+              <div class="pending-content">
+                <div class="pending-title">Bank Reconciliation</div>
+                <div class="pending-detail">Wells Fargo - March 2024</div>
+              </div>
+              <div class="pending-amount">Due</div>
+            </div>
+            <div class="pending-item">
+              <div class="pending-icon">📊</div>
+              <div class="pending-content">
+                <div class="pending-title">Depreciation Run</div>
+                <div class="pending-detail">Monthly fixed assets</div>
+              </div>
+              <div class="pending-amount">Ready</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accounts Receivable View -->
+  <div *ngIf="selectedView === 'ar'" class="content-section ar-view">
+    <div class="ar-header">
+      <h2>Accounts Receivable</h2>
+      <div class="ar-actions">
+        <button class="btn btn-outline" (click)="runAgingReport()">
+          <i class="pi pi-clock"></i>
+          Aging Report
+        </button>
+        <button class="btn btn-outline" (click)="sendDunningLetters()">
+          <i class="pi pi-send"></i>
+          Dunning Letters
+        </button>
+        <button class="btn btn-primary" (click)="createInvoice()">
+          <i class="pi pi-plus"></i>
+          Create Invoice
+        </button>
+      </div>
+    </div>
+
+    <!-- AR Summary Cards -->
+    <div class="ar-summary">
+      <div class="summary-card">
+        <div class="summary-icon">📄</div>
+        <div class="summary-content">
+          <div class="summary-value">127</div>
+          <div class="summary-label">Open Invoices</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">💰</div>
+        <div class="summary-content">
+          <div class="summary-value">${{ formatCurrency(850000) }}</div>
+          <div class="summary-label">Total Outstanding</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">⏰</div>
+        <div class="summary-content">
+          <div class="summary-value">32</div>
+          <div class="summary-label">Average Days</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">⚠️</div>
+        <div class="summary-content">
+          <div class="summary-value">15</div>
+          <div class="summary-label">Overdue (>60d)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AR Table -->
+    <div class="ar-table-container">
+      <div class="table-controls">
+        <div class="search-filter">
+          <input type="text" placeholder="Search invoices..." class="search-input" [(ngModel)]="arSearchTerm" />
+          <select class="filter-select" [(ngModel)]="arStatusFilter">
+            <option value="">All Status</option>
+            <option value="open">Open</option>
+            <option value="overdue">Overdue</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+        <div class="bulk-actions">
+          <button class="btn btn-sm btn-outline" [disabled]="selectedInvoices.length === 0">
+            Send Statements
+          </button>
+          <button class="btn btn-sm btn-outline" [disabled]="selectedInvoices.length === 0">
+            Apply Credits
+          </button>
+        </div>
+      </div>
+
+      <table class="ar-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" (change)="toggleAllInvoices($event)" /></th>
+            <th>Invoice #</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Due Date</th>
+            <th>Amount</th>
+            <th>Balance</th>
+            <th>Days</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (invoice of getFilteredInvoices(); track invoice.id) {
+            <tr [class.overdue]="invoice.isOverdue" [class.selected]="selectedInvoices.includes(invoice.id)">
+              <td><input type="checkbox" [checked]="selectedInvoices.includes(invoice.id)" (change)="toggleInvoice(invoice.id, $event)" /></td>
+              <td class="invoice-number">{{ invoice.number }}</td>
+              <td class="customer-name">{{ invoice.customerName }}</td>
+              <td>{{ invoice.date | date:'MMM d, y' }}</td>
+              <td>{{ invoice.dueDate | date:'MMM d, y' }}</td>
+              <td class="amount">{{ formatCurrency(invoice.amount) }}</td>
+              <td class="balance" [class.overdue]="invoice.balance > 0 && invoice.isOverdue">{{ formatCurrency(invoice.balance) }}</td>
+              <td class="days" [class.overdue]="invoice.daysOutstanding > 60">{{ invoice.daysOutstanding }}</td>
+              <td>
+                <span class="status-badge" [class]="'status-' + invoice.status">{{ invoice.status | titlecase }}</span>
+              </td>
+              <td class="actions">
+                <button class="action-btn" title="View" (click)="viewInvoice(invoice)">
+                  <i class="pi pi-eye"></i>
+                </button>
+                <button class="action-btn" title="Edit" (click)="editInvoice(invoice)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="action-btn" title="Record Payment" (click)="recordPayment(invoice)">
+                  <i class="pi pi-credit-card"></i>
+                </button>
+                <button class="action-btn" title="Send" (click)="sendInvoice(invoice)">
+                  <i class="pi pi-send"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Accounts Payable View -->
+  <div *ngIf="selectedView === 'ap'" class="content-section ap-view">
+    <div class="ap-header">
+      <h2>Accounts Payable</h2>
+      <div class="ap-actions">
+        <button class="btn btn-outline" (click)="run3WayMatch()">
+          <i class="pi pi-check-square"></i>
+          3-Way Match
+        </button>
+        <button class="btn btn-outline" (click)="runPaymentRun()">
+          <i class="pi pi-credit-card"></i>
+          Payment Run
+        </button>
+        <button class="btn btn-primary" (click)="enterVendorBill()">
+          <i class="pi pi-plus"></i>
+          Enter Bill
+        </button>
+      </div>
+    </div>
+
+    <!-- AP Summary Cards -->
+    <div class="ap-summary">
+      <div class="summary-card">
+        <div class="summary-icon">📋</div>
+        <div class="summary-content">
+          <div class="summary-value">89</div>
+          <div class="summary-label">Pending Bills</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">💳</div>
+        <div class="summary-content">
+          <div class="summary-value">${{ formatCurrency(420000) }}</div>
+          <div class="summary-label">Total Outstanding</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">✅</div>
+        <div class="summary-content">
+          <div class="summary-value">45</div>
+          <div class="summary-label">Ready to Pay</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">🔄</div>
+        <div class="summary-content">
+          <div class="summary-value">12</div>
+          <div class="summary-label">3-Way Match</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-content">
+      <!-- Bills Awaiting Approval -->
+      <div class="bills-approval-section">
+        <h3>Bills Awaiting Approval</h3>
+        <div class="bills-approval-list">
+          @for (bill of getBillsAwaitingApproval(); track bill.id) {
+            <div class="bill-approval-item">
+              <div class="bill-info">
+                <div class="bill-vendor">{{ bill.vendorName }}</div>
+                <div class="bill-number">{{ bill.billNumber }}</div>
+                <div class="bill-date">{{ bill.date | date:'MMM d, y' }}</div>
+              </div>
+              <div class="bill-amount">{{ formatCurrency(bill.amount) }}</div>
+              <div class="bill-actions">
+                <button class="btn btn-sm btn-success" (click)="approveBill(bill)">Approve</button>
+                <button class="btn btn-sm btn-outline" (click)="reviewBill(bill)">Review</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- 3-Way Match Items -->
+      <div class="three-way-match-section">
+        <h3>3-Way Match Required</h3>
+        <div class="three-way-match-list">
+          @for (item of get3WayMatchItems(); track item.id) {
+            <div class="match-item">
+              <div class="match-info">
+                <div class="match-po">PO: {{ item.poNumber }}</div>
+                <div class="match-receipt">Receipt: {{ item.receiptNumber }}</div>
+                <div class="match-invoice">Invoice: {{ item.invoiceNumber }}</div>
+              </div>
+              <div class="match-amounts">
+                <div class="amount-row">
+                  <span class="amount-label">PO:</span>
+                  <span class="amount-value">{{ formatCurrency(item.poAmount) }}</span>
+                </div>
+                <div class="amount-row">
+                  <span class="amount-label">Receipt:</span>
+                  <span class="amount-value">{{ formatCurrency(item.receiptAmount) }}</span>
+                </div>
+                <div class="amount-row">
+                  <span class="amount-label">Invoice:</span>
+                  <span class="amount-value">{{ formatCurrency(item.invoiceAmount) }}</span>
+                </div>
+              </div>
+              <div class="match-status">
+                <span class="status-badge" [class]="'match-' + item.matchStatus">{{ item.matchStatus | titlecase }}</span>
+              </div>
+              <div class="match-actions">
+                <button class="btn btn-sm btn-primary" (click)="performMatch(item)">Match</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cash & Bank View -->
+  <div *ngIf="selectedView === 'cashbank'" class="content-section cash-bank-view">
+    <div class="cash-bank-header">
+      <h2>Cash & Bank Management</h2>
+      <div class="cash-bank-actions">
+        <button class="btn btn-outline" (click)="importBankStatement()">
+          <i class="pi pi-upload"></i>
+          Import Statement
+        </button>
+        <button class="btn btn-outline" (click)="runBankReconciliation()">
+          <i class="pi pi-check-circle"></i>
+          Bank Reconciliation
+        </button>
+        <button class="btn btn-primary" (click)="createBankEntry()">
+          <i class="pi pi-plus"></i>
+          Bank Entry
+        </button>
+      </div>
+    </div>
+
+    <!-- Bank Accounts Summary -->
+    <div class="bank-accounts-grid">
+      @for (account of getBankAccounts(); track account.id) {
+        <div class="bank-account-card" [class]="'account-' + account.type">
+          <div class="account-header">
+            <div class="account-name">{{ account.name }}</div>
+            <div class="account-number">**** {{ account.number.slice(-4) }}</div>
+          </div>
+          <div class="account-balance">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">{{ formatCurrency(account.balance) }}</div>
+          </div>
+          <div class="account-status">
+            <span class="status-indicator" [class]="account.reconciled ? 'reconciled' : 'pending'"></span>
+            <span class="status-text">{{ account.reconciled ? 'Reconciled' : 'Pending' }}</span>
+            <span class="last-reconciled">{{ account.lastReconciled | date:'MMM d' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="recent-transactions-section">
+      <h3>Recent Bank Transactions</h3>
+      <div class="transactions-table-container">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Account</th>
+              <th>Description</th>
+              <th>Reference</th>
+              <th>Debit</th>
+              <th>Credit</th>
+              <th>Balance</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (transaction of getRecentBankTransactions(); track transaction.id) {
+              <tr [class]="'transaction-' + transaction.type">
+                <td>{{ transaction.date | date:'MMM d, y' }}</td>
+                <td>{{ transaction.accountName }}</td>
+                <td>{{ transaction.description }}</td>
+                <td>{{ transaction.reference }}</td>
+                <td class="amount debit">{{ transaction.debit ? formatCurrency(transaction.debit) : '' }}</td>
+                <td class="amount credit">{{ transaction.credit ? formatCurrency(transaction.credit) : '' }}</td>
+                <td class="amount balance">{{ formatCurrency(transaction.runningBalance) }}</td>
+                <td>
+                  <span class="status-badge" [class]="'status-' + transaction.status">{{ transaction.status | titlecase }}</span>
+                </td>
+                <td class="actions">
+                  <button class="action-btn" title="Match" (click)="matchTransaction(transaction)">
+                    <i class="pi pi-check"></i>
+                  </button>
+                  <button class="action-btn" title="Edit" (click)="editTransaction(transaction)">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed Assets View -->
+  <div *ngIf="selectedView === 'fixedassets'" class="content-section fixed-assets-view">
+    <div class="fixed-assets-header">
+      <h2>Fixed Assets</h2>
+      <div class="fixed-assets-actions">
+        <button class="btn btn-outline" (click)="runDepreciation()">
+          <i class="pi pi-calendar"></i>
+          Run Depreciation
+        </button>
+        <button class="btn btn-outline" (click)="generateAssetReport()">
+          <i class="pi pi-file-pdf"></i>
+          Asset Report
+        </button>
+        <button class="btn btn-primary" (click)="addAsset()">
+          <i class="pi pi-plus"></i>
+          Add Asset
+        </button>
+      </div>
+    </div>
+
+    <!-- Asset Summary -->
+    <div class="asset-summary-grid">
+      <div class="asset-summary-card">
+        <div class="summary-icon">🏢</div>
+        <div class="summary-content">
+          <div class="summary-value">{{ getTotalAssets() }}</div>
+          <div class="summary-label">Total Assets</div>
+        </div>
+      </div>
+      <div class="asset-summary-card">
+        <div class="summary-icon">💰</div>
+        <div class="summary-content">
+          <div class="summary-value">{{ formatCurrency(getTotalAssetValue()) }}</div>
+          <div class="summary-label">Book Value</div>
+        </div>
+      </div>
+      <div class="asset-summary-card">
+        <div class="summary-icon">📉</div>
+        <div class="summary-content">
+          <div class="summary-value">{{ formatCurrency(getMonthlyDepreciation()) }}</div>
+          <div class="summary-label">Monthly Depreciation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Depreciation Run Status -->
+    <div class="depreciation-status-card">
+      <h3>Depreciation Status</h3>
+      <div class="depreciation-info">
+        <div class="depreciation-item">
+          <span class="depreciation-label">Last Run:</span>
+          <span class="depreciation-value">February 2024</span>
+        </div>
+        <div class="depreciation-item">
+          <span class="depreciation-label">Next Due:</span>
+          <span class="depreciation-value pending">March 2024</span>
+        </div>
+        <div class="depreciation-item">
+          <span class="depreciation-label">Assets to Depreciate:</span>
+          <span class="depreciation-value">{{ getAssetsToDepreciate() }}</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" (click)="runMonthlyDepreciation()">
+        <i class="pi pi-play"></i>
+        Run March Depreciation
+      </button>
+    </div>
+  </div>
+
+  <!-- Inventory View -->
+  <div *ngIf="selectedView === 'inventory'" class="content-section inventory-view">
+    <div class="inventory-header">
+      <h2>Inventory Costing</h2>
+      <div class="inventory-actions">
+        <button class="btn btn-outline" (click)="viewCostVariances()">
+          <i class="pi pi-chart-line"></i>
+          Cost Variances
+        </button>
+        <button class="btn btn-outline" (click)="runLandedCostAllocation()">
+          <i class="pi pi-truck"></i>
+          Landed Cost Allocation
+        </button>
+      </div>
+    </div>
+
+    <!-- Inventory Variances (Read-only) -->
+    <div class="inventory-variances-section">
+      <h3>Cost Variances (Read-Only)</h3>
+      <div class="variances-table-container">
+        <table class="variances-table">
+          <thead>
+            <tr>
+              <th>Item Code</th>
+              <th>Description</th>
+              <th>Standard Cost</th>
+              <th>Actual Cost</th>
+              <th>Variance</th>
+              <th>Variance %</th>
+              <th>Quantity</th>
+              <th>Total Variance</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (variance of getInventoryVariances(); track variance.id) {
+              <tr [class]="variance.variancePercent > 10 ? 'high-variance' : variance.variancePercent < -10 ? 'negative-variance' : ''">
+                <td>{{ variance.itemCode }}</td>
+                <td>{{ variance.description }}</td>
+                <td class="amount">{{ formatCurrency(variance.standardCost) }}</td>
+                <td class="amount">{{ formatCurrency(variance.actualCost) }}</td>
+                <td class="amount variance" [class]="variance.variance > 0 ? 'positive' : 'negative'">
+                  {{ formatCurrency(variance.variance) }}
+                </td>
+                <td class="percent" [class]="variance.variancePercent > 0 ? 'positive' : 'negative'">
+                  {{ variance.variancePercent.toFixed(1) }}%
+                </td>
+                <td class="quantity">{{ variance.quantity }}</td>
+                <td class="amount total-variance" [class]="variance.totalVariance > 0 ? 'positive' : 'negative'">
+                  {{ formatCurrency(variance.totalVariance) }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tax & Compliance View -->
+  <div *ngIf="selectedView === 'tax'" class="content-section tax-view">
+    <div class="tax-header">
+      <h2>Tax & Compliance</h2>
+      <div class="tax-actions">
+        <button class="btn btn-outline" (click)="prepareTaxReturn()">
+          <i class="pi pi-file-edit"></i>
+          Prepare Return
+        </button>
+        <button class="btn btn-outline" (click)="generateStatements()">
+          <i class="pi pi-send"></i>
+          Customer Statements
+        </button>
+        <button class="btn btn-primary" (click)="fileTaxReturn()">
+          <i class="pi pi-upload"></i>
+          File Return
+        </button>
+      </div>
+    </div>
+
+    <!-- Tax Return Status -->
+    <div class="tax-returns-section">
+      <h3>Tax Returns Status</h3>
+      <div class="tax-returns-grid">
+        @for (return of getTaxReturns(); track return.id) {
+          <div class="tax-return-card" [class]="'status-' + return.status">
+            <div class="return-header">
+              <div class="return-type">{{ return.type }}</div>
+              <div class="return-period">{{ return.period }}</div>
+            </div>
+            <div class="return-status">
+              <span class="status-badge" [class]="'status-' + return.status">{{ return.status | titlecase }}</span>
+            </div>
+            <div class="return-details">
+              <div class="detail-item">
+                <span class="detail-label">Due Date:</span>
+                <span class="detail-value" [class]="return.isOverdue ? 'overdue' : ''">{{ return.dueDate | date:'MMM d, y' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Amount:</span>
+                <span class="detail-value">{{ formatCurrency(return.amount) }}</span>
+              </div>
+            </div>
+            <div class="return-actions">
+              <button class="btn btn-sm btn-primary" (click)="workOnReturn(return)">
+                {{ return.status === 'draft' ? 'Continue' : 'View' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Customer/Vendor Statements -->
+    <div class="statements-section">
+      <h3>Customer & Vendor Statements</h3>
+      <div class="statements-controls">
+        <div class="statement-type-selector">
+          <button class="stmt-type-btn" [class.active]="statementType === 'customer'" (click)="statementType = 'customer'">
+            Customer Statements
+          </button>
+          <button class="stmt-type-btn" [class.active]="statementType === 'vendor'" (click)="statementType = 'vendor'">
+            Vendor Statements
+          </button>
+        </div>
+        <div class="statement-actions">
+          <input type="date" class="date-input" [(ngModel)]="statementDate" />
+          <button class="btn btn-outline" (click)="previewStatements()">Preview</button>
+          <button class="btn btn-primary" (click)="generateAndSendStatements()">Generate & Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

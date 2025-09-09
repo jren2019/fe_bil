@@ -1,0 +1,113 @@
+.blog-detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.blog-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.blog-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.blog-meta {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.blog-meta .date {
+  margin-right: 1rem;
+}
+
+.blog-image {
+  margin: 2rem 0;
+}
+
+.blog-image img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.blog-layout {
+  display: flex;
+  gap: 2rem;
+}
+
+.table-of-contents {
+  background: #fafbfc;
+  border-radius: 16px;
+  padding: 2rem 2rem 1rem 2rem;
+  margin-bottom: 2rem;
+  min-width: 320px;
+  max-width: 350px;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  height: fit-content;
+}
+
+.table-of-contents h3 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.table-of-contents ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.table-of-contents li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.table-of-contents a {
+  color: #e65c1c;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.table-of-contents a:hover {
+  text-decoration: underline;
+  color: #b34716;
+}
+
+// Indentation for nested ToC levels
+.toc-level-1 { margin-left: 0; font-weight: 600; }
+.toc-level-2 { margin-left: 1.5em; font-weight: 500; }
+.toc-level-3 { margin-left: 3em; font-weight: 400; }
+.toc-level-4 { margin-left: 4.5em; font-weight: 400; }
+.toc-level-5 { margin-left: 6em; font-weight: 400; }
+.toc-level-6 { margin-left: 7.5em; font-weight: 400; }
+
+.blog-content {
+  line-height: 1.8;
+  font-size: 1.1rem;
+  flex: 1;
+}
+
+.blog-footer {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.back-to-blog {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  color: #333;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.back-to-blog:hover {
+  background: #e9ecef;
+} 

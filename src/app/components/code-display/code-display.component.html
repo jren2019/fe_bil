@@ -1,0 +1,11 @@
+<div class="code-container">
+  <div class="code-header">
+    <div class="code-tabs">
+      <div class="code-tab active">{{language | uppercase}}</div>
+    </div>
+    <button class="copy-button" (click)="copyToClipboard()">
+      <fa-icon [icon]="faCopy"></fa-icon>
+    </button>
+  </div>
+  <pre class="code-block"><code>{{code}}</code></pre>
+</div>

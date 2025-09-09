@@ -1,0 +1,118 @@
+<div class="external-requests-container">
+  <div class="container">
+    <div class="page-header">
+      <h1>Submit a Request</h1>
+      <p>External users can submit service requests through this form. We'll review and get back to you promptly.</p>
+    </div>
+
+    <div class="request-form-wrapper">
+      <form class="request-form" (ngSubmit)="submitRequest()" #requestForm="ngForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="requesterName">Full Name *</label>
+            <input
+              type="text"
+              id="requesterName"
+              name="requesterName"
+              [(ngModel)]="request.requesterName"
+              required
+              placeholder="Enter your full name"
+              class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="requesterEmail">Email Address *</label>
+            <input
+              type="email"
+              id="requesterEmail"
+              name="requesterEmail"
+              [(ngModel)]="request.requesterEmail"
+              required
+              placeholder="Enter your email"
+              class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="contactPhone">Phone Number</label>
+            <input
+              type="tel"
+              id="contactPhone"
+              name="contactPhone"
+              [(ngModel)]="request.contactPhone"
+              placeholder="Enter your phone number"
+              class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category *</label>
+            <select
+              id="category"
+              name="category"
+              [(ngModel)]="request.category"
+              required
+              class="form-select">
+              <option value="">Select a category</option>
+              <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="title">Request Title *</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            [(ngModel)]="request.title"
+            required
+            placeholder="Brief description of your request"
+            class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="priority">Priority Level</label>
+          <select
+            id="priority"
+            name="priority"
+            [(ngModel)]="request.priority"
+            class="form-select">
+            <option *ngFor="let priority of priorities" [value]="priority.value">
+              {{ priority.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Detailed Description *</label>
+          <textarea
+            id="description"
+            name="description"
+            [(ngModel)]="request.description"
+            required
+            rows="6"
+            placeholder="Please provide detailed information about your request..."
+            class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="resetForm()">Reset Form</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!requestForm.form.valid">
+            Submit Request
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="info-section">
+      <h3>What happens next?</h3>
+      <ul>
+        <li>We'll review your request within 24 hours</li>
+        <li>You'll receive an email confirmation with a tracking number</li>
+        <li>Our team will contact you if additional information is needed</li>
+        <li>You'll be notified when your request is resolved</li>
+      </ul>
+    </div>
+  </div>
+</div>

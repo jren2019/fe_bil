@@ -1,0 +1,351 @@
+<div class="categories-layout">
+  <app-nav-menu></app-nav-menu>
+  <div class="categories-main">
+    <div class="categories-header">
+      <div class="categories-title">Categories</div>
+      <input pInputText type="text" placeholder="Search Categories" class="categories-search" />
+      <button pButton label="+ New Category" class="p-button-primary new-category-btn" (click)="showNewCategoryForm = true"></button>
+    </div>
+    <div class="categories-content">
+      <div class="categories-list-panel">
+        @for (category of categories; track category.id) {
+          <div class="category-list-item"
+               [class.selected]="category.id === selectedCategoryId"
+               (click)="selectCategory(category.id)">
+            <span class="cat-icon" [style.color]="category.color" [innerHTML]="category.icon"></span>
+            {{ category.name }}
+          </div>
+        }
+      </div>
+      <div class="categories-details-panel">
+        @if (showNewCategoryForm) {
+          <div class="details-header">
+            <span class="details-title">New Category</span>
+          </div>
+          <div class="scrollable-details-content">
+            <input pInputText type="text" placeholder="Enter Category Name (Required)" class="new-category-name-input" [(ngModel)]="newCategoryName" />
+            <div class="category-icons-label">Category Icons</div>
+            <div class="category-icons-row">
+              <span *ngFor="let icon of categoryIcons; let i = index" class="cat-icon-option" [class.selected]="selectedIconIndex === i" (click)="selectedIconIndex = i" [style.background]="icon.bg">
+                <span [innerHTML]="icon.html"></span>
+              </span>
+              <a class="upload-custom-icon" href="#" (click)="$event.preventDefault(); fileInput.click()">Upload a custom icon <span>&#8594;</span></a>
+            </div>
+            <input #fileInput type="file" style="display: none;" (change)="onFileSelected($event)" />
+            <div class="category-description-label">Description</div>
+            <textarea class="category-description-input" placeholder="Add a description" [(ngModel)]="newCategoryDescription"></textarea>
+            <div class="form-actions">
+              <button pButton label="Cancel" class="p-button-outlined cancel-btn" (click)="showNewCategoryForm = false; newCategoryName = ''; newCategoryDescription = ''; selectedIconIndex = 0;"></button>
+              <button pButton label="Create" class="p-button-primary create-btn" [disabled]="!newCategoryName" (click)="createCategory()"></button>
+            </div>
+          </div>
+        } @else {
+          @if (selectedCategory) {
+            <div class="details-header">
+              <span class="details-title">{{ selectedCategory.name }}</span>
+              <div class="details-actions">
+                <button pButton label="Edit" class="p-button-outlined p-button-sm"></button>
+              </div>
+            </div>
+            <div class="scrollable-details-content">
+              <div class="category-info">
+              <div class="category-icon-display">
+                <span class="cat-icon-large" [style.color]="selectedCategory.color" [innerHTML]="selectedCategory.icon"></span>
+              </div>
+              <div class="category-id">
+                <label>Category ID</label>
+                <span class="id-value">{{ selectedCategory.id }}</span>
+              </div>
+              @if (selectedCategory.description) {
+                <div class="category-description">
+                  <label>Description</label>
+                  <p>{{ selectedCategory.description }}</p>
+                </div>
+              }
+            </div>
+
+            <!-- Work Order History Chart Section -->
+            <div class="chart-section">
+              <div class="chart-header">
+                <h3>Work Order History</h3>
+                <div class="chart-controls">
+                  <span class="date-range-text">{{ getDateRangeText() }}</span>
+                  <button class="config-btn" (click)="openConfigDialog()" title="Configure chart">
+                    <i class="pi pi-cog"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas #chartCanvas></canvas>
+              </div>
+            </div>
+
+            <!-- Open Work Orders Section -->
+            @if (selectedCategory && selectedCategory.openWorkOrders && selectedCategory.openWorkOrders.length > 0) {
+              <div class="open-workorders-section">
+                <div class="section-header">
+                  <h3>Open Work Orders ({{ selectedCategory.openWorkOrders.length }})</h3>
+                </div>
+                <div class="workorders-list">
+                  @for (workOrder of selectedCategory.openWorkOrders; track workOrder.id) {
+                    <div class="workorder-item" (click)="openWorkOrderDialog(workOrder)">
+                      <div class="workorder-main">
+                        <div class="workorder-title">{{ workOrder.title }}</div>
+                        <div class="workorder-meta">
+                          <span class="workorder-id">#{{ workOrder.id }}</span>
+                          <span class="workorder-asset">{{ workOrder.asset }}</span>
+                          <span class="workorder-location">
+                            <i class="pi pi-map-marker"></i>
+                            {{ workOrder.location }}
+                          </span>
+                        </div>
+                        <div class="workorder-details">
+                          <span class="workorder-assignee">
+                            <i class="pi pi-user"></i>
+                            {{ workOrder.assignedTo }}
+                          </span>
+                          <span class="workorder-time">{{ workOrder.estimatedTime }}</span>
+                          @if (workOrder.dueDate) {
+                            <span class="workorder-due" [class.overdue]="workOrder.isOverdue">
+                              Due: {{ formatDate(workOrder.dueDate) }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+                      <div class="workorder-badges">
+                        <span class="status-badge" [class]="getStatusBadgeClass(workOrder.status)">
+                          {{ getStatusIcon(workOrder.status) }} {{ workOrder.status | titlecase }}
+                        </span>
+                        @if (workOrder.priority !== 'none') {
+                          <span class="priority-badge" [class]="getPriorityClass(workOrder.priority)">
+                            {{ workOrder.priority | titlecase }}
+                          </span>
+                        }
+                        @if (workOrder.isOverdue) {
+                          <span class="overdue-badge">Overdue</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+              <div class="details-meta">
+                Created By <span class="avatar">🧑‍💼</span> {{ selectedCategory.createdBy || 'Jun Ren' }} on {{ selectedCategory.createdAt | date:'MM/dd/yyyy, h:mm a' }}
+              </div>
+              <button pButton label="Use in New Work Order" class="p-button-outlined use-in-wo-btn"></button>
+            </div>
+          } @else {
+            <div class="scrollable-details-content">
+              <div class="no-selection">
+                <div class="no-selection-icon">🏷️</div>
+                <h3 class="no-selection-title">Select a category</h3>
+                <p class="no-selection-text">Choose a category from the list to view its details and manage its properties.</p>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Configuration Dialog -->
+  <p-dialog [(visible)]="showConfigDialog"
+            [modal]="true"
+            [closable]="true"
+            [draggable]="false"
+            header="Configure Chart Period"
+            styleClass="config-dialog"
+            [style]="{ width: '400px' }">
+
+    <div class="config-content">
+      <!-- Period Type Selection -->
+      <div class="period-type-buttons">
+        <button [class]="'period-btn ' + (periodConfig.type === 'between' ? 'active' : '')"
+                (click)="periodConfig.type = 'between'">
+          Between
+        </button>
+        <button [class]="'period-btn ' + (periodConfig.type === 'last' ? 'active' : '')"
+                (click)="periodConfig.type = 'last'">
+          Last
+        </button>
+      </div>
+
+      <!-- Last Period Configuration -->
+      @if (periodConfig.type === 'last') {
+        <div class="last-period-config">
+          <div class="input-group">
+            <input type="number"
+                   [(ngModel)]="periodConfig.value"
+                   class="period-input"
+                   min="1"
+                   max="1000">
+            <p-dropdown [options]="timeUnits"
+                        [(ngModel)]="periodConfig.unit"
+                        optionLabel="label"
+                        optionValue="value"
+                        styleClass="period-dropdown">
+            </p-dropdown>
+          </div>
+        </div>
+      }
+
+      <!-- Between Dates Configuration -->
+      @if (periodConfig.type === 'between') {
+        <div class="between-dates-config">
+          <div class="date-input-group">
+            <label>Start Date</label>
+            <p-calendar [(ngModel)]="periodConfig.startDate"
+                        dateFormat="mm/dd/yy"
+                        [showIcon]="true">
+            </p-calendar>
+          </div>
+          <div class="date-input-group">
+            <label>End Date</label>
+            <p-calendar [(ngModel)]="periodConfig.endDate"
+                        dateFormat="mm/dd/yy"
+                        [showIcon]="true">
+            </p-calendar>
+          </div>
+        </div>
+      }
+
+      <!-- Rolling Dates Option -->
+      <div class="rolling-dates-option">
+        <p-checkbox [(ngModel)]="periodConfig.rollingDates"
+                    binary="true"
+                    inputId="rollingDates">
+        </p-checkbox>
+        <label for="rollingDates">Rolling dates</label>
+        <i class="pi pi-info-circle info-icon" title="Automatically update date range as time progresses"></i>
+      </div>
+
+      <!-- Group By Section -->
+      <div class="group-by-section">
+        <label>Group by</label>
+        <div class="group-by-options">
+          @for (option of groupByOptions; track option.value) {
+            <div class="radio-option">
+              <p-radioButton [value]="option.value"
+                             [(ngModel)]="periodConfig.groupBy"
+                             [inputId]="'groupBy_' + option.value">
+              </p-radioButton>
+              <label [for]="'groupBy_' + option.value">{{ option.label }}</label>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Time Zone Info -->
+      <div class="timezone-info">
+        Time zone for all dates: Pacific/Auckland
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <button pButton label="Cancel"
+                class="p-button-outlined"
+                (click)="closeConfigDialog()">
+        </button>
+        <button pButton label="Apply"
+                class="p-button-primary"
+                (click)="applyConfig()">
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Work Order Details Dialog -->
+  <p-dialog
+    [(visible)]="showWorkOrderDialog"
+    [modal]="true"
+    [style]="{'width': '800px'}"
+    [contentStyle]="{'max-height':'90vh','overflow':'auto'}"
+    [header]="selectedWorkOrderForDialog?.title || 'Work Order Details'"
+    (onHide)="closeWorkOrderDialog()">
+
+    @if (selectedWorkOrderForDialog) {
+      <div class="work-order-dialog-content">
+        <div class="dialog-header-info">
+          <div class="work-order-id">#{{ selectedWorkOrderForDialog.id }}</div>
+          <span class="status-badge" [ngClass]="getStatusBadgeClass(selectedWorkOrderForDialog.status)">
+            {{ getStatusIcon(selectedWorkOrderForDialog.status) }} {{ selectedWorkOrderForDialog.status | titlecase }}
+          </span>
+        </div>
+
+        <div class="dialog-section">
+          <label>Description</label>
+          <p>{{ selectedWorkOrderForDialog.description }}</p>
+        </div>
+
+        <div class="dialog-grid">
+          <div class="dialog-item">
+            <label>Work Type</label>
+            <span>{{ selectedWorkOrderForDialog.workType | titlecase }}</span>
+          </div>
+          <div class="dialog-item">
+            <label>Priority</label>
+            <span>{{ selectedWorkOrderForDialog.priority !== 'none' ? (selectedWorkOrderForDialog.priority | titlecase) : 'None' }}</span>
+          </div>
+        </div>
+
+        <div class="dialog-grid">
+          <div class="dialog-item">
+            <label>Assigned To</label>
+            <span>{{ selectedWorkOrderForDialog.assignedTo || 'Unassigned' }}</span>
+          </div>
+          <div class="dialog-item">
+            <label>Requested By</label>
+            <span>{{ selectedWorkOrderForDialog.requestedBy }}</span>
+          </div>
+        </div>
+
+        <div class="dialog-grid">
+          <div class="dialog-item">
+            <label>Asset</label>
+            <span>{{ selectedWorkOrderForDialog.asset }}</span>
+          </div>
+          <div class="dialog-item">
+            <label>Location</label>
+            <span>{{ selectedWorkOrderForDialog.location }}</span>
+          </div>
+        </div>
+
+        <div class="dialog-grid">
+          <div class="dialog-item">
+            <label>Category</label>
+            <span>{{ selectedWorkOrderForDialog.category || 'None' }}</span>
+          </div>
+          <div class="dialog-item">
+            <label>Estimated Time</label>
+            <span>{{ selectedWorkOrderForDialog.estimatedTime }}</span>
+          </div>
+        </div>
+
+        @if (selectedWorkOrderForDialog.dueDate) {
+          <div class="dialog-section">
+            <label>Due Date</label>
+            <p [class.overdue-text]="selectedWorkOrderForDialog.isOverdue">
+              {{ formatDate(selectedWorkOrderForDialog.dueDate) }}
+              @if (selectedWorkOrderForDialog.isOverdue) {
+                <span class="overdue-indicator">(Overdue)</span>
+              }
+            </p>
+          </div>
+        }
+
+        <div class="dialog-section">
+          <label>Created</label>
+          <p>{{ formatDate(selectedWorkOrderForDialog.createdAt) }} by {{ selectedWorkOrderForDialog.createdBy }}</p>
+        </div>
+
+        <div class="dialog-section">
+          <label>Last Updated</label>
+          <p>{{ formatDate(selectedWorkOrderForDialog.updatedOn) }}</p>
+        </div>
+      </div>
+    }
+  </p-dialog>
+</div>

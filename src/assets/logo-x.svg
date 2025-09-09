@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
+  <!-- Background circle -->
+  <circle cx="30" cy="30" r="28" fill="#67b8c5" stroke="#0d153b" stroke-width="2"/>
+
+  <!-- Gear/settings icon -->
+  <g transform="translate(30,30)">
+    <!-- Outer gear -->
+    <path d="M-12,-3 L-15,0 L-12,3 L-12,8 L-8,8 L-8,12 L-3,12 L0,15 L3,12 L8,12 L8,8 L12,8 L12,3 L15,0 L12,-3 L12,-8 L8,-8 L8,-12 L3,-12 L0,-15 L-3,-12 L-8,-12 L-8,-8 L-12,-8 Z"
+          fill="#fff" opacity="0.9"/>
+
+    <!-- Inner circle -->
+    <circle cx="0" cy="0" r="6" fill="#0d153b"/>
+
+    <!-- Center tool icon -->
+    <path d="M-2,-4 L2,-4 L2,-1 L4,-1 L4,1 L2,1 L2,4 L-2,4 L-2,1 L-4,1 L-4,-1 L-2,-1 Z"
+          fill="#67b8c5"/>
+  </g>
+
+  <!-- Letter X -->
+  <text x="30" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#fff">X</text>
+</svg>

@@ -1,0 +1,1065 @@
+<div class="accounting-page">
+  <app-nav-menu></app-nav-menu>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Accounting Control</h1>
+      <p>Policy, integrity, period control, and audit functions for Controller/CFO</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="exportAuditLogs()">
+        <i class="pi pi-download"></i>
+        Export Audit
+      </button>
+      <button class="btn btn-primary" (click)="createJournalEntry()">
+        <i class="pi pi-plus"></i>
+        New Journal Entry
+      </button>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="view-tabs">
+    <div class="tab-buttons">
+      <button class="tab-button"
+              [class.active]="selectedView === 'dashboard'"
+              (click)="setView('dashboard')">
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">Control Dashboard</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'coa'"
+              (click)="setView('coa')">
+        <span class="tab-icon">📚</span>
+        <span class="tab-label">Chart of Accounts</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'journal'"
+              (click)="setView('journal')">
+        <span class="tab-icon">📝</span>
+        <span class="tab-label">Journal Entries</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'periods'"
+              (click)="setView('periods')">
+        <span class="tab-icon">🔒</span>
+        <span class="tab-label">Period Controls</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'posting'"
+              (click)="setView('posting')">
+        <span class="tab-icon">⚙️</span>
+        <span class="tab-label">Posting Rules</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'consolidation'"
+              (click)="setView('consolidation')">
+        <span class="tab-icon">🏢</span>
+        <span class="tab-label">Consolidation</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'forex'"
+              (click)="setView('forex')">
+        <span class="tab-icon">💱</span>
+        <span class="tab-label">Forex & Allocations</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'audit'"
+              (click)="setView('audit')">
+        <span class="tab-icon">🔍</span>
+        <span class="tab-label">Audit & Controls</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Control Dashboard View -->
+  <div *ngIf="selectedView === 'dashboard'" class="content-section dashboard-view">
+    <!-- Control Status Cards -->
+    <div class="control-status-grid">
+      <div class="control-card period-status">
+        <div class="control-header">
+          <div class="control-icon">🔒</div>
+          <div class="control-info">
+            <div class="control-title">Period Status</div>
+            <div class="control-subtitle">March 2024</div>
+          </div>
+        </div>
+        <div class="control-details">
+          <div class="status-item">
+            <span class="status-label">AR:</span>
+            <span class="status-badge status-soft-closed">Soft Closed</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">AP:</span>
+            <span class="status-badge status-open">Open</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">GL:</span>
+            <span class="status-badge status-open">Open</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">FA:</span>
+            <span class="status-badge status-hard-closed">Hard Closed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-card approval-queue">
+        <div class="control-header">
+          <div class="control-icon">✅</div>
+          <div class="control-info">
+            <div class="control-title">Approval Queue</div>
+            <div class="control-subtitle">Pending Actions</div>
+          </div>
+        </div>
+        <div class="control-details">
+          <div class="queue-item">
+            <span class="queue-label">Journal Entries:</span>
+            <span class="queue-count urgent">3</span>
+          </div>
+          <div class="queue-item">
+            <span class="queue-label">Period Reopens:</span>
+            <span class="queue-count">0</span>
+          </div>
+          <div class="queue-item">
+            <span class="queue-label">Account Changes:</span>
+            <span class="queue-count">2</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-card security-status">
+        <div class="control-header">
+          <div class="control-icon">🛡️</div>
+          <div class="control-info">
+            <div class="control-title">Security & Compliance</div>
+            <div class="control-subtitle">Last 24 hours</div>
+          </div>
+        </div>
+        <div class="control-details">
+          <div class="security-item">
+            <span class="security-label">Failed Logins:</span>
+            <span class="security-count normal">0</span>
+          </div>
+          <div class="security-item">
+            <span class="security-label">Role Conflicts:</span>
+            <span class="security-count normal">0</span>
+          </div>
+          <div class="security-item">
+            <span class="security-label">Audit Events:</span>
+            <span class="security-count">47</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-card system-health">
+        <div class="control-header">
+          <div class="control-icon">📈</div>
+          <div class="control-info">
+            <div class="control-title">System Health</div>
+            <div class="control-subtitle">All Systems</div>
+          </div>
+        </div>
+        <div class="control-details">
+          <div class="health-item">
+            <span class="health-label">Posting Rules:</span>
+            <span class="health-status operational">Operational</span>
+          </div>
+          <div class="health-item">
+            <span class="health-label">Consolidation:</span>
+            <span class="health-status operational">Operational</span>
+          </div>
+          <div class="health-item">
+            <span class="health-label">Forex Engine:</span>
+            <span class="health-status operational">Operational</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Control Activities -->
+    <div class="recent-activities-section">
+      <h2>Recent Control Activities</h2>
+      <div class="activities-grid">
+        <div class="activity-card">
+          <div class="activity-header">
+            <div class="activity-icon period-close">🔒</div>
+            <div class="activity-time">2 hours ago</div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Fixed Assets Period Closed</div>
+            <div class="activity-description">March 2024 FA module hard closed by Controller</div>
+            <div class="activity-user">by Jane Controller</div>
+          </div>
+        </div>
+
+        <div class="activity-card">
+          <div class="activity-header">
+            <div class="activity-icon approval">✅</div>
+            <div class="activity-time">4 hours ago</div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Journal Entry Approved</div>
+            <div class="activity-description">JE-2024-001 ($15,000) approved and posted</div>
+            <div class="activity-user">by John Supervisor</div>
+          </div>
+        </div>
+
+        <div class="activity-card">
+          <div class="activity-header">
+            <div class="activity-icon posting-rule">⚙️</div>
+            <div class="activity-time">1 day ago</div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Posting Rule Updated</div>
+            <div class="activity-description">Sales Invoice Posting rule modified</div>
+            <div class="activity-user">by Jane Controller</div>
+          </div>
+        </div>
+
+        <div class="activity-card">
+          <div class="activity-header">
+            <div class="activity-icon forex">💱</div>
+            <div class="activity-time">2 days ago</div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Forex Revaluation</div>
+            <div class="activity-description">Monthly FX revaluation completed ($2,340)</div>
+            <div class="activity-user">by System</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart of Accounts View -->
+  <div *ngIf="selectedView === 'coa'" class="content-section coa-view">
+    <div class="coa-header">
+      <h2>Chart of Accounts & Dimensions</h2>
+      <div class="coa-actions">
+        <button class="btn btn-outline" (click)="createNewAccount()">
+          <i class="pi pi-plus"></i>
+          New Account
+        </button>
+      </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="coa-controls">
+      <div class="search-container">
+        <i class="pi pi-search search-icon"></i>
+        <input type="text" placeholder="Search accounts..." class="search-input" [(ngModel)]="coaSearchTerm" />
+      </div>
+      <div class="filter-controls">
+        <select class="filter-select">
+          <option value="">All Types</option>
+          <option value="asset">Assets</option>
+          <option value="liability">Liabilities</option>
+          <option value="equity">Equity</option>
+          <option value="revenue">Revenue</option>
+          <option value="expense">Expenses</option>
+        </select>
+        <select class="filter-select">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="locked">Locked</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Accounts Table -->
+    <div class="coa-table-container">
+      <table class="coa-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Account Name</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Dimensions</th>
+            <th>Last Modified</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (account of getFilteredAccounts(); track account.id) {
+            <tr [class.account-locked]="account.isLocked">
+              <td class="account-code">{{ account.accountCode }}</td>
+              <td class="account-name">{{ account.accountName }}</td>
+              <td>
+                <span class="account-type" [class]="'type-' + account.accountType">
+                  {{ account.accountType | titlecase }}
+                </span>
+              </td>
+              <td>
+                <div class="account-status">
+                  <span class="status-badge" [class]="account.isActive ? 'status-active' : 'status-inactive'">
+                    {{ account.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                  @if (account.isLocked) {
+                    <span class="lock-indicator">🔒</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="dimensions-cell">
+                  @for (dimension of account.dimensions; track dimension.id) {
+                    <span class="dimension-tag" [class]="'required-' + dimension.isRequired">
+                      {{ dimension.name }}: {{ dimension.value }}
+                    </span>
+                  }
+                </div>
+              </td>
+              <td class="last-modified">
+                <div class="modified-info">
+                  <div class="modified-date">{{ account.lastModified | date:'MMM d, y' }}</div>
+                  <div class="modified-by">by {{ account.modifiedBy }}</div>
+                </div>
+              </td>
+              <td class="actions-cell">
+                <button class="action-btn" title="Edit" (click)="editAccount(account)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="action-btn" [class.active]="account.isLocked" title="Toggle Lock" (click)="toggleAccountLock(account)">
+                  <i class="pi" [class]="account.isLocked ? 'pi-lock' : 'pi-lock-open'"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Journal Entries View -->
+  <div *ngIf="selectedView === 'journal'" class="content-section journal-view">
+    <div class="journal-header">
+      <h2>Journal Entries & Approvals</h2>
+      <div class="journal-actions">
+        <button class="btn btn-outline">
+          <i class="pi pi-upload"></i>
+          Import
+        </button>
+        <button class="btn btn-primary" (click)="createJournalEntry()">
+          <i class="pi pi-plus"></i>
+          New Entry
+        </button>
+      </div>
+    </div>
+
+    <!-- Journal Controls -->
+    <div class="journal-controls">
+      <div class="search-container">
+        <i class="pi pi-search search-icon"></i>
+        <input type="text" placeholder="Search entries..." class="search-input" [(ngModel)]="journalSearchTerm" />
+      </div>
+      <div class="filter-controls">
+        <select class="filter-select">
+          <option value="">All Types</option>
+          <option value="standard">Standard</option>
+          <option value="recurring">Recurring</option>
+          <option value="accrual">Accrual</option>
+          <option value="allocation">Allocation</option>
+          <option value="reversal">Reversal</option>
+        </select>
+        <select class="filter-select">
+          <option value="">All Status</option>
+          <option value="draft">Draft</option>
+          <option value="pending-approval">Pending Approval</option>
+          <option value="approved">Approved</option>
+          <option value="posted">Posted</option>
+        </select>
+        <select class="filter-select" [(ngModel)]="selectedPeriod">
+          <option value="">All Periods</option>
+          <option value="2024-03">March 2024</option>
+          <option value="2024-02">February 2024</option>
+          <option value="2024-01">January 2024</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Journal Entries Table -->
+    <div class="journal-table-container">
+      <table class="journal-table">
+        <thead>
+          <tr>
+            <th>Entry #</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Period</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Created By</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of getFilteredJournalEntries(); track entry.id) {
+            <tr [class]="'entry-' + entry.status">
+              <td class="entry-number">{{ entry.entryNumber }}</td>
+              <td>
+                <span class="entry-type" [class]="'type-' + entry.entryType">
+                  {{ entry.entryType | titlecase }}
+                </span>
+              </td>
+              <td class="entry-description">
+                <div class="description-text">{{ entry.description }}</div>
+                <div class="reference-text">Ref: {{ entry.reference }}</div>
+              </td>
+              <td>{{ entry.date | date:'MMM d, y' }}</td>
+              <td>{{ entry.period }}</td>
+              <td class="amount">{{ formatCurrency(entry.totalDebit) }}</td>
+              <td>
+                <span class="status-badge" [class]="'status-' + entry.status">
+                  {{ entry.status | titlecase }}
+                </span>
+                @if (entry.workflow && entry.status === 'pending-approval') {
+                  <div class="workflow-info">
+                    Step {{ entry.workflow.currentStep }} of {{ entry.workflow.totalSteps }}
+                  </div>
+                }
+              </td>
+              <td class="created-by">{{ entry.createdBy }}</td>
+              <td class="actions-cell">
+                @if (entry.status === 'pending-approval') {
+                  <button class="action-btn approve" title="Approve" (click)="approveJournalEntry(entry)">
+                    <i class="pi pi-check"></i>
+                  </button>
+                }
+                @if (entry.status === 'approved') {
+                  <button class="action-btn post" title="Post" (click)="postJournalEntry(entry)">
+                    <i class="pi pi-upload"></i>
+                  </button>
+                }
+                <button class="action-btn" title="View Details">
+                  <i class="pi pi-eye"></i>
+                </button>
+                @if (entry.attachments && entry.attachments.length > 0) {
+                  <button class="action-btn" title="Attachments ({{ entry.attachments.length }})">
+                    <i class="pi pi-paperclip"></i>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Period Controls View -->
+  <div *ngIf="selectedView === 'periods'" class="content-section periods-view">
+    <div class="periods-header">
+      <h2>Period Open/Close Controls</h2>
+      <div class="periods-actions">
+        <button class="btn btn-outline">
+          <i class="pi pi-calendar"></i>
+          New Period
+        </button>
+      </div>
+    </div>
+
+    <!-- Period Cards -->
+    <div class="periods-grid">
+      @for (period of periodControls; track period.id) {
+        <div class="period-card" [class]="period.isHardClosed ? 'hard-closed' : 'open'">
+          <div class="period-header">
+            <div class="period-info">
+              <h3>{{ period.periodName }}</h3>
+              <div class="period-dates">
+                {{ period.startDate | date:'MMM d' }} - {{ period.endDate | date:'MMM d, y' }}
+              </div>
+              <div class="fiscal-year">FY {{ period.fiscalYear }}</div>
+            </div>
+            <div class="period-status">
+              @if (period.isHardClosed) {
+                <span class="hard-closed-badge">🔒 Hard Closed</span>
+              } @else {
+                <span class="open-badge">🔓 Open</span>
+              }
+            </div>
+          </div>
+
+          <!-- Module Status -->
+          <div class="modules-section">
+            <h4>Module Status</h4>
+            <div class="modules-grid">
+              @for (module of period.modules; track module.moduleId) {
+                <div class="module-item" [class]="'module-' + module.status">
+                  <div class="module-info">
+                    <div class="module-name">{{ module.moduleName }}</div>
+                    <div class="module-status">
+                      <span class="status-badge" [class]="'status-' + module.status">
+                        {{ module.status | titlecase }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="module-actions">
+                    @if (module.status === 'open') {
+                      <button class="module-btn soft-close" (click)="closeModule(period, module.moduleId, false)">
+                        Soft Close
+                      </button>
+                      <button class="module-btn hard-close" (click)="closeModule(period, module.moduleId, true)">
+                        Hard Close
+                      </button>
+                    } @else if (module.status === 'soft-closed' && period.canReopen) {
+                      <button class="module-btn reopen" (click)="reopenModule(period, module.moduleId)">
+                        Reopen
+                      </button>
+                      <button class="module-btn hard-close" (click)="closeModule(period, module.moduleId, true)">
+                        Hard Close
+                      </button>
+                    } @else if (module.status === 'hard-closed') {
+                      <span class="locked-indicator">🔒 Locked</span>
+                      @if (module.closedBy && module.closedDate) {
+                        <div class="closed-info">
+                          <div class="closed-by">by {{ module.closedBy }}</div>
+                          <div class="closed-date">{{ module.closedDate | date:'MMM d, y' }}</div>
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Period Actions -->
+          <div class="period-actions">
+            @if (!period.isHardClosed) {
+              <button class="period-action-btn danger" (click)="hardClosePeriod(period)">
+                <i class="pi pi-lock"></i>
+                Hard Close Period
+              </button>
+            } @else {
+              <div class="hard-closed-info">
+                <div class="locked-by">Locked by {{ period.lockedBy }}</div>
+                <div class="locked-date">{{ period.lockedDate | date:'MMM d, y h:mm a' }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Posting Rules View -->
+  <div *ngIf="selectedView === 'posting'" class="content-section posting-view">
+    <div class="posting-header">
+      <h2>Posting Rules Engine</h2>
+      <div class="posting-actions">
+        <button class="btn btn-outline">
+          <i class="pi pi-plus"></i>
+          New Rule
+        </button>
+      </div>
+    </div>
+
+    <!-- Posting Rules Table -->
+    <div class="posting-rules-container">
+      <table class="posting-rules-table">
+        <thead>
+          <tr>
+            <th>Rule Name</th>
+            <th>Source Module</th>
+            <th>Event</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Last Modified</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of postingRules; track rule.id) {
+            <tr [class]="rule.isActive ? 'rule-active' : 'rule-inactive'">
+              <td class="rule-name">
+                <div class="rule-title">{{ rule.ruleName }}</div>
+                <div class="rule-description">{{ rule.description }}</div>
+              </td>
+              <td>{{ rule.sourceModule }}</td>
+              <td>{{ rule.sourceEvent }}</td>
+              <td class="priority">{{ rule.priority }}</td>
+              <td>
+                <span class="status-badge" [class]="rule.isActive ? 'status-active' : 'status-inactive'">
+                  {{ rule.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>{{ rule.lastModified | date:'MMM d, y' }}</td>
+              <td class="actions-cell">
+                <button class="action-btn" title="Test Rule" (click)="testPostingRule(rule)">
+                  <i class="pi pi-play"></i>
+                </button>
+                <button class="action-btn" title="Edit Rule">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="action-btn" [class.active]="rule.isActive" title="Toggle Status" (click)="toggleRuleStatus(rule)">
+                  <i class="pi" [class]="rule.isActive ? 'pi-pause' : 'pi-play'"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Rule Details Section -->
+    @if (postingRules.length > 0) {
+      <div class="rule-details-section">
+        <h3>Rule Details - {{ postingRules[0].ruleName }}</h3>
+        <div class="rule-tabs">
+          <div class="rule-tab active">Conditions</div>
+          <div class="rule-tab">Mappings</div>
+        </div>
+        <div class="rule-content">
+          <!-- Conditions -->
+          <div class="conditions-section">
+            <h4>Conditions</h4>
+            <div class="conditions-list">
+              @for (condition of postingRules[0].conditions; track condition.id) {
+                <div class="condition-item">
+                  <span class="condition-field">{{ condition.field }}</span>
+                  <span class="condition-operator">{{ condition.operator }}</span>
+                  <span class="condition-value">{{ condition.value }}</span>
+                  @if (condition.logicalOperator) {
+                    <span class="logical-operator">{{ condition.logicalOperator }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Account Mappings -->
+          <div class="mappings-section">
+            <h4>Account Mappings</h4>
+            <div class="mappings-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Account</th>
+                    <th>Dr/Cr</th>
+                    <th>Formula</th>
+                    <th>Dimensions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (mapping of postingRules[0].mappings; track mapping.id) {
+                    <tr>
+                      <td>{{ mapping.description }}</td>
+                      <td>{{ mapping.accountCode }}</td>
+                      <td>
+                        <span class="debit-credit" [class]="mapping.debitCredit">
+                          {{ mapping.debitCredit | titlecase }}
+                        </span>
+                      </td>
+                      <td class="formula">{{ mapping.amountFormula }}</td>
+                      <td>
+                        <div class="dimension-mappings">
+                          @for (dim of mapping.dimensionMappings | keyvalue; track dim.key) {
+                            <span class="dimension-mapping">
+                              {{ dim.key }}: {{ dim.value }}
+                            </span>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Consolidation View -->
+  <div *ngIf="selectedView === 'consolidation'" class="content-section consolidation-view">
+    <div class="consolidation-header">
+      <h2>Consolidation & Intercompany</h2>
+      <div class="consolidation-actions">
+        <button class="btn btn-outline" (click)="eliminateIntercompany()">
+          <i class="pi pi-refresh"></i>
+          Eliminate Intercompany
+        </button>
+        <button class="btn btn-primary" (click)="runConsolidation()">
+          <i class="pi pi-play"></i>
+          Run Consolidation
+        </button>
+      </div>
+    </div>
+
+    <!-- Consolidation Entities -->
+    <div class="entities-section">
+      <h3>Consolidation Entities</h3>
+      <div class="entities-grid">
+        @for (entity of consolidationEntities; track entity.id) {
+          <div class="entity-card" [class]="'entity-' + entity.entityType">
+            <div class="entity-header">
+              <div class="entity-icon">
+                @if (entity.entityType === 'parent') { 🏢 }
+                @else if (entity.entityType === 'subsidiary') { 🏬 }
+                @else { 🏪 }
+              </div>
+              <div class="entity-info">
+                <h4>{{ entity.entityName }}</h4>
+                <div class="entity-code">{{ entity.entityCode }}</div>
+                <div class="entity-type">{{ entity.entityType | titlecase }}</div>
+              </div>
+            </div>
+            <div class="entity-details">
+              <div class="detail-item">
+                <span class="detail-label">Ownership:</span>
+                <span class="detail-value">{{ entity.ownershipPercentage }}%</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Currency:</span>
+                <span class="detail-value">{{ entity.currency }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">FY End:</span>
+                <span class="detail-value">{{ entity.fiscalYearEnd | date:'MMM d' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">IC Partners:</span>
+                <span class="detail-value">{{ entity.intercompanySettings.intercompanyPartners.length }}</span>
+              </div>
+            </div>
+            <div class="entity-status">
+              <span class="status-badge" [class]="entity.isActive ? 'status-active' : 'status-inactive'">
+                {{ entity.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Elimination Rules -->
+    <div class="elimination-section">
+      <h3>Elimination Rules</h3>
+      <div class="elimination-rules">
+        @for (entity of consolidationEntities; track entity.id) {
+          @if (entity.intercompanySettings.autoEliminationRules.length > 0) {
+            <div class="rules-for-entity">
+              <h4>{{ entity.entityName }}</h4>
+              <div class="rules-list">
+                @for (rule of entity.intercompanySettings.autoEliminationRules; track rule.id) {
+                  <div class="elimination-rule">
+                    <div class="rule-info">
+                      <div class="rule-name">{{ rule.ruleName }}</div>
+                      <div class="rule-type">{{ rule.eliminationType | titlecase }}</div>
+                    </div>
+                    <div class="rule-mapping">
+                      {{ rule.sourceAccountId }} → {{ rule.targetAccountId }}
+                    </div>
+                    <div class="rule-status">
+                      <span class="auto-indicator" [class]="rule.isAutomatic ? 'automatic' : 'manual'">
+                        {{ rule.isAutomatic ? 'Auto' : 'Manual' }}
+                      </span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Forex & Allocations View -->
+  <div *ngIf="selectedView === 'forex'" class="content-section forex-view">
+    <div class="forex-header">
+      <h2>Forex Revaluations & Allocations</h2>
+      <div class="forex-actions">
+        <button class="btn btn-outline" (click)="runForexRevaluation()">
+          <i class="pi pi-refresh"></i>
+          Run FX Revaluation
+        </button>
+      </div>
+    </div>
+
+    <!-- Forex Section -->
+    <div class="forex-section">
+      <h3>Foreign Exchange Revaluations</h3>
+      <div class="forex-cards">
+        <div class="forex-card">
+          <div class="forex-header-card">
+            <div class="forex-icon">💱</div>
+            <div class="forex-info">
+              <h4>Monthly FX Revaluation</h4>
+              <div class="forex-date">March 2024</div>
+            </div>
+          </div>
+          <div class="forex-details">
+            <div class="forex-item">
+              <span class="forex-label">Base Currency:</span>
+              <span class="forex-value">USD</span>
+            </div>
+            <div class="forex-item">
+              <span class="forex-label">Affected Accounts:</span>
+              <span class="forex-value">12</span>
+            </div>
+            <div class="forex-item">
+              <span class="forex-label">Total Revaluation:</span>
+              <span class="forex-value amount">{{ formatCurrency(2340) }}</span>
+            </div>
+            <div class="forex-item">
+              <span class="forex-label">Status:</span>
+              <span class="status-badge status-posted">Posted</span>
+            </div>
+          </div>
+          <button class="forex-btn">View Details</button>
+        </div>
+
+        <div class="exchange-rates-card">
+          <h4>Current Exchange Rates</h4>
+          <div class="rates-list">
+            <div class="rate-item">
+              <span class="currency-pair">EUR/USD</span>
+              <span class="rate-value">1.0842</span>
+              <span class="rate-change positive">+0.15%</span>
+            </div>
+            <div class="rate-item">
+              <span class="currency-pair">GBP/USD</span>
+              <span class="rate-value">1.2653</span>
+              <span class="rate-change negative">-0.08%</span>
+            </div>
+            <div class="rate-item">
+              <span class="currency-pair">JPY/USD</span>
+              <span class="rate-value">0.0067</span>
+              <span class="rate-change positive">+0.22%</span>
+            </div>
+            <div class="rate-item">
+              <span class="currency-pair">CAD/USD</span>
+              <span class="rate-value">0.7356</span>
+              <span class="rate-change neutral">0.00%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Allocation Models Section -->
+    <div class="allocation-section">
+      <h3>Allocation Models</h3>
+      <div class="allocation-models">
+        <div class="allocation-card">
+          <div class="allocation-header">
+            <h4>Cost Center Allocation</h4>
+            <div class="allocation-type">Department</div>
+          </div>
+          <div class="allocation-details">
+            <div class="allocation-item">
+              <span class="allocation-label">Source Accounts:</span>
+              <span class="allocation-value">5</span>
+            </div>
+            <div class="allocation-item">
+              <span class="allocation-label">Allocation Basis:</span>
+              <span class="allocation-value">Percentage</span>
+            </div>
+            <div class="allocation-item">
+              <span class="allocation-label">Frequency:</span>
+              <span class="allocation-value">Monthly</span>
+            </div>
+            <div class="allocation-item">
+              <span class="allocation-label">Status:</span>
+              <span class="status-badge status-active">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="allocation-card">
+          <div class="allocation-header">
+            <h4>Overhead Allocation</h4>
+            <div class="allocation-type">Product</div>
+          </div>
+          <div class="allocation-details">
+            <div class="allocation-item">
+              <span class="allocation-label">Source Accounts:</span>
+              <span class="allocation-value">8</span>
+            </div>
+            <div class="allocation-item">
+              <span class="allocation-label">Allocation Basis:</span>
+              <span class="allocation-value">Driver-based</span>
+            </div>
+            <div class="allocation-item">
+              <span class="allocation-label">Frequency:</span>
+              <span class="allocation-value">Monthly</span>
+            </div>
+            <div class="allocation-item">
+              <span class="allocation-label">Status:</span>
+              <span class="status-badge status-active">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit & Controls View -->
+  <div *ngIf="selectedView === 'audit'" class="content-section audit-view">
+    <div class="audit-header">
+      <h2>Audit Logs & System Controls</h2>
+      <div class="audit-actions">
+        <button class="btn btn-outline" (click)="manageRoles()">
+          <i class="pi pi-users"></i>
+          Manage Roles
+        </button>
+        <button class="btn btn-outline" (click)="configureNumbering()">
+          <i class="pi pi-cog"></i>
+          Configure Numbering
+        </button>
+        <button class="btn btn-primary" (click)="exportAuditLogs()">
+          <i class="pi pi-download"></i>
+          Export Audit Log
+        </button>
+      </div>
+    </div>
+
+    <!-- Audit Search -->
+    <div class="audit-controls">
+      <div class="search-container">
+        <i class="pi pi-search search-icon"></i>
+        <input type="text" placeholder="Search audit logs..." class="search-input" [(ngModel)]="auditSearchTerm" />
+      </div>
+      <div class="filter-controls">
+        <select class="filter-select">
+          <option value="">All Actions</option>
+          <option value="create">Create</option>
+          <option value="update">Update</option>
+          <option value="delete">Delete</option>
+          <option value="approve">Approve</option>
+          <option value="post">Post</option>
+        </select>
+        <select class="filter-select">
+          <option value="">All Modules</option>
+          <option value="General Ledger">General Ledger</option>
+          <option value="Accounts Receivable">Accounts Receivable</option>
+          <option value="Accounts Payable">Accounts Payable</option>
+          <option value="Fixed Assets">Fixed Assets</option>
+        </select>
+        <input type="date" class="date-input" />
+      </div>
+    </div>
+
+    <!-- Audit Logs Table -->
+    <div class="audit-table-container">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>Module</th>
+            <th>Changes</th>
+            <th>IP Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of getFilteredAuditLogs(); track log.id) {
+            <tr [class]="'action-' + log.action">
+              <td class="timestamp">{{ log.timestamp | date:'MMM d, y h:mm:ss a' }}</td>
+              <td class="user-info">
+                <div class="user-name">{{ log.userName }}</div>
+                <div class="user-id">{{ log.userId }}</div>
+              </td>
+              <td>
+                <span class="action-badge" [class]="'action-' + log.action">
+                  {{ log.action | titlecase }}
+                </span>
+              </td>
+              <td class="entity-info">
+                <div class="entity-type">{{ log.entityType }}</div>
+                <div class="entity-id">{{ log.entityId }}</div>
+              </td>
+              <td>{{ log.module }}</td>
+              <td class="changes-cell">
+                @if (log.oldValues || log.newValues) {
+                  <button class="changes-btn" title="View Changes">
+                    <i class="pi pi-list"></i>
+                    Changes
+                  </button>
+                }
+              </td>
+              <td class="ip-address">{{ log.ipAddress }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- System Controls Section -->
+    <div class="system-controls-section">
+      <div class="controls-grid">
+        <div class="control-section">
+          <h3>Role Segregation</h3>
+          <div class="control-items">
+            <div class="control-item">
+              <span class="control-label">Active Roles:</span>
+              <span class="control-value">12</span>
+            </div>
+            <div class="control-item">
+              <span class="control-label">Segregation Conflicts:</span>
+              <span class="control-value alert">0</span>
+            </div>
+            <div class="control-item">
+              <span class="control-label">Last Review:</span>
+              <span class="control-value">Feb 15, 2024</span>
+            </div>
+          </div>
+          <button class="control-btn" (click)="checkSegregationConflicts()">
+            Check Conflicts
+          </button>
+        </div>
+
+        <div class="control-section">
+          <h3>Document Numbering</h3>
+          <div class="control-items">
+            <div class="control-item">
+              <span class="control-label">Active Sequences:</span>
+              <span class="control-value">8</span>
+            </div>
+            <div class="control-item">
+              <span class="control-label">Next JE Number:</span>
+              <span class="control-value">JE-2024-003</span>
+            </div>
+            <div class="control-item">
+              <span class="control-label">Reset Schedule:</span>
+              <span class="control-value">Yearly</span>
+            </div>
+          </div>
+          <button class="control-btn" (click)="configureNumbering()">
+            Configure
+          </button>
+        </div>
+
+        <div class="control-section">
+          <h3>Security Monitoring</h3>
+          <div class="control-items">
+            <div class="control-item">
+              <span class="control-label">Failed Logins (24h):</span>
+              <span class="control-value normal">0</span>
+            </div>
+            <div class="control-item">
+              <span class="control-label">Unusual Activity:</span>
+              <span class="control-value normal">None</span>
+            </div>
+            <div class="control-item">
+              <span class="control-label">Last Backup:</span>
+              <span class="control-value">Today 03:00 AM</span>
+            </div>
+          </div>
+          <button class="control-btn">
+            View Security Report
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

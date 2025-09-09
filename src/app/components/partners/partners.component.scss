@@ -1,0 +1,148 @@
+.partners {
+  padding: 4rem 0;
+  background-color: var(--background-secondary);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.section-subtitle span {
+  color: var(--accent-primary);
+  font-weight: 500;
+}
+
+.comparison-section {
+  max-width: 800px;
+  margin: 0 auto 3rem;
+  background-color: var(--background-tertiary);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.comparison-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.comparison-tab {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.comparison-tab.active {
+  background-color: rgba(103, 184, 197, 0.1);
+  color: var(--text-primary);
+}
+
+.tab-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.comparison-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.comparison-features {
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.feature-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.feature-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.comparison-cta {
+  margin-top: 1rem;
+}
+
+.testimonial {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.testimonial-quote {
+  padding: 2rem;
+}
+
+.testimonial-quote p {
+  font-size: 1rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.5rem;
+}
+
+.testimonial-quote blockquote {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.testimonial-quote blockquote::before,
+.testimonial-quote blockquote::after {
+  content: '"';
+  color: var(--accent-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+  }
+
+  .comparison-section {
+    padding: 1.5rem;
+  }
+
+  .comparison-tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .testimonial-quote blockquote {
+    font-size: 1.25rem;
+  }
+}

@@ -1,0 +1,164 @@
+.nav-menu {
+  width: 250px;
+  background: #0d153b;
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.nav-menu .logo {
+  text-align: center;
+  padding: 1rem 0 0.75rem 0;
+  flex-shrink: 0;
+}
+
+.nav-menu .logo img {
+  width: 60px;
+}
+
+.nav-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.nav-menu ul li {
+  margin-bottom: 0.125rem;
+}
+
+.nav-menu ul li a {
+  color: #cad9e1;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 2rem;
+  border-left: 4px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+  font-weight: 500;
+}
+
+.nav-menu ul li a.active, .nav-menu ul li a:hover {
+  background: #1e254d;
+  color: #67b8c5;
+  border-left: 4px solid #67b8c5;
+}
+
+.nav-menu ul li .icon {
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.nav-menu .support {
+  padding: 0.75rem 2rem;
+  border-top: 1px solid #323861;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.nav-menu .user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.375rem;
+}
+
+.nav-menu .user img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+}
+
+.nav-menu .support a {
+  color: #cad9e1;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.settings-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1001;
+  background: transparent;
+}
+
+.settings-dialog {
+  position: fixed;
+  bottom: 20px;
+  left: 260px;
+  min-width: 300px;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(6,11,40,0.12);
+  border-radius: 10px;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.settings-section-title {
+  color: #7b8ca6;
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.2rem 0;
+}
+
+.settings-dialog a {
+  color: #232b4d;
+  font-size: 1.05rem;
+  text-decoration: none;
+  padding: 0.4rem 0;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
+}
+
+.settings-dialog a:hover {
+  background: #f7faff;
+  color: #1a6cff;
+}
+
+.settings-dialog hr {
+  border: none;
+  border-top: 1px solid #e5eaf2;
+  margin: 0.7rem 0;
+}
+
+.get-mobile-app {
+  color: #1a6cff;
+  font-size: 1.05rem;
+  margin: 0.7rem 0;
+  text-decoration: underline;
+}
+
+.invite-users-btn {
+  width: 100%;
+  margin-top: 0.7rem;
+  background: #fff;
+  color: #1a6cff;
+  border: 1.5px solid #1a6cff;
+  border-radius: 6px;
+  padding: 0.5rem 0;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.invite-users-btn:hover {
+  background: #eaf3ff;
+  color: #232b4d;
+}

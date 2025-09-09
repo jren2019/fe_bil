@@ -1,0 +1,469 @@
+<div class="vendors-layout">
+  <app-nav-menu></app-nav-menu>
+
+  <!-- Page Header -->
+  <div class="vendors-header">
+    <div class="header-left">
+      <h1 class="page-title">Vendors</h1>
+      <div class="vendors-count">{{ getFilteredVendors().length }} Total</div>
+    </div>
+    <div class="header-right">
+      <div class="search-container">
+        <i class="pi pi-search search-icon"></i>
+        <input type="text"
+               placeholder="Search vendors..."
+               class="search-input"
+               [(ngModel)]="searchTerm">
+      </div>
+      <button class="btn btn-primary new-vendor-btn" (click)="openNewVendorModal()">
+        <i class="pi pi-plus"></i>
+        New Vendor
+      </button>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="vendors-content">
+    <!-- Left Panel - Vendor List -->
+    <div class="vendors-panel">
+      <!-- Filters -->
+      <div class="panel-header">
+        <h3>All Vendors</h3>
+        <div class="filter-controls">
+          <select class="filter-select" [(ngModel)]="statusFilter">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
+          </select>
+          <select class="filter-select" [(ngModel)]="typeFilter">
+            <option value="">All Types</option>
+            @for (type of vendorTypes; track type.id) {
+              <option [value]="type.id">{{ type.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Vendor List -->
+      <div class="vendors-list">
+        @if (getFilteredVendors().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <h4>No vendors found</h4>
+            <p>Try adjusting your search or filters, or create a new vendor.</p>
+            <button class="btn btn-primary" (click)="openNewVendorModal()">
+              <i class="pi pi-plus"></i>
+              Create First Vendor
+            </button>
+          </div>
+        } @else {
+          @for (vendor of getFilteredVendors(); track vendor.id) {
+            <div class="vendor-item"
+                 [class.selected]="selectedVendorId === vendor.id"
+                 (click)="selectVendor(vendor.id)">
+              <div class="vendor-color" [style.background-color]="vendor.color"></div>
+              <div class="vendor-icon">{{ vendor.vendorType.icon }}</div>
+              <div class="vendor-details">
+                <div class="vendor-name">{{ vendor.name }}</div>
+                <div class="vendor-company">{{ vendor.company }}</div>
+                <div class="vendor-meta">
+                  <span class="vendor-type">{{ vendor.vendorType.name }}</span>
+                  <span class="vendor-orders">{{ vendor.totalOrders }} orders</span>
+                </div>
+                <div class="vendor-status-row">
+                  <span class="status-badge" [class]="'status-' + vendor.status">
+                    {{ vendor.status | titlecase }}
+                  </span>
+                  <span class="vendor-rating">
+                    @for (star of getStarRating(vendor.rating); track $index) {
+                      <span class="star" [class.filled]="star === '★'">{{ star }}</span>
+                    }
+                    <span class="rating-value">({{ vendor.rating }})</span>
+                  </span>
+                </div>
+              </div>
+              <div class="vendor-amount">
+                <div class="amount-value">{{ formatCurrency(vendor.totalSpent) }}</div>
+                <div class="amount-label">Total Spent</div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Right Panel - Vendor Details -->
+    <div class="details-panel">
+      @if (selectedVendor) {
+        <div class="details-header">
+          <div class="vendor-header-info">
+            <div class="vendor-color-large" [style.background-color]="selectedVendor.color"></div>
+            <div class="vendor-title-section">
+              <h2>{{ selectedVendor.name }}</h2>
+              <div class="vendor-subtitle">{{ selectedVendor.company }}</div>
+              <div class="vendor-type-badge">
+                <span class="type-icon">{{ selectedVendor.vendorType.icon }}</span>
+                {{ selectedVendor.vendorType.name }}
+              </div>
+            </div>
+          </div>
+          <div class="details-actions">
+            <button class="btn btn-outline" (click)="editVendor(selectedVendor)">
+              <i class="pi pi-pencil"></i>
+              Edit
+            </button>
+            <button class="btn btn-outline" (click)="toggleVendorStatus(selectedVendor)">
+              <i class="pi" [class]="selectedVendor.status === 'active' ? 'pi-pause' : 'pi-play'"></i>
+              {{ selectedVendor.status === 'active' ? 'Deactivate' : 'Activate' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Vendor Stats -->
+        <div class="vendor-stats">
+          <div class="stat-card">
+            <div class="stat-value">{{ selectedVendor.totalOrders }}</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ formatCurrency(selectedVendor.totalSpent) }}</div>
+            <div class="stat-label">Total Spent</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">
+              @for (star of getStarRating(selectedVendor.rating); track $index) {
+                <span class="star" [class.filled]="star === '★'">{{ star }}</span>
+              }
+            </div>
+            <div class="stat-label">Rating ({{ selectedVendor.rating }})</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">
+              <span class="status-badge" [class]="'status-' + selectedVendor.status">
+                {{ selectedVendor.status | titlecase }}
+              </span>
+            </div>
+            <div class="stat-label">Status</div>
+          </div>
+        </div>
+
+        <!-- Vendor Information Tabs -->
+        <div class="vendor-tabs">
+          <div class="tab-buttons">
+            <button class="tab-btn" [class.active]="activeVendorTab === 'contact'" (click)="setVendorTab('contact')">Contact Info</button>
+            <button class="tab-btn" [class.active]="activeVendorTab === 'contacts'" (click)="setVendorTab('contacts')">Contacts</button>
+            <button class="tab-btn" [class.active]="activeVendorTab === 'payment'" (click)="setVendorTab('payment')">Payment Terms</button>
+            <button class="tab-btn" [class.active]="activeVendorTab === 'notes'" (click)="setVendorTab('notes')">Notes</button>
+          </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <!-- Contact Information -->
+          @if (activeVendorTab === 'contact') {
+          <div class="info-section">
+            <h3>Contact Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">
+                  <a href="mailto:{{ selectedVendor.email }}">{{ selectedVendor.email }}</a>
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Phone</span>
+                <span class="info-value">
+                  <a href="tel:{{ selectedVendor.phone }}">{{ selectedVendor.phone }}</a>
+                </span>
+              </div>
+              @if (selectedVendor.website) {
+                <div class="info-item">
+                  <span class="info-label">Website</span>
+                  <span class="info-value">
+                    <a [href]="selectedVendor.website" target="_blank">{{ selectedVendor.website }}</a>
+                  </span>
+                </div>
+              }
+              @if (selectedVendor.taxId) {
+                <div class="info-item">
+                  <span class="info-label">Tax ID</span>
+                  <span class="info-value">{{ selectedVendor.taxId }}</span>
+                </div>
+              }
+            </div>
+          </div>
+          }
+
+          @if (activeVendorTab === 'contact') {
+          <div class="info-section">
+            <h3>Address</h3>
+            <div class="address-block">
+              <div class="address-line">{{ selectedVendor.address.street }}</div>
+              <div class="address-line">
+                {{ selectedVendor.address.city }}, {{ selectedVendor.address.state }} {{ selectedVendor.address.zipCode }}
+              </div>
+              <div class="address-line">{{ selectedVendor.address.country }}</div>
+            </div>
+          </div>
+          }
+
+          @if (activeVendorTab === 'contacts') {
+          <div class="info-section">
+            <div class="section-header">
+              <h3>Contacts</h3>
+              <button class="btn btn-outline btn-sm" (click)="addVendorContact(selectedVendor)">
+                <i class="pi pi-plus"></i>
+                Add Contact
+              </button>
+            </div>
+            <div class="contacts-list">
+              @for (contact of selectedVendor.contacts; track contact.id) {
+                <div class="contact-item">
+                  <div class="contact-avatar">{{ contact.name.charAt(0) }}</div>
+                  <div class="contact-info">
+                    <div class="contact-name">
+                      {{ contact.name }}
+                      @if (contact.isPrimary) {
+                        <span class="primary-badge">Primary</span>
+                      }
+                    </div>
+                    <div class="contact-title">{{ contact.title }}</div>
+                    <div class="contact-details">
+                      <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+                      <span class="separator">•</span>
+                      <a href="tel:{{ contact.phone }}">{{ contact.phone }}</a>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          }
+
+          @if (activeVendorTab === 'payment') {
+          <div class="info-section">
+            <h3>Payment Terms</h3>
+            <div class="payment-info">
+              <div class="payment-term">{{ selectedVendor.paymentTerms }}</div>
+              @if (selectedVendor.lastOrderDate) {
+                <div class="last-order">
+                  Last Order: {{ selectedVendor.lastOrderDate | date:'MMM d, y' }}
+                </div>
+              }
+            </div>
+          </div>
+          }
+
+          @if (activeVendorTab === 'contact' && selectedVendor.tags && selectedVendor.tags.length > 0) {
+            <div class="info-section">
+              <h3>Tags</h3>
+              <div class="tags-container">
+                @for (tag of selectedVendor.tags; track tag) {
+                  <span class="tag">{{ tag }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (activeVendorTab === 'notes' && selectedVendor.notes) {
+            <div class="info-section">
+              <h3>Notes</h3>
+              <div class="notes-content">{{ selectedVendor.notes }}</div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-selection">
+          <div class="empty-icon">👥</div>
+          <h3>Select a vendor</h3>
+          <p>Choose a vendor from the list to view details</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- New Vendor Modal (PrimeNG) -->
+<p-dialog
+  [(visible)]="showNewVendorModal"
+  [modal]="true"
+  [style]="{width: '720px'}"
+  [contentStyle]="{'max-height':'80vh','overflow':'auto'}"
+  [header]="isEditMode ? 'Edit Vendor' : 'Create New Vendor'"
+  (onHide)="closeNewVendorModal()">
+
+  <form (ngSubmit)="createVendor()" #vendorForm="ngForm">
+    <div class="modal-body">
+          <!-- Basic Information -->
+          <div class="form-section">
+            <h4>Basic Information</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Contact Name *</label>
+                <input type="text"
+                       [(ngModel)]="newVendorForm.name"
+                       name="name"
+                       required
+                       class="form-control"
+                       placeholder="Enter contact name">
+              </div>
+              <div class="form-group">
+                <label>Company Name *</label>
+                <input type="text"
+                       [(ngModel)]="newVendorForm.company"
+                       name="company"
+                       required
+                       class="form-control"
+                       placeholder="Enter company name">
+              </div>
+              <div class="form-group">
+                <label>Email *</label>
+                <input type="email"
+                       [(ngModel)]="newVendorForm.email"
+                       name="email"
+                       required
+                       class="form-control"
+                       placeholder="Enter email address">
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel"
+                       [(ngModel)]="newVendorForm.phone"
+                       name="phone"
+                       class="form-control"
+                       placeholder="Enter phone number">
+              </div>
+            </div>
+          </div>
+
+          <!-- Vendor Type and Payment -->
+          <div class="form-section">
+            <h4>Vendor Details</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Vendor Type *</label>
+                <select [(ngModel)]="newVendorForm.vendorTypeId"
+                        name="vendorType"
+                        required
+                        class="form-control">
+                  <option value="">Select Type</option>
+                  @for (type of vendorTypes; track type.id) {
+                    <option [value]="type.id">{{ type.icon }} {{ type.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Payment Terms</label>
+                <select [(ngModel)]="newVendorForm.paymentTerms"
+                        name="paymentTerms"
+                        class="form-control">
+                  @for (term of paymentTermsOptions; track term) {
+                    <option [value]="term">{{ term }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Website</label>
+                <input type="url"
+                       [(ngModel)]="newVendorForm.website"
+                       name="website"
+                       class="form-control"
+                       placeholder="https://example.com">
+              </div>
+              <div class="form-group">
+                <label>Tax ID</label>
+                <input type="text"
+                       [(ngModel)]="newVendorForm.taxId"
+                       name="taxId"
+                       class="form-control"
+                       placeholder="Enter tax ID">
+              </div>
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div class="form-section">
+            <h4>Address</h4>
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Street Address</label>
+                <input type="text"
+                       [(ngModel)]="newVendorForm.address.street"
+                       name="street"
+                       class="form-control"
+                       placeholder="Enter street address">
+              </div>
+              <div class="form-group">
+                <label>City</label>
+                <input type="text"
+                       [(ngModel)]="newVendorForm.address.city"
+                       name="city"
+                       class="form-control"
+                       placeholder="Enter city">
+              </div>
+              <div class="form-group">
+                <label>State</label>
+                <input type="text"
+                       [(ngModel)]="newVendorForm.address.state"
+                       name="state"
+                       class="form-control"
+                       placeholder="Enter state">
+              </div>
+              <div class="form-group">
+                <label>ZIP Code</label>
+                <input type="text"
+                       [(ngModel)]="newVendorForm.address.zipCode"
+                       name="zipCode"
+                       class="form-control"
+                       placeholder="Enter ZIP code">
+              </div>
+              <div class="form-group">
+                <label>Country</label>
+                <select [(ngModel)]="newVendorForm.address.country"
+                        name="country"
+                        class="form-control">
+                  <option value="United States">United States</option>
+                  <option value="Canada">Canada</option>
+                  <option value="Mexico">Mexico</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Color and Notes -->
+          <div class="form-section">
+            <h4>Additional Details</h4>
+            <div class="form-group">
+              <label>Vendor Color</label>
+              <div class="color-picker">
+                @for (color of colorOptions; track color) {
+                  <div class="color-option"
+                       [style.background-color]="color"
+                       [class.selected]="newVendorForm.color === color"
+                       (click)="newVendorForm.color = color">
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Notes</label>
+              <textarea [(ngModel)]="newVendorForm.notes"
+                        name="notes"
+                        rows="3"
+                        class="form-control"
+                        placeholder="Enter any notes about this vendor"></textarea>
+            </div>
+          </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="closeNewVendorModal()">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="!vendorForm.valid" (click)="isEditMode ? updateVendor() : null">
+        {{ isEditMode ? 'Update Vendor' : 'Create Vendor' }}
+      </button>
+    </div>
+  </form>
+</p-dialog>

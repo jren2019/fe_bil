@@ -1,0 +1,141 @@
+.code-container {
+  width: 100%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background-color: var(--code-background);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: var(--background-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.code-tabs {
+  display: flex;
+}
+
+.code-tab {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.code-tab.active {
+  color: var(--accent-primary);
+  font-weight: 500;
+}
+
+.copy-button {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  padding: 0.25rem;
+}
+
+.copy-button:hover {
+  color: var(--text-primary);
+}
+
+.code-block {
+  margin: 0;
+  padding: 1rem;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow: auto;
+  max-height: 360px;
+  flex-grow: 1;
+}
+
+.code-block code {
+  white-space: pre;
+  background: none;
+  padding: 0;
+  display: block;
+}
+
+/* Line numbers styling */
+.line-numbers .hljs-ln-numbers {
+  text-align: right;
+  color: var(--text-tertiary);
+  border-right: 1px solid var(--border-color);
+  padding-right: 0.75rem;
+  margin-right: 0.75rem;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Customize scrollbar for code blocks */
+.code-block::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.code-block::-webkit-scrollbar-track {
+  background: rgba(30, 37, 77, 0.3);
+  border-radius: 0 0 0.5rem 0;
+}
+
+.code-block::-webkit-scrollbar-thumb {
+  background-color: rgba(103, 184, 197, 0.5);
+  border-radius: 4px;
+}
+
+.code-block::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(103, 184, 197, 0.7);
+}
+
+/* Highlight.js theme customization */
+:host ::ng-deep .hljs {
+  background: var(--code-background);
+  color: var(--text-secondary);
+}
+
+:host ::ng-deep .hljs-keyword {
+  color: #C792EA;
+}
+
+:host ::ng-deep .hljs-title {
+  color: #82AAFF;
+}
+
+:host ::ng-deep .hljs-string {
+  color: #C3E88D;
+}
+
+:host ::ng-deep .hljs-number {
+  color: #F78C6C;
+}
+
+:host ::ng-deep .hljs-attribute {
+  color: #FFCB6B;
+}
+
+:host ::ng-deep .hljs-literal {
+  color: #FF5370;
+}
+
+:host ::ng-deep .hljs-comment {
+  color: #546E7A;
+}
+
+:host ::ng-deep .hljs-variable {
+  color: #F07178;
+}

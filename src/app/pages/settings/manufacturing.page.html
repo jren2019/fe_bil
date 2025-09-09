@@ -1,0 +1,487 @@
+<div class="manufacturing-settings-main">
+  <!-- Header -->
+  <div class="settings-header">
+    <div class="header-content">
+      <h1 class="page-title">Manufacturing Settings</h1>
+      <p class="page-description">Manage products and machine specifications for production planning</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="settings-content">
+    <p-tabView [(activeIndex)]="activeTabIndex" class="manufacturing-tabs">
+
+      <!-- Products Tab -->
+      <p-tabPanel header="Products" leftIcon="pi pi-box">
+        <div class="tab-content">
+          <div class="tab-header">
+            <div class="tab-info">
+              <h3>Product Management</h3>
+              <p>Manage all products that can be manufactured in your facility</p>
+            </div>
+            <button class="create-btn" (click)="openCreateProductDialog()">
+              <i class="pi pi-plus"></i>
+              Add Product
+            </button>
+          </div>
+
+          <!-- Products Table -->
+          <div class="data-table-container">
+            <p-table [value]="products" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                     [rowsPerPageOptions]="[10, 25, 50]" styleClass="products-table">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>Category</th>
+                  <th>Standard Rate</th>
+                  <th>Unit Type</th>
+                  <th>Setup Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-product>
+                <tr [class.inactive-row]="!product.isActive">
+                  <td>
+                    <div class="product-info">
+                      <div class="product-name">{{ product.name }}</div>
+                      <div class="product-description">{{ product.description }}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="sku-badge">{{ product.sku }}</span>
+                  </td>
+                  <td>{{ product.category }}</td>
+                  <td>
+                    <div class="rate-info">
+                      <span class="rate-value">{{ product.standardRate }}</span>
+                      <span class="rate-unit">{{ product.unitType }}/hr</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="unit-badge">{{ product.unitType }}</span>
+                  </td>
+                  <td>{{ product.setupTime }} min</td>
+                  <td>
+                    <button class="status-toggle"
+                            [class.active]="product.isActive"
+                            [class.inactive]="!product.isActive"
+                            (click)="toggleProductStatus(product)">
+                      {{ product.isActive ? 'Active' : 'Inactive' }}
+                    </button>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="action-btn edit" (click)="editProduct(product)" title="Edit Product">
+                        <i class="pi pi-pencil"></i>
+                      </button>
+                      <button class="action-btn delete" (click)="deleteProduct(product)" title="Delete Product">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="8" class="empty-state">
+                    <div class="empty-content">
+                      <i class="pi pi-box empty-icon"></i>
+                      <h4>No Products Found</h4>
+                      <p>Start by adding your first product to manage manufacturing specifications.</p>
+                      <button class="create-btn" (click)="openCreateProductDialog()">
+                        <i class="pi pi-plus"></i>
+                        Add First Product
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Machine Specs Tab -->
+      <p-tabPanel header="Machine Specifications" leftIcon="pi pi-cog">
+        <div class="tab-content">
+          <div class="tab-header">
+            <div class="tab-info">
+              <h3>Machine Specifications</h3>
+              <p>Configure production specifications for each machine-product combination</p>
+            </div>
+            <button class="create-btn" (click)="openCreateMachineSpecDialog()">
+              <i class="pi pi-plus"></i>
+              Add Specification
+            </button>
+          </div>
+
+          <!-- Machine Specs Table -->
+          <div class="data-table-container">
+            <p-table [value]="getFilteredMachineSpecs()" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} specifications"
+                     [rowsPerPageOptions]="[10, 25, 50]" styleClass="machine-specs-table">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Machine</th>
+                  <th>Product</th>
+                  <th>Production Rate</th>
+                  <th>Setup Time</th>
+                  <th>Efficiency</th>
+                  <th>Quality</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-spec>
+                <tr [class.inactive-row]="!spec.isActive">
+                  <td>
+                    <div class="machine-info">
+                      <div class="machine-name">{{ spec.asset.name }}</div>
+                      <div class="machine-location">{{ spec.asset.location }}</div>
+                      <div class="machine-type">{{ spec.asset.assetType }}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="product-info">
+                      <div class="product-name">{{ spec.product.name }}</div>
+                      <div class="product-sku">{{ spec.product.sku }}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="rate-comparison">
+                      <div class="spec-rate">
+                        <span class="rate-value">{{ spec.productionRate }}</span>
+                        <span class="rate-unit">{{ spec.product.unitType }}/hr</span>
+                      </div>
+                      <div class="standard-rate">
+                        <span class="rate-label">Std:</span>
+                        <span class="rate-value">{{ spec.product.standardRate }}</span>
+                        <span class="rate-unit">{{ spec.product.unitType }}/hr</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="time-comparison">
+                      <div class="spec-time">{{ spec.setupTime }} min</div>
+                      <div class="standard-time">Std: {{ spec.product.setupTime }} min</div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="efficiency-badge"
+                         [class.good]="spec.efficiency >= 90"
+                         [class.average]="spec.efficiency >= 80 && spec.efficiency < 90"
+                         [class.poor]="spec.efficiency < 80">
+                      {{ spec.efficiency }}%
+                    </div>
+                  </td>
+                  <td>
+                    <div class="quality-badge"
+                         [class.good]="spec.quality >= 95"
+                         [class.average]="spec.quality >= 90 && spec.quality < 95"
+                         [class.poor]="spec.quality < 90">
+                      {{ spec.quality }}%
+                    </div>
+                  </td>
+                  <td>
+                    <button class="status-toggle"
+                            [class.active]="spec.isActive"
+                            [class.inactive]="!spec.isActive"
+                            (click)="toggleMachineSpecStatus(spec)">
+                      {{ spec.isActive ? 'Active' : 'Inactive' }}
+                    </button>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="action-btn edit" (click)="editMachineSpec(spec)" title="Edit Specification">
+                        <i class="pi pi-pencil"></i>
+                      </button>
+                      <button class="action-btn delete" (click)="deleteMachineSpec(spec)" title="Delete Specification">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="8" class="empty-state">
+                    <div class="empty-content">
+                      <i class="pi pi-cog empty-icon"></i>
+                      <h4>No Machine Specifications Found</h4>
+                      <p>Configure how your machines produce different products by adding specifications.</p>
+                      <button class="create-btn" (click)="openCreateMachineSpecDialog()">
+                        <i class="pi pi-plus"></i>
+                        Add First Specification
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>
+
+<!-- Product Dialog -->
+@if (showProductDialog) {
+  <div class="modal-overlay" (click)="closeProductDialog()">
+    <div class="modal-content large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingProduct ? 'Edit Product' : 'Add New Product' }}</h3>
+        <button class="close-btn" (click)="closeProductDialog()">×</button>
+      </div>
+
+      <form (ngSubmit)="saveProduct()" #productForm="ngForm">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Product Name *</label>
+              <input type="text"
+                     [(ngModel)]="newProduct.name"
+                     name="name"
+                     required
+                     placeholder="Enter product name"
+                     class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label>SKU *</label>
+              <input type="text"
+                     [(ngModel)]="newProduct.sku"
+                     name="sku"
+                     required
+                     placeholder="e.g., CHB-100"
+                     class="form-control">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea [(ngModel)]="newProduct.description"
+                      name="description"
+                      rows="3"
+                      placeholder="Enter product description"
+                      class="form-control"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Category</label>
+              <p-dropdown [(ngModel)]="newProduct.category"
+                          name="category"
+                          [options]="categories"
+                          placeholder="Select category"
+                          class="form-control"></p-dropdown>
+            </div>
+
+            <div class="form-group">
+              <label>Unit Type</label>
+              <p-dropdown [(ngModel)]="newProduct.unitType"
+                          name="unitType"
+                          [options]="unitTypes"
+                          placeholder="Select unit type"
+                          class="form-control"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Standard Production Rate (units/hr) *</label>
+              <input type="number"
+                     [(ngModel)]="newProduct.standardRate"
+                     name="standardRate"
+                     required
+                     min="1"
+                     placeholder="1000"
+                     class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label>Setup Time (minutes) *</label>
+              <input type="number"
+                     [(ngModel)]="newProduct.setupTime"
+                     name="setupTime"
+                     required
+                     min="0"
+                     placeholder="30"
+                     class="form-control">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Standard Run Time (minutes) *</label>
+            <input type="number"
+                   [(ngModel)]="newProduct.standardRunTime"
+                   name="standardRunTime"
+                   required
+                   min="1"
+                   placeholder="240"
+                   class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox"
+                     [(ngModel)]="newProduct.isActive"
+                     name="isActive">
+              <span class="checkbox-text">Product is active</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeProductDialog()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!productForm.valid">
+            {{ editingProduct ? 'Update Product' : 'Create Product' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Machine Specification Dialog -->
+@if (showMachineSpecDialog) {
+  <div class="modal-overlay" (click)="closeMachineSpecDialog()">
+    <div class="modal-content large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingMachineSpec ? 'Edit Machine Specification' : 'Add Machine Specification' }}</h3>
+        <button class="close-btn" (click)="closeMachineSpecDialog()">×</button>
+      </div>
+
+      <form (ngSubmit)="saveMachineSpec()" #specForm="ngForm">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Machine/Asset *</label>
+              <p-dropdown [(ngModel)]="newMachineSpec.assetId"
+                          name="assetId"
+                          [options]="getAssetOptions()"
+                          placeholder="Select machine or asset"
+                          required
+                          class="form-control"></p-dropdown>
+            </div>
+
+            <div class="form-group">
+              <label>Product *</label>
+              <p-dropdown [(ngModel)]="newMachineSpec.productId"
+                          name="productId"
+                          [options]="getProductOptions()"
+                          placeholder="Select product"
+                          required
+                          (onChange)="onProductChange()"
+                          class="form-control"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Production Rate (units/hr) *</label>
+              <input type="number"
+                     [(ngModel)]="newMachineSpec.productionRate"
+                     name="productionRate"
+                     required
+                     min="1"
+                     placeholder="800"
+                     class="form-control">
+              <small class="form-help">Machine-specific production rate for this product</small>
+            </div>
+
+            <div class="form-group">
+              <label>Setup Time (minutes) *</label>
+              <input type="number"
+                     [(ngModel)]="newMachineSpec.setupTime"
+                     name="setupTime"
+                     required
+                     min="0"
+                     placeholder="30"
+                     class="form-control">
+              <small class="form-help">Time needed to setup this machine for this product</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Optimal Run Time (minutes) *</label>
+              <input type="number"
+                     [(ngModel)]="newMachineSpec.runTime"
+                     name="runTime"
+                     required
+                     min="1"
+                     placeholder="240"
+                     class="form-control">
+              <small class="form-help">Recommended production run duration</small>
+            </div>
+
+            <div class="form-group">
+              <label>Expected Efficiency (%) *</label>
+              <input type="number"
+                     [(ngModel)]="newMachineSpec.efficiency"
+                     name="efficiency"
+                     required
+                     min="1"
+                     max="100"
+                     placeholder="85"
+                     class="form-control">
+              <small class="form-help">Expected efficiency percentage for this combination</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Expected Quality (%) *</label>
+            <input type="number"
+                   [(ngModel)]="newMachineSpec.quality"
+                   name="quality"
+                   required
+                   min="1"
+                   max="100"
+                   placeholder="95"
+                   class="form-control">
+            <small class="form-help">Expected quality percentage for this combination</small>
+          </div>
+
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea [(ngModel)]="newMachineSpec.notes"
+                      name="notes"
+                      rows="3"
+                      placeholder="Additional notes about this machine-product specification"
+                      class="form-control"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox"
+                     [(ngModel)]="newMachineSpec.isActive"
+                     name="isActive">
+              <span class="checkbox-text">Specification is active</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeMachineSpecDialog()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!specForm.valid">
+            {{ editingMachineSpec ? 'Update Specification' : 'Create Specification' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,474 @@
+<div class="library-page">
+  <app-nav-menu></app-nav-menu>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Knowledge Library</h1>
+      <p>Access documents, templates, procedures, and get instant help with AI assistance</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="exportLibraryReport()">
+        <i class="pi pi-download"></i>
+        Export Library
+      </button>
+      <button class="btn btn-primary" (click)="uploadDocument()">
+        <i class="pi pi-upload"></i>
+        Upload Document
+      </button>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="view-tabs">
+    <div class="tab-buttons">
+      <button class="tab-button"
+              [class.active]="selectedView === 'documents'"
+              (click)="setView('documents')">
+        <span class="tab-icon">📄</span>
+        <span class="tab-label">Documents</span>
+        <span class="tab-count">{{ documents.length }}</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'templates'"
+              (click)="setView('templates')">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label">Work Order Templates</span>
+        <span class="tab-count">{{ workOrderTemplates.length }}</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'procedures'"
+              (click)="setView('procedures')">
+        <span class="tab-icon">📚</span>
+        <span class="tab-label">Procedures</span>
+        <span class="tab-count">{{ procedures.length }}</span>
+      </button>
+      <button class="tab-button"
+              [class.active]="selectedView === 'qa'"
+              (click)="setView('qa')">
+        <span class="tab-icon">🤖</span>
+        <span class="tab-label">Q&A Assistant</span>
+        <span class="tab-badge">AI</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content-area">
+
+    <!-- Documents Tab -->
+    @if (selectedView === 'documents') {
+      <div class="tab-content documents-content">
+        <!-- Search and Filters -->
+        <div class="content-header">
+          <div class="search-filters">
+            <div class="search-container">
+              <i class="pi pi-search search-icon"></i>
+              <input type="text"
+                     placeholder="Search documents..."
+                     class="search-input"
+                     [(ngModel)]="searchTerm">
+            </div>
+            <select class="filter-select" [(ngModel)]="selectedCategory">
+              <option value="">All Categories</option>
+              @for (category of documentCategories; track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </div>
+          <div class="view-options">
+            <button class="btn btn-sm btn-outline">
+              <i class="pi pi-list"></i>
+            </button>
+            <button class="btn btn-sm btn-outline">
+              <i class="pi pi-th-large"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Documents Grid -->
+        <div class="documents-grid">
+          @for (document of getFilteredDocuments(); track document.id) {
+            <div class="document-card">
+              <div class="document-header">
+                <div class="file-type-icon">
+                  <i class="pi" [class]="document.fileType === 'PDF' ? 'pi-file-pdf' : 'pi-file'"></i>
+                </div>
+                <div class="document-actions">
+                  <button class="action-btn" (click)="previewDocument(document)">
+                    <i class="pi pi-eye"></i>
+                  </button>
+                  <button class="action-btn" (click)="downloadDocument(document)">
+                    <i class="pi pi-download"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="document-content">
+                <h3 class="document-title">{{ document.title }}</h3>
+                <p class="document-description">{{ document.description }}</p>
+                <div class="document-meta">
+                  <span class="category-badge">{{ document.category }}</span>
+                  <span class="file-info">{{ document.fileType }} • {{ document.fileSize }}</span>
+                </div>
+                <div class="document-tags">
+                  @for (tag of document.tags; track tag) {
+                    <span class="tag">{{ tag }}</span>
+                  }
+                </div>
+              </div>
+              <div class="document-footer">
+                <div class="upload-info">
+                  <span class="uploaded-by">{{ document.uploadedBy }}</span>
+                  <span class="upload-date">{{ formatDate(document.uploadedDate) }}</span>
+                </div>
+                <div class="download-count">
+                  <i class="pi pi-download"></i>
+                  {{ document.downloadCount }}
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (getFilteredDocuments().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <h3>No documents found</h3>
+            <p>Try adjusting your search or filters to find documents.</p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Work Order Templates Tab -->
+    @if (selectedView === 'templates') {
+      <div class="tab-content templates-content">
+        <!-- Search and Filters -->
+        <div class="content-header">
+          <div class="search-filters">
+            <div class="search-container">
+              <i class="pi pi-search search-icon"></i>
+              <input type="text"
+                     placeholder="Search templates..."
+                     class="search-input"
+                     [(ngModel)]="searchTerm">
+            </div>
+            <select class="filter-select" [(ngModel)]="selectedCategory">
+              <option value="">All Categories</option>
+              @for (category of templateCategories; track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary">
+              <i class="pi pi-plus"></i>
+              New Template
+            </button>
+          </div>
+        </div>
+
+        <!-- Templates Grid -->
+        <div class="templates-grid">
+          @for (template of getFilteredTemplates(); track template.id) {
+            <div class="template-card">
+              <div class="template-header">
+                <div class="template-type">
+                  <span class="work-type-badge" [class]="getWorkTypeBadgeClass(template.workType)">
+                    {{ template.workType | titlecase }}
+                  </span>
+                  <span class="priority-badge" [class]="getPriorityBadgeClass(template.priority)">
+                    {{ template.priority | titlecase }}
+                  </span>
+                </div>
+                <div class="template-actions">
+                  <button class="action-btn" (click)="useTemplate(template)">
+                    <i class="pi pi-play"></i>
+                  </button>
+                  <button class="action-btn" (click)="editTemplate(template)">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="action-btn" (click)="duplicateTemplate(template)">
+                    <i class="pi pi-copy"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="template-content">
+                <h3 class="template-title">{{ template.name }}</h3>
+                <p class="template-description">{{ template.description }}</p>
+                <div class="template-meta">
+                  <div class="meta-item">
+                    <i class="pi pi-clock"></i>
+                    <span>{{ template.estimatedDuration }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="pi pi-list"></i>
+                    <span>{{ template.checklist.length }} steps</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="pi pi-cog"></i>
+                    <span>{{ template.requiredParts.length }} parts</span>
+                  </div>
+                </div>
+                <div class="template-skills">
+                  @for (skill of template.skillsRequired; track skill) {
+                    <span class="skill-tag">{{ skill }}</span>
+                  }
+                </div>
+              </div>
+              <div class="template-footer">
+                <div class="creator-info">
+                  <span class="created-by">{{ template.createdBy }}</span>
+                  <span class="usage-count">Used {{ template.usageCount }} times</span>
+                </div>
+                <button class="btn btn-primary btn-sm use-template-btn" (click)="useTemplate(template)">
+                  Use Template
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (getFilteredTemplates().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No templates found</h3>
+            <p>Try adjusting your search or filters to find templates.</p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Procedures Tab -->
+    @if (selectedView === 'procedures') {
+      <div class="tab-content procedures-content">
+        <!-- Search and Filters -->
+        <div class="content-header">
+          <div class="search-filters">
+            <div class="search-container">
+              <i class="pi pi-search search-icon"></i>
+              <input type="text"
+                     placeholder="Search procedures..."
+                     class="search-input"
+                     [(ngModel)]="searchTerm">
+            </div>
+            <select class="filter-select" [(ngModel)]="selectedCategory">
+              <option value="">All Categories</option>
+              @for (category of procedureCategories; track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary">
+              <i class="pi pi-plus"></i>
+              New Procedure
+            </button>
+          </div>
+        </div>
+
+        <!-- Procedures List -->
+        <div class="procedures-list">
+          @for (procedure of getFilteredProcedures(); track procedure.id) {
+            <div class="procedure-card">
+              <div class="procedure-header">
+                <div class="procedure-status">
+                  @if (procedure.isApproved) {
+                    <span class="status-badge approved">
+                      <i class="pi pi-check"></i>
+                      Approved
+                    </span>
+                  } @else {
+                    <span class="status-badge pending">
+                      <i class="pi pi-clock"></i>
+                      Pending
+                    </span>
+                  }
+                  <span class="difficulty-badge" [class]="getDifficultyBadgeClass(procedure.difficulty)">
+                    {{ procedure.difficulty | titlecase }}
+                  </span>
+                </div>
+                <div class="procedure-actions">
+                  <button class="action-btn" (click)="viewProcedure(procedure)">
+                    <i class="pi pi-eye"></i>
+                  </button>
+                  <button class="action-btn" (click)="editProcedure(procedure)">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="procedure-content">
+                <h3 class="procedure-title">{{ procedure.title }}</h3>
+                <p class="procedure-description">{{ procedure.description }}</p>
+                <div class="procedure-meta">
+                  <div class="meta-row">
+                    <div class="meta-item">
+                      <i class="pi pi-clock"></i>
+                      <span>{{ procedure.estimatedTime }}</span>
+                    </div>
+                    <div class="meta-item">
+                      <i class="pi pi-list"></i>
+                      <span>{{ procedure.steps.length }} steps</span>
+                    </div>
+                    <div class="meta-item">
+                      <i class="pi pi-tag"></i>
+                      <span>{{ procedure.category }}</span>
+                    </div>
+                    <div class="meta-item">
+                      <i class="pi pi-code"></i>
+                      <span>v{{ procedure.version }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="procedure-tools">
+                  <strong>Required Tools:</strong>
+                  @for (tool of procedure.requiredTools; track tool) {
+                    <span class="tool-tag">{{ tool }}</span>
+                  }
+                </div>
+              </div>
+              <div class="procedure-footer">
+                <div class="author-info">
+                  <span class="created-by">{{ procedure.createdBy }}</span>
+                  <span class="updated-date">Updated {{ formatDate(procedure.lastUpdated) }}</span>
+                </div>
+                <button class="btn btn-primary btn-sm" (click)="viewProcedure(procedure)">
+                  View Steps
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (getFilteredProcedures().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h3>No procedures found</h3>
+            <p>Try adjusting your search or filters to find procedures.</p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Q&A Assistant Tab -->
+    @if (selectedView === 'qa') {
+      <div class="tab-content qa-content">
+        <div class="qa-layout">
+          <!-- Chat Interface -->
+          <div class="chat-section">
+            <div class="chat-header">
+              <div class="assistant-info">
+                <div class="assistant-avatar">🤖</div>
+                <div class="assistant-details">
+                  <h3>AI Assistant</h3>
+                  <p>Ready to help with your questions</p>
+                </div>
+              </div>
+              <div class="chat-actions">
+                <button class="btn btn-sm btn-outline" (click)="clearChat()">
+                  <i class="pi pi-refresh"></i>
+                  Clear Chat
+                </button>
+              </div>
+            </div>
+
+            <div class="chat-messages" #chatContainer>
+              @for (message of chatMessages; track message.id) {
+                <div class="message" [class.user-message]="message.isUser" [class.ai-message]="!message.isUser">
+                  @if (!message.isUser) {
+                    <div class="message-avatar">🤖</div>
+                  }
+                  <div class="message-content">
+                    <div class="message-text">{{ message.message }}</div>
+                    <div class="message-time">{{ message.timestamp | date:'short' }}</div>
+                  </div>
+                  @if (message.isUser) {
+                    <div class="message-avatar user-avatar">👤</div>
+                  }
+                </div>
+              }
+
+              @if (isTyping) {
+                <div class="message ai-message typing-message">
+                  <div class="message-avatar">🤖</div>
+                  <div class="message-content">
+                    <div class="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Quick Suggestions -->
+            @if (showSuggestions && chatMessages.length <= 1) {
+              <div class="quick-suggestions">
+                <h4>Quick Questions:</h4>
+                <div class="suggestions-grid">
+                  @for (suggestion of quickSuggestions; track suggestion) {
+                    <button class="suggestion-btn" (click)="sendQuickMessage(suggestion)">
+                      {{ suggestion }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="chat-input-section">
+              <div class="input-container">
+                <input type="text"
+                       class="chat-input"
+                       placeholder="Ask me anything about maintenance, procedures, or documents..."
+                       [(ngModel)]="newMessage"
+                       (keyup.enter)="sendMessage()"
+                       [disabled]="isTyping">
+                <button class="send-btn"
+                        (click)="sendMessage()"
+                        [disabled]="!newMessage.trim() || isTyping">
+                  <i class="pi pi-send"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Section -->
+          <div class="faq-section">
+            <div class="faq-header">
+              <h3>Frequently Asked Questions</h3>
+              <p>Quick answers to common questions</p>
+            </div>
+
+            <div class="faq-list">
+              @for (faq of faqItems; track faq.id) {
+                <div class="faq-item">
+                  <div class="faq-question" (click)="sendQuickMessage(faq.question)">
+                    <h4>{{ faq.question }}</h4>
+                    <div class="faq-meta">
+                      <span class="category-tag">{{ faq.category }}</span>
+                      <div class="faq-stats">
+                        <span class="helpful-count">
+                          <i class="pi pi-thumbs-up"></i>
+                          {{ faq.helpfulCount }}
+                        </span>
+                        <span class="view-count">
+                          <i class="pi pi-eye"></i>
+                          {{ faq.viewCount }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="faq-answer">
+                    {{ faq.answer }}
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

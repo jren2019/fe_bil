@@ -1,0 +1,124 @@
+<header class="header">
+  <div class="announcement-bar">
+    <div class="container">
+      <span class="announcement-label">New:</span> Ask AI, SQL Imports and more
+      <a href="/blog/2025/03/10/v032-InsightX-ai-sql-imports" class="announcement-link">Read now</a>
+    </div>
+  </div>
+  <div class="container header-container">
+    <div class="logo-container">
+      <a routerLink="/home" class="logo">
+        <img src="/assets/images/logo.svg" alt="InsightX Logo" class="logo-img">
+      </a>
+    </div>
+
+    <nav class="main-nav">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a routerLink="/docs" class="nav-link">Docs</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle">Guides</a>
+          <div class="dropdown-menu">
+            <div class="dropdown-section">
+              <a routerLink="/guides" class="dropdown-item">
+                <span class="dropdown-item-title">Guides</span>
+                <span class="dropdown-item-description">Step-by-step guides to various InsightX use cases</span>
+              </a>
+              <a routerLink="/databases" class="dropdown-item">
+                <span class="dropdown-item-title">Databases</span>
+                <span class="dropdown-item-description">Database-specific guides for using InsightX</span>
+              </a>
+              <a routerLink="/orms" class="dropdown-item">
+                <span class="dropdown-item-title">ORMs and Frameworks</span>
+                <span class="dropdown-item-description">Integrate InsightX with the ORM of your choice</span>
+              </a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle">Use Cases</a>
+          <div class="dropdown-menu">
+            <div class="dropdown-section">
+              <a routerLink="/use-cases/modernize-database-migrations" class="dropdown-item">
+                <span class="dropdown-item-title">Modernize Schema Migrations</span>
+                <span class="dropdown-item-description">Apply modern CI/CD to schema changes</span>
+              </a>
+              <a routerLink="/use-cases/standardize-schema-migrations" class="dropdown-item">
+                <span class="dropdown-item-title">Standardize Schema Migrations</span>
+                <span class="dropdown-item-description">One migration tool to rule them all</span>
+              </a>
+              <a routerLink="/use-cases/database-per-tenant" class="dropdown-item">
+                <span class="dropdown-item-title">Database per tenant</span>
+                <span class="dropdown-item-description">Manage thousands of databases as one</span>
+              </a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/blog" class="nav-link">Blog</a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/pricing" class="nav-link">Pricing</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <div class="social-links">
+        <a href="https://github.com/ariga/InsightX" target="_blank" class="social-link" aria-label="GitHub">
+          <fa-icon [icon]="faGithub"></fa-icon>
+        </a>
+        <a href="https://discord.gg/zZ6sWVg6NT" target="_blank" class="social-link" aria-label="Discord">
+          <fa-icon [icon]="faDiscord"></fa-icon>
+        </a>
+        <a href="https://twitter.com/InsightXgo_io" target="_blank" class="social-link" aria-label="Twitter">
+          <fa-icon [icon]="faTwitter"></fa-icon>
+        </a>
+      </div>
+
+      <a class="btn btn-outline login-btn" routerLink="/splash">Login</a>
+      <a class="btn btn-primary signup-btn" href="/signup">Sign up</a>
+    </div>
+
+    <button class="mobile-menu-toggle" [class.active]="isMobileMenuOpen" (click)="toggleMobileMenu()" aria-label="Toggle mobile menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+  </div>
+
+  <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+    <ul class="mobile-nav-list">
+      <li class="mobile-nav-item">
+        <a routerLink="/docs" class="mobile-nav-link">Docs</a>
+      </li>
+      <li class="mobile-nav-item">
+        <a routerLink="/guides" class="mobile-nav-link">Guides</a>
+      </li>
+      <li class="mobile-nav-item">
+        <a routerLink="/use-cases/modernize-database-migrations" class="mobile-nav-link">Use Cases</a>
+      </li>
+      <li class="mobile-nav-item">
+        <a routerLink="/blog" class="mobile-nav-link">Blog</a>
+      </li>
+      <li class="mobile-nav-item">
+        <a routerLink="/pricing" class="mobile-nav-link">Pricing</a>
+      </li>
+    </ul>
+
+    <div class="mobile-social-links">
+      <a href="https://github.com/ariga/InsightX" target="_blank" class="mobile-social-link">
+        <fa-icon [icon]="faGithub"></fa-icon>
+      </a>
+      <a href="https://discord.gg/zZ6sWVg6NT" target="_blank" class="mobile-social-link">
+        <fa-icon [icon]="faDiscord"></fa-icon>
+      </a>
+      <a href="https://twitter.com/InsightXgo_io" target="_blank" class="mobile-social-link">
+        <fa-icon [icon]="faTwitter"></fa-icon>
+      </a>
+    </div>
+  </div>
+
+
+</header>

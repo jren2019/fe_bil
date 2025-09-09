@@ -1,0 +1,259 @@
+<section class="features">
+  <div class="container">
+
+    <!-- Database Schemas as Code Feature -->
+    <div id="schema" class="feature-item">
+      <div class="feature-content">
+        <h2 class="feature-title">Your Instant Helper</h2>
+        <p class="feature-description">
+          Your Instant Helper is designed to provide immediate assistance whenever you need it. Whether you're troubleshooting an issue, learning something new, or navigating complex tasks, it’s always ready with intelligent, relevant responses. Built with a user-friendly interface and AI-backed logic, it makes support fast, accessible, and stress-free. Say goodbye to long wait times and hello to instant productivity.
+        </p>
+        <a href="/getting-started" class="btn btn-secondary feature-btn">Getting Started</a>
+      </div>
+      <div class="feature-visualization">
+        <app-code-display [language]="'json'" [code]="databaseSchemaCode" [showLineNumbers]="true"></app-code-display>
+      </div>
+    </div>
+
+    <!-- Automatic Migration Planning Feature -->
+    <div id="migrations" class="feature-item reverse">
+      <div class="feature-content">
+        <h2 class="feature-title">Functions Without Internet</h2>
+        <p class="feature-description">
+          Our solution is fully capable of operating without an internet connection, ensuring uninterrupted performance in any environment. Whether you're on a remote factory floor, in transit, or dealing with connectivity issues, you can count on continuous functionality. All key features work offline, with data syncing automatically when a connection is reestablished. It’s built for reliability in real-world conditions.
+        </p>
+        <a href="/versioned/diff" class="btn btn-secondary feature-btn">Planning Quick start</a>
+      </div>
+      <div class="feature-visualization">
+        <div class="planning-visualization">
+          <div class="planning-icons">
+            <img src="https://ext.same-assets.com/3029193285/3760553615.svg" alt="Migration Icon" class="planning-icon">
+            <img src="https://gorm.io/gorm.svg" alt="GORM Icon" class="planning-icon orms-icon">
+            <img src="https://ext.same-assets.com/3029193285/2524968281.svg" alt="Migration Icon" class="planning-icon">
+            <img src="https://github.com/golang-migrate/migrate/raw/master/logo.png" alt="Migrate Icon" class="planning-icon">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Migration Safety Feature -->
+    <div id="ci" class="feature-item">
+      <div class="feature-content">
+        <h2 class="feature-title">Configurable and Extensible</h2>
+        <p class="feature-description">
+          This system is designed with flexibility at its core, allowing you to configure features to match your exact needs. Its modular architecture supports seamless integration of new functionalities as your operations grow. Whether you're adding new workflows, adapting to industry changes, or scaling across teams, it evolves with you. It’s not just a tool—it’s a platform built for the future.
+        </p>
+        <div class="feature-buttons">
+          <a href="/integrations/github-actions" class="btn btn-secondary feature-btn">GitHub Action Quick start</a>
+          <a href="/guides/ci-platforms/gitlab" class="btn btn-secondary feature-btn">GitLab CI Quick start</a>
+        </div>
+      </div>
+      <div class="feature-visualization">
+        <div class="ci-visualization">
+          <div class="ci-header">
+            <div class="ci-info">
+              <div class="ci-run">#85485452</div>
+              <div class="ci-status">ISSUES FOUND</div>
+            </div>
+            <div class="ci-details">
+              <div class="ci-detail">
+                <span class="ci-label">Repo</span>
+                <span class="ci-value">ariga/demo</span>
+              </div>
+              <div class="ci-detail">
+                <span class="ci-label">Branch</span>
+                <span class="ci-value">new-t</span>
+              </div>
+              <div class="ci-detail">
+                <span class="ci-label">Commit</span>
+                <span class="ci-value">c725c63</span>
+              </div>
+              <div class="ci-detail">
+                <span class="ci-label">Pull Request</span>
+                <span class="ci-value">https://github.com/ariga/InsightX</span>
+              </div>
+            </div>
+          </div>
+          <div class="ci-body">
+            <div class="ci-tabs">
+              <div class="ci-tab active">Summary</div>
+              <div class="ci-tab">SQL Change</div>
+              <div class="ci-tab">ERD</div>
+              <div class="ci-tab">Migration Integrity check</div>
+            </div>
+            <div class="ci-content">
+              <div class="ci-section">
+                <h4 class="ci-section-title">Detect New Migration Files</h4>
+                <h4 class="ci-section-title">Analyze Schema Changes</h4>
+                <div class="ci-analysis">
+                  <p class="ci-analysis-result">2 reports were found in analysis</p>
+                  <div class="ci-issue">
+                    <h5 class="ci-issue-title">Blocking column changes detected</h5>
+                    <p class="ci-issue-desc">
+                      Changing column "c1" from "smallint" to "integer" alters storage
+                      size from 2 to 4 bytes and requires a rewrite of the table (PG301)
+                    </p>
+                  </div>
+                  <div class="ci-issue">
+                    <h5 class="ci-issue-title">Concurrent index violations detected</h5>
+                    <p class="ci-issue-desc">
+                      Adding a PRIMARY KEY on "users" not concurrently acquires an
+                      ACCESS EXCLUSIVE lock, blocking all access to the table (PG104)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Tooling Feature -->
+    <div id="deploy" class="feature-item reverse">
+      <div class="feature-content">
+        <h2 class="feature-title"> Live Manufacturing Analytics</h2>
+        <p class="feature-description">
+          Gain real-time visibility into your production processes with Live Manufacturing Analytics. Monitor key metrics, identify bottlenecks, and make data-driven decisions instantly. The system collects and processes data from your shop floor as it happens, giving you a live pulse on performance. It empowers your team to respond quickly, optimize workflows, and boost overall efficiency.
+        </p>
+        <div class="feature-buttons">
+          <a href="/integrations/terraform-provider" class="btn btn-secondary feature-btn">Terraform Quick start</a>
+          <a href="/guides/deploying/k8s-argo" class="btn btn-secondary feature-btn">ArgoCD Quick start</a>
+        </div>
+      </div>
+      <div class="feature-visualization">
+        <div class="deployment-visualization">
+          <div class="deployment-icons">
+            <img src="https://www.terraform.io/favicon.ico" alt="Terraform Icon" class="deployment-icon">
+            <img src="https://helm.sh/img/helm.svg" alt="Helm Icon" class="deployment-icon">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Database Visibility Feature -->
+    <div id="control" class="feature-item">
+      <div class="feature-content">
+        <h2 class="feature-title">Cognitive Knowledge Platform</h2>
+        <p class="feature-description">
+          This intelligent platform harnesses AI to deliver precise and context-aware information when you need it most. It continuously learns from user interactions, improving accuracy and relevance over time. Whether for training, troubleshooting, or decision-making, it acts as a centralized brain for your organization’s knowledge. With natural language understanding and smart search, finding answers has never been easier.
+        </p>
+        <a href="/cloud/getting-started" class="btn btn-secondary feature-btn">InsightX Cloud Quick start</a>
+      </div>
+      <div class="feature-visualization">
+        <div class="cloud-visualization">
+          <div class="cloud-dashboard">
+            <div class="cloud-header">
+              <div class="cloud-info">
+                <div class="cloud-status">ISSUES FOUND</div>
+              </div>
+              <div class="cloud-details">
+                <div class="cloud-detail">
+                  <span class="cloud-label">Branch</span>
+                  <span class="cloud-value">Main</span>
+                </div>
+                <div class="cloud-detail">
+                  <span class="cloud-label">Commit</span>
+                  <span class="cloud-value">92b0a8c</span>
+                </div>
+              </div>
+            </div>
+            <div class="cloud-content">
+              <div class="cloud-section">
+                <div class="cloud-section-header">
+                  <h4 class="cloud-section-title">Commits</h4>
+                  <img src="https://ext.same-assets.com/3029193285/3760553615.svg" alt="Commit Icon" class="cloud-section-icon">
+                </div>
+                <div class="cloud-commits">
+                  <div class="cloud-commit">
+                    <span class="cloud-commit-hash">92b0a8c</span>
+                    <span class="cloud-commit-time">Less than a minute ago</span>
+                  </div>
+                  <div class="cloud-commit">
+                    <span class="cloud-commit-hash">c39524c</span>
+                    <span class="cloud-commit-time">6 minutes ago</span>
+                  </div>
+                  <div class="cloud-commit">
+                    <span class="cloud-commit-hash">10ca8fa</span>
+                    <span class="cloud-commit-time">10 minutes ago</span>
+                  </div>
+                </div>
+              </div>
+              <div class="cloud-section">
+                <div class="cloud-section-header">
+                  <h4 class="cloud-section-title">ERD</h4>
+                  <div class="cloud-search">
+                    <img src="https://ext.same-assets.com/3029193285/140579907.svg" alt="Search Icon" class="cloud-search-icon">
+                    <span>Search</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="complacency" class="feature-item">
+      <div class="feature-content">
+        <h2 class="feature-title">H&S complacency Identification</h2>
+        <p class="feature-description">
+          This intelligent platform harnesses AI to deliver precise and context-aware information when you need it most. It continuously learns from user interactions, improving accuracy and relevance over time. Whether for training, troubleshooting, or decision-making, it acts as a centralized brain for your organization’s knowledge. With natural language understanding and smart search, finding answers has never been easier.
+        </p>
+        <a href="/cloud/getting-started" class="btn btn-secondary feature-btn">InsightX Cloud Quick start</a>
+      </div>
+      <div class="feature-visualization">
+        <div class="cloud-visualization">
+          <div class="cloud-dashboard">
+            <div class="cloud-header">
+              <div class="cloud-info">
+                <div class="cloud-status">ISSUES FOUND</div>
+              </div>
+              <div class="cloud-details">
+                <div class="cloud-detail">
+                  <span class="cloud-label">Branch</span>
+                  <span class="cloud-value">Main</span>
+                </div>
+                <div class="cloud-detail">
+                  <span class="cloud-label">Commit</span>
+                  <span class="cloud-value">92b0a8c</span>
+                </div>
+              </div>
+            </div>
+            <div class="cloud-content">
+              <div class="cloud-section">
+                <div class="cloud-section-header">
+                  <h4 class="cloud-section-title">Commits</h4>
+                  <img src="https://ext.same-assets.com/3029193285/3760553615.svg" alt="Commit Icon" class="cloud-section-icon">
+                </div>
+                <div class="cloud-commits">
+                  <div class="cloud-commit">
+                    <span class="cloud-commit-hash">92b0a8c</span>
+                    <span class="cloud-commit-time">Less than a minute ago</span>
+                  </div>
+                  <div class="cloud-commit">
+                    <span class="cloud-commit-hash">c39524c</span>
+                    <span class="cloud-commit-time">6 minutes ago</span>
+                  </div>
+                  <div class="cloud-commit">
+                    <span class="cloud-commit-hash">10ca8fa</span>
+                    <span class="cloud-commit-time">10 minutes ago</span>
+                  </div>
+                </div>
+              </div>
+              <div class="cloud-section">
+                <div class="cloud-section-header">
+                  <h4 class="cloud-section-title">ERD</h4>
+                  <div class="cloud-search">
+                    <img src="https://ext.same-assets.com/3029193285/140579907.svg" alt="Search Icon" class="cloud-search-icon">
+                    <span>Search</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,1008 @@
+<div class="purchaseorders-layout">
+  <app-nav-menu></app-nav-menu>
+  <div class="purchaseorders-main" [class.table-view-mode]="currentViewMode === 'table'">
+    <!-- Header -->
+    <div class="purchaseorders-header">
+      <div class="header-left">
+        <h1 class="page-title">Purchase Orders</h1>
+        <!-- View Selector Dropdown -->
+        <div class="view-selector" [class.dropdown-open]="showViewDropdown">
+          <button class="view-btn" (click)="toggleViewDropdown()">
+            {{ currentViewModeLabel }}
+            <svg class="dropdown-arrow" [class.rotated]="showViewDropdown" viewBox="0 0 12 7" width="12" height="7">
+              <path d="M5.4.3c.3-.4.9-.4 1.2 0l5.1 5a.9.9 0 1 1-1.2 1.3L6 2.1 1.5 6.6A.9.9 0 1 1 .3 5.4l5-5.1Z" fill="currentColor" stroke="none"></path>
+            </svg>
+          </button>
+
+          <!-- View Dropdown Menu -->
+          @if (showViewDropdown) {
+            <div class="view-dropdown-overlay" (click)="closeViewDropdown()"></div>
+            <div class="view-dropdown">
+              @for (viewMode of viewModes; track viewMode.value) {
+                <div class="view-option"
+                     [class.active]="currentViewMode === viewMode.value"
+                     (click)="selectViewMode(viewMode.value)">
+                  <span class="view-icon">{{ viewMode.icon }}</span>
+                  <span class="view-label">{{ viewMode.label }}</span>
+                  @if (currentViewMode === viewMode.value) {
+                    <i class="pi pi-check view-check"></i>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="search-container">
+          <i class="pi pi-search search-icon"></i>
+          <input type="text" placeholder="Search Purchase Orders" class="search-input" />
+        </div>
+        <button pButton label="+ New Purchase Order" class="p-button-primary new-btn" (click)="openNewPurchaseOrderModal()"></button>
+      </div>
+    </div>
+
+    <!-- Table View Mode -->
+    @if (currentViewMode === 'table') {
+      <!-- Filters Bar -->
+      <div class="filters-bar">
+        <div class="filter-item">
+          <i class="pi pi-building filter-icon"></i>
+          <span>Vendor</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-circle filter-icon"></i>
+          <span>Status</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-cog filter-icon"></i>
+          <span>Part</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-map-marker filter-icon"></i>
+          <span>Shipping Address</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-user filter-icon"></i>
+          <span>Assigned To</span>
+        </div>
+        <button class="add-filter-btn">
+          <i class="pi pi-plus"></i>
+          Add Filter
+        </button>
+      </div>
+
+      <div class="table-view-container">
+        <p-table
+          [value]="allPurchaseOrders"
+          [paginator]="false"
+          styleClass="purchase-orders-table"
+          [tableStyle]="{'min-width': '100%'}"
+          selectionMode="single">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="title">
+                Title
+                <p-sortIcon field="title"></p-sortIcon>
+              </th>
+              <th pSortableColumn="id">
+                ID
+                <p-sortIcon field="id"></p-sortIcon>
+              </th>
+              <th pSortableColumn="vendor">
+                Vendor
+                <p-sortIcon field="vendor"></p-sortIcon>
+              </th>
+              <th pSortableColumn="status">
+                Status
+                <p-sortIcon field="status"></p-sortIcon>
+              </th>
+              <th pSortableColumn="totalCost">
+                Total Cost
+                <p-sortIcon field="totalCost"></p-sortIcon>
+              </th>
+              <th pSortableColumn="createdAt">
+                Created On
+                <p-sortIcon field="createdAt"></p-sortIcon>
+              </th>
+              <th pSortableColumn="createdBy">
+                Created By
+                <p-sortIcon field="createdBy"></p-sortIcon>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-purchaseOrder>
+            <tr (click)="onPurchaseOrderRowClick(purchaseOrder)" class="clickable-row">
+              <td>
+                <div class="title-cell">
+                  <span class="purchase-order-title">{{ purchaseOrder.title }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="purchase-order-id">#{{ purchaseOrder.id }}</span>
+              </td>
+              <td>
+                <div class="vendor-cell">
+                  <div class="vendor-avatar">{{ purchaseOrder.vendorAvatar }}</div>
+                  <span class="vendor-name">{{ purchaseOrder.vendor }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusBadgeClass(purchaseOrder.status)">
+                  {{ getStatusIcon(purchaseOrder.status) }} {{ getStatusLabel(purchaseOrder.status) }}
+                </span>
+              </td>
+              <td>
+                <span class="cost-cell">{{ formatCurrency(purchaseOrder.totalCost) }}</span>
+              </td>
+              <td>
+                <span class="date-cell">{{ formatDate(purchaseOrder.createdAt) }}</span>
+              </td>
+              <td>
+                <div class="created-by-cell">
+                  <span class="user-avatar">👤</span>
+                  <span class="user-name">{{ purchaseOrder.createdBy }}</span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Bottom Paginator for Table View -->
+      <div class="table-paginator-bottom" #paginatorContainer>
+        <p-paginator
+          #bottomPaginator
+          [rows]="paginatorRows"
+          [totalRecords]="allPurchaseOrders.length"
+          [rowsPerPageOptions]="[10, 20, 50]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          styleClass="custom-paginator"
+          (onPageChange)="onPageChange($event)">
+        </p-paginator>
+      </div>
+    }
+
+    <!-- Panel View Mode -->
+    @if (currentViewMode === 'panel') {
+      <!-- Filters Bar -->
+      <div class="filters-bar">
+        <div class="filter-item">
+          <i class="pi pi-building filter-icon"></i>
+          <span>Vendor</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-circle filter-icon"></i>
+          <span>Status</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-cog filter-icon"></i>
+          <span>Part</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-map-marker filter-icon"></i>
+          <span>Shipping Address</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-user filter-icon"></i>
+          <span>Assigned To</span>
+        </div>
+        <button class="add-filter-btn">
+          <i class="pi pi-plus"></i>
+          Add Filter
+        </button>
+      </div>
+
+      <!-- Main Content -->
+      <div class="purchaseorders-content">
+        <!-- Left Panel - Purchase Order List -->
+        <div class="purchaseorders-list-panel">
+          <div class="list-header">
+            <div class="list-title">All Purchase Orders ({{ allPurchaseOrders.length }})</div>
+            <div class="list-actions">
+              <button class="action-btn">
+                <i class="pi pi-download"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Purchase Order List -->
+          <div class="purchaseorders-list">
+            @for (purchaseOrder of allPurchaseOrders; track purchaseOrder.id) {
+              <div class="purchaseorder-item"
+                   [class.active]="purchaseOrder.id === selectedPurchaseOrderId"
+                   [class.unread]="purchaseOrder.isUnread"
+                   (click)="selectPurchaseOrder(purchaseOrder.id)">
+                <div class="purchaseorder-content-item">
+                  <div class="purchaseorder-main-info">
+                    <div class="purchaseorder-avatar">{{ purchaseOrder.vendorAvatar }}</div>
+                    <div class="purchaseorder-details">
+                      <div class="purchaseorder-title">{{ purchaseOrder.title }}</div>
+                      <div class="purchaseorder-vendor">{{ purchaseOrder.vendor }}</div>
+                      <div class="purchaseorder-cost">Total Cost: {{ formatCurrency(purchaseOrder.totalCost) }}</div>
+                    </div>
+                    <div class="purchaseorder-actions">
+                      <span class="status-badge" [class]="getStatusBadgeClass(purchaseOrder.status)">
+                        {{ getStatusIcon(purchaseOrder.status) }} {{ getStatusLabel(purchaseOrder.status) }}
+                      </span>
+                      @if (purchaseOrder.isUnread) {
+                        <div class="unread-indicator"></div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Panel - Purchase Order Details -->
+        <div class="purchaseorder-details-panel">
+          @if (selectedPurchaseOrder) {
+            <div class="details-header">
+              <div class="details-title-section">
+                <h2 class="details-title">
+                  @if (isEditMode) {
+                    Edit Purchase Order
+                  } @else {
+                    {{ selectedPurchaseOrder.title }}
+                  }
+                </h2>
+                <div class="actions-header">
+                  @if (isEditMode) {
+                    <button class="action-btn save-btn" (click)="saveChanges()">
+                      <i class="pi pi-check"></i>
+                      Save
+                    </button>
+                    <button class="action-btn cancel-btn" (click)="cancelEdit()">
+                      <i class="pi pi-times"></i>
+                      Cancel
+                    </button>
+                  } @else {
+                    <button class="action-btn">
+                      <i class="pi pi-send"></i>
+                      <span class="btn-text">Send to Vendor</span>
+                    </button>
+                    <button class="action-btn" (click)="enterEditMode()">
+                      <i class="pi pi-pencil"></i>
+                      <span class="btn-text">Edit</span>
+                    </button>
+                    <button class="action-btn">⋯</button>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="details-tabs">
+              <div class="tab" [class.active]="activeTab === 'details'" (click)="switchTab('details')">Details</div>
+              <div class="tab" [class.active]="activeTab === 'comments'" (click)="switchTab('comments')">Comments & History</div>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="scrollable-content">
+              @if (activeTab === 'details') {
+                @if (isEditMode) {
+                <!-- Edit Form -->
+                <div class="edit-form">
+                  <!-- Title -->
+                  <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" [(ngModel)]="editForm.title" class="form-input" placeholder="Purchase Order Title">
+                  </div>
+
+                  <!-- Status -->
+                  <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <p-dropdown
+                      [(ngModel)]="editForm.status"
+                      [options]="getStatusOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select status"
+                      class="form-dropdown">
+                    </p-dropdown>
+                  </div>
+
+                  <!-- Vendor -->
+                  <div class="form-group">
+                    <label class="form-label">Vendor</label>
+                    <p-dropdown
+                      [(ngModel)]="editForm.vendor"
+                      [options]="getVendorOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select vendor"
+                      class="form-dropdown">
+                    </p-dropdown>
+                  </div>
+
+                  <!-- Assigned To -->
+                  <div class="form-group">
+                    <label class="form-label">Assigned To</label>
+                    <p-dropdown
+                      [(ngModel)]="editForm.assignedTo"
+                      [options]="getAssignedToOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select assignee"
+                      class="form-dropdown">
+                    </p-dropdown>
+                  </div>
+
+                  <!-- Date Fields -->
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Order Date</label>
+                      <p-calendar
+                        [(ngModel)]="editForm.orderDate"
+                        [showIcon]="true"
+                        inputId="orderDate"
+                        class="form-calendar">
+                      </p-calendar>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Due Date</label>
+                      <p-calendar
+                        [(ngModel)]="editForm.dueDate"
+                        [showIcon]="true"
+                        inputId="dueDate"
+                        class="form-calendar">
+                      </p-calendar>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Invoice Date</label>
+                      <p-calendar
+                        [(ngModel)]="editForm.invoiceDate"
+                        [showIcon]="true"
+                        inputId="invoiceDate"
+                        class="form-calendar">
+                      </p-calendar>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Invoice ID</label>
+                      <input type="text" [(ngModel)]="editForm.invoiceId" class="form-input" placeholder="Invoice ID">
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Arrival Date</label>
+                      <p-calendar
+                        [(ngModel)]="editForm.arrivalDate"
+                        [showIcon]="true"
+                        inputId="arrivalDate"
+                        class="form-calendar">
+                      </p-calendar>
+                    </div>
+                  </div>
+
+                  <!-- Shipping Address -->
+                  <div class="form-group">
+                    <label class="form-label">Shipping Address</label>
+                    <textarea [(ngModel)]="editForm.shippingAddress" class="form-textarea" rows="3" placeholder="Enter shipping address"></textarea>
+                  </div>
+
+                  <!-- Parts Section -->
+                  <div class="form-group">
+                    <div class="parts-header">
+                      <label class="form-label">Order Items</label>
+                      <button type="button" class="add-part-btn" (click)="addNewPart()">
+                        <i class="pi pi-plus"></i>
+                        Add Item
+                      </button>
+                    </div>
+
+                    <div class="parts-edit-table">
+                      @for (part of editForm.parts; track part.id; let i = $index) {
+                        <div class="part-edit-row">
+                          <div class="part-field">
+                            <label>Item Name</label>
+                            <input type="text" [(ngModel)]="part.itemName" class="form-input-small" placeholder="Item name">
+                          </div>
+                          <div class="part-field">
+                            <label>Part Number</label>
+                            <input type="text" [(ngModel)]="part.partNumber" class="form-input-small" placeholder="Part number">
+                          </div>
+                          <div class="part-field">
+                            <label>Units Ordered</label>
+                            <input type="number" [(ngModel)]="part.unitsOrdered" (ngModelChange)="updatePartTotal(i)" class="form-input-small" min="0">
+                          </div>
+                          <div class="part-field">
+                            <label>Units Received</label>
+                            <input type="number" [(ngModel)]="part.unitsReceived" class="form-input-small" min="0" [max]="part.unitsOrdered">
+                          </div>
+                          <div class="part-field">
+                            <label>Unit Cost</label>
+                            <input type="number" [(ngModel)]="part.unitCost" (ngModelChange)="updatePartTotal(i)" class="form-input-small" min="0" step="0.01">
+                          </div>
+                          <div class="part-field">
+                            <label>Total Cost</label>
+                            <span class="total-cost">{{ formatCurrency(part.totalCost) }}</span>
+                          </div>
+                          <div class="part-actions">
+                            <button type="button" class="remove-part-btn" (click)="removePart(i)">
+                              <i class="pi pi-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <!-- Read-only View -->
+                <!-- Status Section -->
+                <div class="content-section">
+                  <div class="status-and-dates-container">
+                    <div class="status-section">
+                      <label class="status-label">Status</label>
+                      <div class="status-workflow">
+                        @for (statusItem of getStatusWorkflow(); track statusItem.value) {
+                          <div class="status-item" [class.active]="isStatusActive(statusItem.value)">
+                            <div class="status-icon">{{ statusItem.icon }}</div>
+                            <span>{{ statusItem.label }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Dates Information -->
+                <div class="content-section">
+                  <div class="dates-grid">
+                    <div class="detail-item">
+                      <label>Order Date</label>
+                      <div class="detail-value">{{ formatDate(selectedPurchaseOrder.orderDate) }}</div>
+                    </div>
+                    <div class="detail-item">
+                      <label>Due Date</label>
+                      <div class="detail-value">{{ formatDate(selectedPurchaseOrder.dueDate) }}</div>
+                    </div>
+                    <div class="detail-item">
+                      <label>Invoice Date</label>
+                      <div class="detail-value">{{ selectedPurchaseOrder.invoiceDate ? formatDate(selectedPurchaseOrder.invoiceDate) : 'Not invoiced' }}</div>
+                    </div>
+                    <div class="detail-item">
+                      <label>Invoice ID</label>
+                      <div class="detail-value">{{ selectedPurchaseOrder.invoiceId || 'Not available' }}</div>
+                    </div>
+                    <div class="detail-item">
+                      <label>Arrival Date</label>
+                      <div class="detail-value">{{ selectedPurchaseOrder.arrivalDate ? formatDate(selectedPurchaseOrder.arrivalDate) : 'Not delivered' }}</div>
+                    </div>
+                    <div class="detail-item">
+                      <label>Created Date</label>
+                      <div class="detail-value">{{ formatDate(selectedPurchaseOrder.createdAt) }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Vendor Section -->
+                <div class="content-section">
+                  <div class="detail-item">
+                    <label>Vendor</label>
+                    <div class="detail-value vendor-info">
+                      <div class="vendor-avatar-large">{{ selectedPurchaseOrder.vendorAvatar }}</div>
+                      <span class="vendor-name">{{ selectedPurchaseOrder.vendor }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Assigned To Section -->
+                <div class="content-section">
+                  <div class="detail-item">
+                    <label>Assigned To</label>
+                    <div class="detail-value">
+                      <span class="user-name">{{ selectedPurchaseOrder.assignedTo }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Shipping Address Section -->
+                <div class="content-section">
+                  <div class="detail-item">
+                    <label>Shipping Address</label>
+                    <div class="detail-value">
+                      {{ selectedPurchaseOrder.shippingAddress }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Order Items Section -->
+                <div class="content-section">
+                  <div class="detail-item">
+                    <label>Order Items</label>
+                    <div class="detail-value">
+                      <div class="order-items-table">
+                        <div class="table-header">
+                          <div class="header-cell">ITEM NAME</div>
+                          <div class="header-cell">PART NUMBER</div>
+                          <div class="header-cell">UNITS ORDERED</div>
+                          <div class="header-cell">UNITS RECEIVED</div>
+                          <div class="header-cell">UNIT COST</div>
+                          <div class="header-cell">COST OF UNITS RECEIVED</div>
+                          <div class="header-cell">COST OF UNITS ORDERED</div>
+                        </div>
+                        @for (item of selectedPurchaseOrder.parts; track item.id) {
+                          <div class="table-row">
+                            <div class="table-cell">
+                              <span class="item-name">{{ item.itemName }}</span>
+                            </div>
+                            <div class="table-cell">{{ item.partNumber }}</div>
+                            <div class="table-cell">{{ item.unitsOrdered }}</div>
+                            <div class="table-cell">{{ item.unitsReceived }}</div>
+                            <div class="table-cell">{{ formatCurrency(item.unitCost) }}</div>
+                            <div class="table-cell">{{ formatCurrency(item.unitsReceived * item.unitCost) }}</div>
+                            <div class="table-cell">{{ formatCurrency(item.totalCost) }}</div>
+                          </div>
+                        }
+                        <!-- Totals -->
+                        <div class="table-row totals-row">
+                          <div class="table-cell"></div>
+                          <div class="table-cell"></div>
+                          <div class="table-cell"></div>
+                          <div class="table-cell"></div>
+                          <div class="table-cell"><strong>Subtotal</strong></div>
+                          <div class="table-cell"><strong>{{ formatCurrency(calculateSubtotal(selectedPurchaseOrder.parts)) }}</strong></div>
+                          <div class="table-cell"><strong>{{ formatCurrency(calculateTotal(selectedPurchaseOrder.parts)) }}</strong></div>
+                        </div>
+                        <div class="table-row totals-row">
+                          <div class="table-cell"></div>
+                          <div class="table-cell"></div>
+                          <div class="table-cell"></div>
+                          <div class="table-cell"></div>
+                          <div class="table-cell"><strong>Total</strong></div>
+                          <div class="table-cell"><strong>{{ formatCurrency(calculateSubtotal(selectedPurchaseOrder.parts)) }}</strong></div>
+                          <div class="table-cell"><strong>{{ formatCurrency(calculateTotal(selectedPurchaseOrder.parts)) }}</strong></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="content-section">
+                  <div class="action-buttons">
+                    <button class="action-button">
+                      <i class="pi pi-download"></i>
+                      Fulfill
+                    </button>
+                    <button class="action-button primary">
+                      <i class="pi pi-check"></i>
+                      Complete
+                    </button>
+                  </div>
+                </div>
+                }
+              } @else if (activeTab === 'comments') {
+                <!-- Comments & History Tab Content -->
+                <div class="comments-history-content">
+                  <div class="content-section">
+                    <div class="section-header">
+                      <h3>Comments & Activity</h3>
+                      <button class="add-comment-btn">
+                        <i class="pi pi-plus"></i>
+                        Add Comment
+                      </button>
+                    </div>
+
+                    <div class="activity-feed">
+                      <!-- Sample Activity Items -->
+                      <div class="activity-item">
+                        <div class="activity-avatar">JR</div>
+                        <div class="activity-content">
+                          <div class="activity-header">
+                            <span class="activity-user">Jun Ren</span>
+                            <span class="activity-action">created this purchase order</span>
+                            <span class="activity-time">{{ formatDate(selectedPurchaseOrder.createdAt) }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="activity-item">
+                        <div class="activity-avatar">JR</div>
+                        <div class="activity-content">
+                          <div class="activity-header">
+                            <span class="activity-user">Jun Ren</span>
+                            <span class="activity-action">added a comment</span>
+                            <span class="activity-time">2 hours ago</span>
+                          </div>
+                          <div class="activity-message">
+                            Vendor confirmed delivery for next week. All parts are in stock.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="activity-item">
+                        <div class="activity-avatar">TV</div>
+                        <div class="activity-content">
+                          <div class="activity-header">
+                            <span class="activity-user">System</span>
+                            <span class="activity-action">updated status to</span>
+                            <span class="activity-status">Partially Fulfilled</span>
+                            <span class="activity-time">1 day ago</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="activity-item">
+                        <div class="activity-avatar">SC</div>
+                        <div class="activity-content">
+                          <div class="activity-header">
+                            <span class="activity-user">Sarah Chen</span>
+                            <span class="activity-action">added a note</span>
+                            <span class="activity-time">3 days ago</span>
+                          </div>
+                          <div class="activity-message">
+                            Urgent: Please expedite this order for production line requirements.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Add Comment Form -->
+                    <div class="add-comment-form" style="display: none;">
+                      <textarea placeholder="Add a comment..." rows="3" class="comment-input"></textarea>
+                      <div class="comment-actions">
+                        <button class="cancel-comment-btn">Cancel</button>
+                        <button class="submit-comment-btn">Add Comment</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <!-- No Selection State -->
+            <div class="no-selection">
+              <div class="no-selection-icon">🧾</div>
+              <h3 class="no-selection-title">Select a purchase order</h3>
+              <p class="no-selection-text">Choose a purchase order from the list to view its details, track fulfillment, and manage vendor communications.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Purchase Order Details Dialog (for Table View) -->
+  <p-dialog
+    [(visible)]="showPurchaseOrderDialog"
+    [modal]="true"
+    [style]="{'width': '900px'}"
+    [contentStyle]="{'max-height':'90vh','overflow':'auto'}"
+    [header]="selectedPurchaseOrderForDialog?.title || 'Purchase Order Details'"
+    (onHide)="closePurchaseOrderDialog()">
+
+    @if (selectedPurchaseOrderForDialog) {
+      <div class="purchase-order-dialog-content">
+        <!-- Dialog Tabs -->
+        <div class="dialog-tabs">
+          <div class="dialog-tab" [class.active]="activeDialogTab === 'details'" (click)="switchDialogTab('details')">Details</div>
+          <div class="dialog-tab" [class.active]="activeDialogTab === 'comments'" (click)="switchDialogTab('comments')">Comments & History</div>
+        </div>
+
+        @if (activeDialogTab === 'details') {
+          <!-- Dialog Header Actions -->
+          <div class="dialog-header-actions">
+            <button class="dialog-action-btn">
+              <i class="pi pi-send"></i>
+              Send to Vendor
+            </button>
+            <button class="dialog-action-btn">
+              <i class="pi pi-pencil"></i>
+              Edit
+            </button>
+            <button class="dialog-action-btn">⋯</button>
+          </div>
+
+          <!-- Status -->
+        <div class="dialog-section">
+          <div class="status-section">
+            <label class="status-label">Status</label>
+            <div class="status-workflow">
+              @for (statusItem of getStatusWorkflow(); track statusItem.value) {
+                <div class="status-item" [class.active]="selectedPurchaseOrderForDialog.status === statusItem.value">
+                  <div class="status-icon">{{ statusItem.icon }}</div>
+                  <span>{{ statusItem.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Dates Information -->
+        <div class="dialog-section">
+          <div class="dates-grid">
+            <div class="detail-item">
+              <label>Order Date</label>
+              <div class="detail-value">{{ formatDate(selectedPurchaseOrderForDialog.orderDate) }}</div>
+            </div>
+            <div class="detail-item">
+              <label>Due Date</label>
+              <div class="detail-value">{{ formatDate(selectedPurchaseOrderForDialog.dueDate) }}</div>
+            </div>
+            <div class="detail-item">
+              <label>Invoice Date</label>
+              <div class="detail-value">{{ selectedPurchaseOrderForDialog.invoiceDate ? formatDate(selectedPurchaseOrderForDialog.invoiceDate) : 'Not invoiced' }}</div>
+            </div>
+            <div class="detail-item">
+              <label>Invoice ID</label>
+              <div class="detail-value">{{ selectedPurchaseOrderForDialog.invoiceId || 'Not available' }}</div>
+            </div>
+            <div class="detail-item">
+              <label>Arrival Date</label>
+              <div class="detail-value">{{ selectedPurchaseOrderForDialog.arrivalDate ? formatDate(selectedPurchaseOrderForDialog.arrivalDate) : 'Not delivered' }}</div>
+            </div>
+            <div class="detail-item">
+              <label>Created Date</label>
+              <div class="detail-value">{{ formatDate(selectedPurchaseOrderForDialog.createdAt) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vendor -->
+        <div class="dialog-section">
+          <label>Vendor</label>
+          <div class="vendor-info">
+            <div class="vendor-avatar-large">{{ selectedPurchaseOrderForDialog.vendorAvatar }}</div>
+            <span class="vendor-name">{{ selectedPurchaseOrderForDialog.vendor }}</span>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="dialog-section">
+          <label>Order Items</label>
+          <div class="order-items-table">
+            <div class="table-header">
+              <div class="header-cell">ITEM NAME</div>
+              <div class="header-cell">PART NUMBER</div>
+              <div class="header-cell">UNITS ORDERED</div>
+              <div class="header-cell">UNITS RECEIVED</div>
+              <div class="header-cell">UNIT COST</div>
+              <div class="header-cell">COST OF UNITS RECEIVED</div>
+              <div class="header-cell">COST OF UNITS ORDERED</div>
+            </div>
+            @for (item of selectedPurchaseOrderForDialog.parts; track item.id) {
+              <div class="table-row">
+                <div class="table-cell">
+                  <span class="item-name">{{ item.itemName }}</span>
+                </div>
+                <div class="table-cell">{{ item.partNumber }}</div>
+                <div class="table-cell">{{ item.unitsOrdered }}</div>
+                <div class="table-cell">{{ item.unitsReceived }}</div>
+                <div class="table-cell">{{ formatCurrency(item.unitCost) }}</div>
+                <div class="table-cell">{{ formatCurrency(item.unitsReceived * item.unitCost) }}</div>
+                <div class="table-cell">{{ formatCurrency(item.totalCost) }}</div>
+              </div>
+            }
+            <!-- Totals -->
+            <div class="table-row totals-row">
+              <div class="table-cell"></div>
+              <div class="table-cell"></div>
+              <div class="table-cell"></div>
+              <div class="table-cell"></div>
+              <div class="table-cell"><strong>Subtotal</strong></div>
+              <div class="table-cell"><strong>{{ formatCurrency(calculateSubtotal(selectedPurchaseOrderForDialog.parts)) }}</strong></div>
+              <div class="table-cell"><strong>{{ formatCurrency(calculateTotal(selectedPurchaseOrderForDialog.parts)) }}</strong></div>
+            </div>
+            <div class="table-row totals-row">
+              <div class="table-cell"></div>
+              <div class="table-cell"></div>
+              <div class="table-cell"></div>
+              <div class="table-cell"></div>
+              <div class="table-cell"><strong>Total</strong></div>
+              <div class="table-cell"><strong>{{ formatCurrency(calculateSubtotal(selectedPurchaseOrderForDialog.parts)) }}</strong></div>
+              <div class="table-cell"><strong>{{ formatCurrency(calculateTotal(selectedPurchaseOrderForDialog.parts)) }}</strong></div>
+            </div>
+          </div>
+        </div>
+
+          <!-- Action Buttons -->
+          <div class="dialog-actions">
+            <button class="action-button">
+              <i class="pi pi-download"></i>
+              Fulfill
+            </button>
+            <button class="action-button primary">
+              <i class="pi pi-check"></i>
+              Complete
+            </button>
+          </div>
+        } @else if (activeDialogTab === 'comments') {
+          <!-- Comments & History Tab Content for Dialog -->
+          <div class="comments-history-content">
+            <div class="section-header">
+              <h3>Comments & Activity</h3>
+              <button class="add-comment-btn">
+                <i class="pi pi-plus"></i>
+                Add Comment
+              </button>
+            </div>
+
+            <div class="activity-feed">
+              <!-- Sample Activity Items -->
+              <div class="activity-item">
+                <div class="activity-avatar">JR</div>
+                <div class="activity-content">
+                  <div class="activity-header">
+                    <span class="activity-user">Jun Ren</span>
+                    <span class="activity-action">created this purchase order</span>
+                    <span class="activity-time">{{ formatDate(selectedPurchaseOrderForDialog.createdAt) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-avatar">JR</div>
+                <div class="activity-content">
+                  <div class="activity-header">
+                    <span class="activity-user">Jun Ren</span>
+                    <span class="activity-action">added a comment</span>
+                    <span class="activity-time">2 hours ago</span>
+                  </div>
+                  <div class="activity-message">
+                    Vendor confirmed delivery for next week. All parts are in stock.
+                  </div>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-avatar">TV</div>
+                <div class="activity-content">
+                  <div class="activity-header">
+                    <span class="activity-user">System</span>
+                    <span class="activity-action">updated status to</span>
+                    <span class="activity-status">Partially Fulfilled</span>
+                    <span class="activity-time">1 day ago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </p-dialog>
+
+  <!-- New Purchase Order Modal -->
+  <p-dialog header="New Purchase Order" [(visible)]="showNewPurchaseOrderModal" [modal]="true" [style]="{width: '700px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}" (onHide)="closeNewPurchaseOrderModal()">
+    <div class="new-purchase-order-form">
+      <!-- PO Number Info -->
+      <div class="po-number-info">
+        <span class="po-info-text">PO number will be generated automatically.</span>
+        <button type="button" class="customize-po-link">Customize PO Number</button>
+      </div>
+
+      <!-- Vendor Section -->
+      <div class="form-section">
+        <label class="form-label">Vendor</label>
+        <p-dropdown
+          [(ngModel)]="newPurchaseOrderForm.vendor"
+          [options]="getVendorOptions()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select a Vendor"
+          class="form-dropdown vendor-dropdown">
+        </p-dropdown>
+      </div>
+
+      <!-- Order Items Section -->
+      <div class="form-section">
+        <label class="form-label">Order Items</label>
+        <div class="order-items-table">
+          <!-- Table Header -->
+          <div class="table-header">
+            <div class="header-cell item-name-header">ITEM NAME</div>
+            <div class="header-cell">PART NUMBER</div>
+            <div class="header-cell">UNITS ORDERED</div>
+            <div class="header-cell">UNIT COST</div>
+            <div class="header-cell">PRICE</div>
+            <div class="header-cell actions-header"></div>
+          </div>
+
+          <!-- Order Items Rows -->
+          @for (item of newPurchaseOrderForm.items; track item.tempId; let i = $index) {
+            <div class="table-row">
+              <div class="table-cell">
+                <p-dropdown
+                  [(ngModel)]="item.itemName"
+                  [options]="getItemNameOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Item Type"
+                  class="item-dropdown">
+                </p-dropdown>
+              </div>
+              <div class="table-cell">
+                <input type="text" [(ngModel)]="item.partNumber" placeholder="e.g. P1234" class="form-input-small">
+              </div>
+              <div class="table-cell">
+                <input type="number" [(ngModel)]="item.unitsOrdered" (ngModelChange)="calculateItemTotal(i)" min="0" class="form-input-small">
+              </div>
+              <div class="table-cell">
+                <div class="currency-input">
+                  <span class="currency-symbol">$</span>
+                  <input type="number" [(ngModel)]="item.unitCost" (ngModelChange)="calculateItemTotal(i)" min="0" step="0.01" class="form-input-small currency-field">
+                </div>
+              </div>
+              <div class="table-cell">
+                <div class="currency-input">
+                  <span class="currency-symbol">$</span>
+                  <input type="number" [ngModel]="item.totalCost" readonly class="form-input-small currency-field readonly-field">
+                </div>
+              </div>
+              <div class="table-cell actions-cell">
+                <button type="button" class="delete-item-btn" (click)="removeOrderItem(i)">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Add Item Row -->
+          <div class="add-item-row">
+            <button type="button" class="add-item-btn" (click)="addOrderItem()">
+              <i class="pi pi-plus"></i>
+              Add Item
+            </button>
+            <div class="add-item-shortcut">Opt + Ctrl (add)</div>
+          </div>
+        </div>
+
+        <!-- Subtotal and Taxes -->
+        <div class="order-summary">
+          <div class="summary-row">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value">{{ formatCurrency(calculateSubtotalNew()) }}</span>
+          </div>
+
+          <div class="tax-section">
+            <div class="tax-controls">
+              <p-checkbox [(ngModel)]="newPurchaseOrderForm.taxable" [binary]="true" class="taxable-checkbox"></p-checkbox>
+              <label class="tax-label">Taxable</label>
+              <button type="button" class="add-taxes-link">+ Add Taxes & Costs</button>
+            </div>
+          </div>
+
+          <div class="summary-row total-row">
+            <span class="summary-label">Total</span>
+            <span class="summary-value">{{ formatCurrency(calculateTotalNew()) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping Information Section -->
+      <div class="form-section">
+        <label class="form-label">Shipping Information</label>
+        <div class="shipping-section">
+          <label class="shipping-label">Shipping Address</label>
+          <textarea
+            [(ngModel)]="newPurchaseOrderForm.shippingAddress"
+            placeholder="Enter shipping address..."
+            rows="3"
+            class="form-textarea shipping-address">
+          </textarea>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="closeNewPurchaseOrderModal()">
+          Cancel
+        </button>
+        <button type="button" class="create-btn" (click)="createPurchaseOrder()" [disabled]="!isFormValid()">
+          Create Purchase Order
+        </button>
+      </div>
+    </div>
+  </p-dialog>
+</div>

@@ -1,0 +1,3572 @@
+<div class="workorder-layout">
+      <app-nav-menu></app-nav-menu>
+      <div class="workorder-main" [class.table-view-mode]="currentViewMode === 'table'">
+        <!-- Header -->
+        <div class="workorder-header">
+          <div class="header-left">
+            <h1 class="page-title">Work Orders</h1>
+            <!-- View Selector Dropdown -->
+            <div class="view-selector" [class.dropdown-open]="showViewDropdown">
+              <button class="view-btn" (click)="toggleViewDropdown()">
+                {{ currentViewModeLabel }}
+                <svg class="dropdown-arrow" [class.rotated]="showViewDropdown" viewBox="0 0 12 7" width="12" height="7">
+                  <path d="M5.4.3c.3-.4.9-.4 1.2 0l5.1 5a.9.9 0 1 1-1.2 1.3L6 2.1 1.5 6.6A.9.9 0 1 1 .3 5.4l5-5.1Z" fill="currentColor" stroke="none"></path>
+                </svg>
+              </button>
+
+              <!-- View Dropdown Menu -->
+              @if (showViewDropdown) {
+                <div class="view-dropdown-overlay" (click)="closeViewDropdown()"></div>
+                <div class="view-dropdown">
+                  @for (viewMode of viewModes; track viewMode.value) {
+                    <div class="view-option"
+                         [class.active]="currentViewMode === viewMode.value"
+                         (click)="selectViewMode(viewMode.value)">
+                      <span class="view-icon">{{ viewMode.icon }}</span>
+                      <span class="view-label">{{ viewMode.label }}</span>
+                      @if (currentViewMode === viewMode.value) {
+                        <i class="pi pi-check view-check"></i>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+          <div class="header-right">
+            <div class="search-container">
+              <i class="pi pi-search search-icon"></i>
+              <input type="text" placeholder="Search Work Orders" class="search-input" />
+            </div>
+            <button pButton label="+ New Work Order" class="p-button-primary new-btn" (click)="openNewWorkOrderModal()"></button>
+          </div>
+        </div>
+
+        <!-- Table View Mode -->
+        @if (currentViewMode === 'table') {
+          <div class="table-view-container">
+            <p-table
+              [value]="allWorkOrders"
+              [paginator]="false"
+              styleClass="work-orders-table"
+              [tableStyle]="{'min-width': '100%'}"
+              selectionMode="single">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="title">
+                    Title
+                    <p-sortIcon field="title"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="id">
+                    ID
+                    <p-sortIcon field="id"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="status">
+                    Status
+                    <p-sortIcon field="status"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="priority">
+                    Priority
+                    <p-sortIcon field="priority"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="workType">
+                    Work Type
+                    <p-sortIcon field="workType"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="assignedTo">
+                    Assigned To
+                    <p-sortIcon field="assignedTo"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="category">
+                    Categories
+                    <p-sortIcon field="category"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="asset">
+                    Asset
+                    <p-sortIcon field="asset"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="location">
+                    Location
+                    <p-sortIcon field="location"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="startDate">
+                    Start Date
+                    <p-sortIcon field="startDate"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="createdBy">
+                    Created By
+                    <p-sortIcon field="createdBy"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="createdAt">
+                    Created On
+                    <p-sortIcon field="createdAt"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="updatedOn">
+                    Updated On
+                    <p-sortIcon field="updatedOn"></p-sortIcon>
+                  </th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-workOrder>
+                <tr (click)="onWorkOrderRowClick(workOrder)" class="clickable-row">
+                  <td>
+                    <div class="title-cell">
+                      <span class="work-order-title">{{ workOrder.title }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="work-order-id">#{{ workOrder.id }}</span>
+                  </td>
+                  <td>
+                    <span class="status-badge" [ngClass]="getStatusBadgeClass(workOrder.status)">
+                      🔓 {{ workOrder.status | titlecase }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="priority-cell">{{ workOrder.priority || '–' }}</span>
+                  </td>
+                  <td>
+                    <span class="work-type-cell">{{ workOrder.workType }}</span>
+                  </td>
+                  <td>
+                    <div class="assigned-to-cell">
+                      @if (workOrder.assignedTo) {
+                        <span class="user-avatar">👤</span>
+                        <span class="user-name">{{ workOrder.assignedTo }}</span>
+                      } @else {
+                        <span class="unassigned">–</span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="category-cell">{{ workOrder.category || '–' }}</span>
+                  </td>
+                  <td>
+                    <span class="asset-cell">{{ workOrder.asset }}</span>
+                  </td>
+                  <td>
+                    <span class="location-cell">{{ workOrder.location }}</span>
+                  </td>
+                  <td>
+                    <div class="start-date-cell" [class.missing-highlight]="isStartDateMissing(workOrder)">
+                      @if (workOrder.startDate) {
+                        <span class="date-cell">{{ formatDate(workOrder.startDate) }}</span>
+                      } @else {
+                        <span class="missing-start-date">⚠️ Not set</span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <div class="created-by-cell">
+                      <span class="user-avatar">👤</span>
+                      <span class="user-name">{{ workOrder.createdBy }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="date-cell">{{ formatDate(workOrder.createdAt) }}</span>
+                  </td>
+                  <td>
+                    <span class="date-cell">{{ formatDate(workOrder.updatedOn) }}</span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <!-- Bottom Paginator for Table View -->
+          <div class="table-paginator-bottom" #paginatorContainer>
+            <p-paginator
+              #bottomPaginator
+              [rows]="paginatorRows"
+              [totalRecords]="allWorkOrders.length"
+              [rowsPerPageOptions]="[10, 20, 50]"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+              styleClass="custom-paginator"
+              (onPageChange)="onPageChange($event)">
+            </p-paginator>
+          </div>
+        }
+
+        <!-- To Do View Mode (comprehensive implementation) -->
+        @if (currentViewMode === 'todo') {
+          <!-- Breadcrumb Navigation for Sub-WorkOrders -->
+          @if (breadcrumbs.length > 0) {
+            <div class="breadcrumb-navigation">
+              <div class="breadcrumb-container">
+                <button class="breadcrumb-home" (click)="goBackToParent()">
+                  <i class="pi pi-chevron-left"></i>
+                  @if (breadcrumbs.length === 1) {
+                    Back to Work Orders
+                  } @else {
+                    Back
+                  }
+                </button>
+                <div class="breadcrumb-trail">
+                  @for (workOrder of breadcrumbs; track workOrder.id; let last = $last) {
+                    <span class="breadcrumb-item" [class.active]="last" (click)="navigateToWorkOrder(workOrder)">
+                      {{ workOrder.title }}
+                    </span>
+                    @if (!last) {
+                      <i class="pi pi-chevron-right breadcrumb-separator"></i>
+                    }
+                  }
+                  @if (currentView === 'sub-workorders') {
+                    <i class="pi pi-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-item active">Sub-Work Orders</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Filters Bar -->
+          <div class="filters-bar">
+            <!-- Dynamic Active Filters -->
+            @for (filterId of activeFilters; track filterId) {
+              @if (filterId === 'assigned-to') {
+                <div class="filter-item filter-container" [class.filter-active]="showAssignedToFilter">
+                  <div class="filter-button" (click)="toggleAssignedToFilter()">
+                    <i class="pi pi-user filter-icon"></i>
+                    <span>Assigned To</span>
+                  </div>
+
+                  <!-- Assigned To Filter Dialog -->
+                  @if (showAssignedToFilter) {
+                    <div class="filter-dialog-overlay" (click)="closeAssignedToFilter()"></div>
+                    <div class="filter-dialog" (click)="$event.stopPropagation()">
+                      <div class="filter-dialog-header">
+                        <span class="filter-dialog-title">Assigned To</span>
+
+                        <div class="condition-dropdown-container" (click)="$event.stopPropagation()">
+                          <button class="condition-dropdown-btn" (click)="toggleAssignedToConditionDropdown()">
+                            <span class="condition-dropdown-label">{{ getAssignedToConditionLabel() }}</span>
+                            <i class="pi pi-chevron-down" [class.rotated]="showAssignedToConditionDropdown"></i>
+                          </button>
+
+                          @if (showAssignedToConditionDropdown) {
+                            <div class="condition-dropdown-menu">
+                              <div class="condition-dropdown-item"
+                                   [class.active]="assignedToCondition === 'one-of'"
+                                   (click)="selectAssignedToCondition('one-of')">
+                                One of
+                              </div>
+                              <div class="condition-dropdown-item"
+                                   [class.active]="assignedToCondition === 'none-of'"
+                                   (click)="selectAssignedToCondition('none-of')">
+                                None of
+                              </div>
+                            </div>
+                          }
+                        </div>
+
+                        <button class="filter-delete-btn" (click)="closeAssignedToFilter()">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+
+                      <div class="filter-dialog-content">
+                        <!-- Search Input -->
+                        <div class="search-container">
+                          <i class="pi pi-search search-icon"></i>
+                          <input
+                            type="text"
+                            placeholder="Search"
+                            [(ngModel)]="assignedToSearchTerm"
+                            class="search-input"
+                          />
+                        </div>
+
+                        <!-- Teams Section -->
+                        <div class="filter-section">
+                          <div class="section-header" (click)="toggleTeamsExpanded()">
+                            <span class="section-title">Teams</span>
+                            <i class="pi" [class.pi-chevron-up]="teamsExpanded" [class.pi-chevron-down]="!teamsExpanded"></i>
+                          </div>
+                          @if (teamsExpanded) {
+                            <div class="section-content">
+                              @for (team of filteredTeams; track team.id) {
+                                <div class="filter-option" (click)="toggleTeamSelection(team)">
+                                  <div class="team-icon">🟡</div>
+                                  <span class="option-label">{{ team.name }}</span>
+                                  <p-checkbox
+                                    [(ngModel)]="team.selected"
+                                    [binary]="true"
+                                    (onClick)="$event.stopPropagation()"
+                                  ></p-checkbox>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+
+                        <!-- Users Section -->
+                        <div class="filter-section">
+                          <div class="section-header" (click)="toggleUsersExpanded()">
+                            <span class="section-title">Users</span>
+                            <i class="pi" [class.pi-chevron-up]="usersExpanded" [class.pi-chevron-down]="!usersExpanded"></i>
+                          </div>
+                          @if (usersExpanded) {
+                            <div class="section-content">
+                              @for (user of filteredUsers; track user.id) {
+                                <div class="filter-option" (click)="toggleUserSelection(user)">
+                                  <div class="user-icon">🔵</div>
+                                  <span class="option-label">{{ user.name }}</span>
+                                  <p-checkbox
+                                    [(ngModel)]="user.selected"
+                                    [binary]="true"
+                                    (onClick)="$event.stopPropagation()"
+                                  ></p-checkbox>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else if (filterId === 'due-date') {
+                <div class="filter-item filter-container" [class.filter-active]="showDueDateFilter">
+                  <div class="filter-button" (click)="toggleDueDateFilter()">
+                    <i class="pi pi-calendar filter-icon"></i>
+                    <span>Due Date</span>
+                  </div>
+
+                  <!-- Due Date Filter Dialog -->
+                  @if (showDueDateFilter) {
+                    <div class="filter-dialog-overlay" (click)="closeDueDateFilter(); closeDueDateConditionDropdown()"></div>
+                    <div class="filter-dialog" (click)="$event.stopPropagation(); closeDueDateConditionDropdown()">
+                      <div class="filter-dialog-header">
+                        <span class="filter-dialog-title">Due Date</span>
+
+                        <div class="condition-dropdown-container" (click)="$event.stopPropagation()">
+                          <button class="condition-dropdown-btn" (click)="toggleDueDateConditionDropdown()">
+                            <span class="condition-dropdown-label">{{ getDueDateConditionLabel() }}</span>
+                            <i class="pi pi-chevron-down" [class.rotated]="showDueDateConditionDropdown"></i>
+                          </button>
+
+                          @if (showDueDateConditionDropdown) {
+                            <div class="condition-dropdown-menu">
+                              <div class="condition-dropdown-item"
+                                   [class.active]="dueDateCondition === 'one-of'"
+                                   (click)="selectDueDateCondition('one-of')">
+                                One of
+                              </div>
+                              <div class="condition-dropdown-item"
+                                   [class.active]="dueDateCondition === 'none-of'"
+                                   (click)="selectDueDateCondition('none-of')">
+                                None of
+                              </div>
+                            </div>
+                          }
+                        </div>
+
+                        <button class="filter-delete-btn" (click)="closeDueDateFilter()">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+
+                      <div class="filter-dialog-content">
+                        <!-- Presets Mode -->
+                        @if (dueDateMode === 'presets') {
+                          <div class="preset-options">
+                            @for (preset of dueDatePresets; track preset.id) {
+                              <div class="filter-option" (click)="togglePresetSelection(preset)">
+                                <span class="option-label">{{ preset.label }}</span>
+                                <p-checkbox
+                                  [(ngModel)]="preset.selected"
+                                  [binary]="true"
+                                  (onClick)="$event.stopPropagation()"
+                                ></p-checkbox>
+                              </div>
+                            }
+
+                            <div class="custom-date-option" (click)="switchToCustomDate()">
+                              <i class="pi pi-calendar custom-date-icon"></i>
+                              <span class="option-label">Custom Date</span>
+                            </div>
+                          </div>
+                        }
+
+                        <!-- Custom Date Mode -->
+                        @if (dueDateMode === 'custom') {
+                          <div class="custom-date-content">
+                            <p-calendar
+                              [(ngModel)]="selectedDate"
+                              [inline]="true"
+                              [showButtonBar]="false"
+                              (onSelect)="onDateSelect($event)"
+                              dateFormat="dd/mm/yy">
+                            </p-calendar>
+
+                            <div class="presets-option" (click)="switchToPresets()">
+                              <i class="pi pi-list presets-icon"></i>
+                              <span class="option-label">Presets</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else if (filterId === 'priority') {
+                <div class="filter-item filter-container" [class.filter-active]="showPriorityFilter">
+                  <div class="filter-button" (click)="togglePriorityFilter()">
+                    <i class="pi pi-flag filter-icon"></i>
+                    <span>Priority</span>
+                  </div>
+
+                  <!-- Priority Filter Dialog -->
+                  @if (showPriorityFilter) {
+                    <div class="filter-dialog-overlay" (click)="closePriorityFilter(); closePriorityConditionDropdown()"></div>
+                    <div class="filter-dialog priority-dialog" (click)="$event.stopPropagation(); closePriorityConditionDropdown()">
+                      <div class="filter-dialog-header">
+                        <span class="filter-dialog-title">Priority</span>
+
+                        <div class="condition-dropdown-container" (click)="$event.stopPropagation()">
+                          <button class="condition-dropdown-btn" (click)="togglePriorityConditionDropdown()">
+                            <span class="condition-dropdown-label">{{ getPriorityConditionLabel() }}</span>
+                            <i class="pi pi-chevron-down" [class.rotated]="showPriorityConditionDropdown"></i>
+                          </button>
+
+                          @if (showPriorityConditionDropdown) {
+                            <div class="condition-dropdown-menu">
+                              <div class="condition-dropdown-item"
+                                   [class.active]="priorityCondition === 'one-of'"
+                                   (click)="selectPriorityCondition('one-of')">
+                                One of
+                              </div>
+                              <div class="condition-dropdown-item"
+                                   [class.active]="priorityCondition === 'none-of'"
+                                   (click)="selectPriorityCondition('none-of')">
+                                None of
+                              </div>
+                            </div>
+                          }
+                        </div>
+
+                        <button class="filter-delete-btn" (click)="closePriorityFilter()">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+
+                      <div class="filter-dialog-content">
+                        <!-- Priority Options -->
+                        <div class="priority-options">
+                          @for (priority of priorityOptions; track priority.id) {
+                            <div class="priority-option" (click)="togglePrioritySelection(priority)">
+                              <div class="priority-indicator-wrapper">
+                                @if (priority.color !== 'none') {
+                                  <div class="priority-dot" [class]="priority.color"></div>
+                                }
+                                <span class="priority-label">{{ priority.label }}</span>
+                              </div>
+                              <p-checkbox
+                                [(ngModel)]="priority.selected"
+                                [binary]="true"
+                                (onClick)="$event.stopPropagation()"
+                                class="priority-checkbox">
+                              </p-checkbox>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else if (filterId === 'start-date') {
+                <div class="filter-item filter-container" [class.filter-active]="showStartDateFilter">
+                  <div class="filter-button" (click)="toggleStartDateFilter()">
+                    <i class="pi pi-calendar-plus filter-icon"></i>
+                    <span>Start Date</span>
+                  </div>
+
+                  <!-- Start Date Filter Dialog -->
+                  @if (showStartDateFilter) {
+                    <div class="filter-dialog-overlay" (click)="closeStartDateFilter(); closeStartDateConditionDropdown()"></div>
+                    <div class="filter-dialog" (click)="$event.stopPropagation(); closeStartDateConditionDropdown()">
+                      <div class="filter-dialog-header">
+                        <span class="filter-dialog-title">Start Date</span>
+
+                        <div class="condition-dropdown-container" (click)="$event.stopPropagation()">
+                          <button class="condition-dropdown-btn" (click)="toggleStartDateConditionDropdown()">
+                            <span class="condition-dropdown-label">{{ getStartDateConditionLabel() }}</span>
+                            <i class="pi pi-chevron-down" [class.rotated]="showStartDateConditionDropdown"></i>
+                          </button>
+
+                          @if (showStartDateConditionDropdown) {
+                            <div class="condition-dropdown-menu">
+                              <div class="condition-dropdown-item"
+                                   [class.active]="startDateCondition === 'one-of'"
+                                   (click)="selectStartDateCondition('one-of')">
+                                One of
+                              </div>
+                              <div class="condition-dropdown-item"
+                                   [class.active]="startDateCondition === 'none-of'"
+                                   (click)="selectStartDateCondition('none-of')">
+                                None of
+                              </div>
+                            </div>
+                          }
+                        </div>
+
+                        <button class="filter-delete-btn" (click)="closeStartDateFilter()">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+
+                      <div class="filter-dialog-content">
+                        <!-- Presets Mode -->
+                        @if (startDateMode === 'presets') {
+                          <div class="preset-options">
+                            @for (preset of startDatePresets; track preset.id) {
+                              <div class="filter-option" (click)="toggleStartDatePresetSelection(preset)">
+                                <span class="option-label">{{ preset.label }}</span>
+                                <p-checkbox
+                                  [(ngModel)]="preset.selected"
+                                  [binary]="true"
+                                  (onClick)="$event.stopPropagation()"
+                                ></p-checkbox>
+                              </div>
+                            }
+
+                            <div class="custom-date-option" (click)="switchToCustomStartDate()">
+                              <i class="pi pi-calendar custom-date-icon"></i>
+                              <span class="option-label">Custom Date</span>
+                            </div>
+                          </div>
+                        }
+
+                        <!-- Custom Date Mode -->
+                        @if (startDateMode === 'custom') {
+                          <div class="custom-date-content">
+                            <p-calendar
+                              [(ngModel)]="selectedStartDate"
+                              [inline]="true"
+                              [showButtonBar]="false"
+                              (onSelect)="onStartDateSelect($event)"
+                              dateFormat="dd/mm/yy">
+                            </p-calendar>
+
+                            <div class="presets-option" (click)="switchToStartDatePresets()">
+                              <i class="pi pi-list presets-icon"></i>
+                              <span class="option-label">Presets</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            }
+            <div class="add-filter-container">
+              <button class="add-filter-btn" (click)="toggleAddFilterDialog()">
+                <i class="pi pi-plus"></i>
+                Add Filter
+              </button>
+
+              <!-- Add Filter Dialog -->
+              @if (showAddFilterDialog) {
+                <div class="filter-dialog-overlay" (click)="closeAddFilterDialog()"></div>
+                <div class="add-filter-dialog" (click)="$event.stopPropagation()">
+                  <!-- Search Input -->
+                  <div class="add-filter-search-container">
+                    <i class="pi pi-search search-icon"></i>
+                    <input
+                      type="text"
+                      placeholder="Search"
+                      [(ngModel)]="addFilterSearchTerm"
+                      class="add-filter-search-input"
+                    />
+                  </div>
+
+                  <!-- Filter Options -->
+                  <div class="add-filter-options">
+                    @for (filter of filteredAvailableFilters; track filter.id) {
+                      <div class="add-filter-option" (click)="addFilter(filter.id)">
+                        <i class="pi {{ filter.icon }} add-filter-icon"></i>
+                        <span class="add-filter-label">{{ filter.label }}</span>
+                      </div>
+                    }
+
+                    @if (filteredAvailableFilters.length === 0) {
+                      <div class="no-filters-message">
+                        No available filters
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="filter-actions">
+              <button class="filter-action-btn">🔧 My Filters</button>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="workorder-content">
+            <!-- Left Panel - Work Order List -->
+            <div class="workorder-list-panel">
+              <div class="list-header">
+                <div class="list-tabs">
+                  <div class="tab" [class.active]="activeTab === 'todo'" (click)="switchTab('todo')">To Do</div>
+                  <div class="tab" [class.active]="activeTab === 'done'" (click)="switchTab('done')">Done</div>
+                </div>
+                <div class="sort-controls" [class.dropdown-open]="showSortDropdown">
+                  <span class="sort-label">Sort By:</span>
+                  <div class="sort-dropdown-container">
+                    <button class="sort-button" (click)="toggleSortDropdown()">
+                      {{ currentSortOption.label }}
+                      <i class="pi pi-chevron-down" [class.rotated]="showSortDropdown"></i>
+                    </button>
+
+                    <!-- Sort Dropdown -->
+                    @if (showSortDropdown) {
+                      <div class="sort-dropdown-overlay" (click)="closeSortDropdown()"></div>
+                      <div class="sort-dropdown">
+                        <div class="sort-option" [class.active]="currentSortOption.value === 'unread'" (click)="selectSortOption('unread', 'Unread First')">
+                          <span>Unread First</span>
+                          <div class="toggle-switch" [class.active]="unreadFirstEnabled" (click)="$event.stopPropagation(); toggleUnreadFirst()">
+                            <div class="toggle-slider"></div>
+                          </div>
+                        </div>
+                        <div class="sort-option" [class.active]="currentSortOption.value === 'creation'" (click)="selectSortOption('creation', 'Creation Date')">
+                          <span>Creation Date</span>
+                          <i class="pi pi-chevron-down"></i>
+                        </div>
+                        <div class="sort-option" [class.active]="currentSortOption.value === 'due'" (click)="selectSortOption('due', 'Due Date')">
+                          <span>Due Date</span>
+                          <i class="pi pi-chevron-down"></i>
+                        </div>
+                        <div class="sort-option" [class.active]="currentSortOption.value === 'updated'" (click)="selectSortOption('updated', 'Last Updated')">
+                          <span>Last Updated</span>
+                          <i class="pi pi-chevron-down"></i>
+                        </div>
+                        <div class="sort-option priority-option" [class.active]="currentSortOption.value.startsWith('priority')" (click)="togglePriorityExpanded()">
+                          <span>Priority</span>
+                          <i class="pi" [class.pi-chevron-up]="priorityExpanded" [class.pi-chevron-down]="!priorityExpanded"></i>
+                        </div>
+                        @if (priorityExpanded) {
+                          <div class="priority-suboptions">
+                            <div class="sort-suboption" [class.active]="currentSortOption.value === 'priority-high'" (click)="selectSortOption('priority-high', 'Priority: Highest First')">
+                              <span>Highest First</span>
+                              <i class="pi pi-check" [style.opacity]="currentSortOption.value === 'priority-high' ? '1' : '0'"></i>
+                            </div>
+                            <div class="sort-suboption" [class.active]="currentSortOption.value === 'priority-low'" (click)="selectSortOption('priority-low', 'Priority: Lowest First')">
+                              <span>Lowest First</span>
+                              <i class="pi pi-check" [style.opacity]="currentSortOption.value === 'priority-low' ? '1' : '0'"></i>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <i class="pi pi-sort sort-icon"></i>
+                </div>
+              </div>
+
+              <!-- Loading State -->
+              @if (isLoading) {
+                <div class="loading-container">
+                  <div class="loading-spinner"></div>
+                  <div class="loading-text">Loading work orders...</div>
+                </div>
+              }
+
+              <!-- Sub-Work Orders Header -->
+              @if (currentView === 'sub-workorders' && parentWorkOrder && !isLoading) {
+                <div class="sub-workorders-header-section">
+                  <div class="sub-workorders-header">
+                    <div class="parent-workorder-info">
+                      <div class="parent-workorder-title">{{ parentWorkOrder.title }}</div>
+                      <div class="parent-workorder-meta">
+                        <span class="status-badge" [class]="parentWorkOrder.status">
+                          {{ getStatusIcon(parentWorkOrder.status) }} {{ parentWorkOrder.status | titlecase }}
+                        </span>
+                        <span class="sub-workorders-count">{{ getSubWorkOrdersCount(parentWorkOrder) }} sub-work orders</span>
+                      </div>
+                    </div>
+                    <button class="create-sub-workorder-btn" (click)="openCreateSubWorkOrderModal()">
+                      + Create Sub-Work Order
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- Work Order Groups - To Do Tab -->
+              @if (activeTab === 'todo' && !isLoading && (currentView === 'details' || currentView === 'sub-workorders')) {
+                <div class="workorder-groups">
+                  @for (group of todoGroups; track group.title) {
+                    @if (group.workOrders.length > 0) {
+                      <div class="workorder-group">
+                        <div class="group-header" (click)="toggleGroupExpansion(group)">
+                          <span class="group-title">{{ group.title }} ({{ group.count }})</span>
+                          <i class="pi" [class.pi-angle-up]="group.expanded" [class.pi-angle-down]="!group.expanded"></i>
+                        </div>
+                        @if (group.expanded) {
+                          @for (workOrder of group.workOrders; track workOrder.id) {
+                            <div class="workorder-item"
+                                 [class.active]="workOrder.id === selectedWorkOrderId"
+                                 [class.unread]="workOrder.isUnread"
+                                 (click)="selectWorkOrder(workOrder.id)">
+                              <div class="workorder-content-item">
+                                <div class="workorder-main-info">
+                                  <div class="workorder-icon">{{ getStatusIcon(workOrder.status) }}</div>
+                                  <div class="workorder-details">
+                                    <div class="workorder-title">{{ workOrder.title }}</div>
+                                    <div class="workorder-meta">Requested by {{ workOrder.requestedBy }}</div>
+                                    <div class="workorder-status-row">
+                                      <span class="status-badge" [class]="workOrder.status">
+                                        {{ getStatusIcon(workOrder.status) }} {{ workOrder.status | titlecase }}
+                                      </span>
+                                      @if (workOrder.isOverdue) {
+                                        <span class="overdue-badge">🚨 Overdue</span>
+                                      }
+                                      @if (workOrder.dueDate && !workOrder.isOverdue) {
+                                        <span class="due-badge">📅 {{ formatDueDate(workOrder.dueDate) }}</span>
+                                      }
+                                    </div>
+                                  </div>
+                                  <div class="workorder-actions">
+                                    <div class="priority-indicator" [class]="workOrder.priority">
+                                      {{ getPriorityIcon(workOrder.priority) }}
+                                    </div>
+                                    <div class="workorder-number">#{{ workOrder.id }}</div>
+                                    @if (workOrder.isUnread) {
+                                      <div class="unread-indicator"></div>
+                                    }
+                                    @if (getSubWorkOrdersCount(workOrder) > 0) {
+                                      <button class="view-sub-workorders-btn"
+                                              (click)="$event.stopPropagation(); showSubWorkOrders(workOrder)"
+                                              title="View {{ getSubWorkOrdersCount(workOrder) }} sub-work orders">
+                                        📁 {{ getSubWorkOrdersCount(workOrder) }}
+                                      </button>
+                                    }
+                                  </div>
+                                </div>
+                                <!-- Hover Add Sub-Work Order Button -->
+                                <div class="hover-actions">
+                                  <button class="add-sub-btn"
+                                          (click)="openCreateSubWorkOrderModalForParent(workOrder); $event.stopPropagation()"
+                                          title="Create Sub-Work Order">
+                                    + Sub
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        }
+                      </div>
+                    }
+                  }
+                  @if (!hasTodoWorkOrders) {
+                    <div class="empty-state-container">
+                      <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <div class="empty-title">All caught up!</div>
+                        <div class="empty-desc">You don't have any pending work orders</div>
+                        <button class="create-first-btn" (click)="openNewWorkOrderModal()">Create new work order</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Done Tab -->
+              @if (activeTab === 'done' && !isLoading) {
+                <div class="workorder-groups">
+                  @for (group of doneGroups; track group.title) {
+                    @if (group.workOrders.length > 0) {
+                      <div class="workorder-group">
+                        <div class="group-header" (click)="toggleGroupExpansion(group)">
+                          <span class="group-title">{{ group.title }} ({{ group.count }})</span>
+                          <i class="pi" [class.pi-angle-up]="group.expanded" [class.pi-angle-down]="!group.expanded"></i>
+                        </div>
+                        @if (group.expanded) {
+                          @for (workOrder of group.workOrders; track workOrder.id) {
+                            <div class="workorder-item"
+                                 [class.active]="workOrder.id === selectedWorkOrderId"
+                                 (click)="selectWorkOrder(workOrder.id)">
+                              <div class="workorder-content-item">
+                                <div class="workorder-main-info">
+                                  <div class="workorder-icon completed">{{ getStatusIcon(workOrder.status) }}</div>
+                                  <div class="workorder-details">
+                                    <div class="workorder-title">{{ workOrder.title }}</div>
+                                    <div class="workorder-meta">
+                                      Completed by {{ workOrder.assignedTo }}
+                                      @if (workOrder.completedAt) {
+                                        • {{ workOrder.completedAt | date:'short' }}
+                                      }
+                                    </div>
+                                    <div class="workorder-status-row">
+                                      <span class="status-badge complete">
+                                        ✅ Completed
+                                      </span>
+                                      <span class="category-badge">{{ workOrder.category }}</span>
+                                    </div>
+                                  </div>
+                                  <div class="workorder-actions">
+                                    <button class="reopen-btn" (click)="$event.stopPropagation(); reopenWorkOrder(workOrder.id)" title="Reopen work order">
+                                      🔄
+                                    </button>
+                                    <div class="workorder-number">#{{ workOrder.id }}</div>
+                                    @if (getSubWorkOrdersCount(workOrder) > 0) {
+                                      <button class="view-sub-workorders-btn"
+                                              (click)="$event.stopPropagation(); showSubWorkOrders(workOrder)"
+                                              title="View {{ getSubWorkOrdersCount(workOrder) }} sub-work orders">
+                                        📁 {{ getSubWorkOrdersCount(workOrder) }}
+                                      </button>
+                                    }
+                                  </div>
+                                </div>
+                                <!-- Hover Add Sub-Work Order Button -->
+                                <div class="hover-actions">
+                                  <button class="add-sub-btn"
+                                          (click)="openCreateSubWorkOrderModalForParent(workOrder); $event.stopPropagation()"
+                                          title="Create Sub-Work Order">
+                                    + Sub
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        }
+                      </div>
+                    }
+                  }
+                  @if (!hasDoneWorkOrders) {
+                    <div class="empty-state-container">
+                      <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-title">No completed work orders</div>
+                        <div class="empty-desc">Completed work orders will appear here</div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Center Panel - Work Order Details -->
+            <div class="workorder-details-panel">
+
+              <!-- Mode Headers - Above work order details -->
+              @if (isCommentsMode) {
+                <div class="mode-header">
+                  <button class="back-btn" (click)="goBackToDefault()">
+                    ← Comments
+                  </button>
+                </div>
+              }
+
+              @if (isEditMode) {
+                <div class="mode-header">
+                  <button class="back-btn" (click)="goBackToDefault()">
+                    ← Edit Work Order
+                  </button>
+                </div>
+              }
+
+              @if (isPartsMode) {
+                <div class="mode-header">
+                  <button class="back-btn" (click)="goBackToDefault()">
+                    ← Update Parts
+                  </button>
+                </div>
+              }
+
+              @if (isCostsMode) {
+                <div class="mode-header">
+                  <button class="back-btn" (click)="goBackToDefault()">
+                    ← Other Costs Overview
+                  </button>
+                  <button class="add-cost-btn" (click)="openAddCostModal()">Add Cost</button>
+                </div>
+              }
+
+                             @if (selectedWorkOrder) {
+                 <!-- Work Order Header -->
+                 <div class="workorder-header">
+                   <div class="header-main">
+                     <div class="project-info">
+                       <h1 class="project-title">{{ selectedWorkOrder.title }}</h1>
+                       <div class="project-meta">
+                         <div class="status-badge" [class]="'status-' + selectedWorkOrder.status">
+                           <i class="status-icon" [class]="getStatusIconClass(selectedWorkOrder.status)"></i>
+                           <span>{{ selectedWorkOrder.workType | titlecase }}</span>
+                         </div>
+                         @if (selectedWorkOrder.isOverdue) {
+                           <div class="due-badge overdue">
+                             <i class="pi pi-calendar-times"></i>
+                             <span>Overdue {{ selectedWorkOrder.dueDate | date:'MMM d' }}</span>
+                           </div>
+                         } @else if (selectedWorkOrder.dueDate) {
+                           <div class="due-badge">
+                             <i class="pi pi-calendar"></i>
+                             <span>Due {{ selectedWorkOrder.dueDate | date:'MMM d' }}</span>
+                           </div>
+                         }
+                       </div>
+                     </div>
+
+                     <div class="header-actions">
+                       <button class="action-btn primary" (click)="switchToCommentsMode()">
+                         <i class="pi pi-comments"></i>
+                         <span>Comments</span>
+                       </button>
+                       <button class="action-btn secondary" (click)="switchToEditMode()">
+                         <i class="pi pi-pencil"></i>
+                         <span>Edit</span>
+                       </button>
+                       <button class="action-btn secondary" (click)="switchToTimesheetMode()">
+                         <i class="pi pi-clock"></i>
+                         <span>Timesheet</span>
+                       </button>
+                       <div class="actions-menu-container">
+                         <button class="action-btn menu-trigger" (click)="toggleActionsMenu()">
+                           <i class="pi pi-ellipsis-v"></i>
+                         </button>
+                         @if (showActionsMenu) {
+                           <div class="actions-menu-overlay" (click)="closeActionsMenu()"></div>
+                           <div class="actions-menu">
+                             <div class="menu-item" (click)="handleAction('mark-unread')">
+                               <i class="pi pi-eye-slash"></i>
+                               <span>Mark as unread</span>
+                             </div>
+                             <div class="menu-item" (click)="handleAction('stop-repeating')">
+                               <i class="pi pi-pause"></i>
+                               <span>Stop Repeating</span>
+                             </div>
+                             <div class="menu-item" (click)="handleAction('copy-workorder')">
+                               <i class="pi pi-copy"></i>
+                               <span>Copy to New Work Order</span>
+                             </div>
+                             <div class="menu-item" (click)="handleAction('save-template')">
+                               <i class="pi pi-bookmark"></i>
+                               <span>Save as Template</span>
+                             </div>
+                             <div class="menu-item" (click)="handleAction('export-pdf')">
+                               <i class="pi pi-file-pdf"></i>
+                               <span>Export to PDF</span>
+                             </div>
+                             <div class="menu-item" (click)="handleAction('email-vendors')">
+                               <i class="pi pi-send"></i>
+                               <span>Email to Vendors</span>
+                             </div>
+                             <div class="menu-divider"></div>
+                             <div class="menu-item danger" (click)="handleAction('delete')">
+                               <i class="pi pi-trash"></i>
+                               <span>Delete</span>
+                             </div>
+                           </div>
+                         }
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+
+                 <!-- Tab Navigation -->
+                 <div class="tab-navigation">
+                   <div class="tab-container">
+                     <button class="tab-btn" [class.active]="activeWorkOrderTab === 'details'" (click)="setActiveWorkOrderTab('details')">
+                       <i class="pi pi-info-circle"></i>
+                       <span>Details</span>
+                     </button>
+                     <button class="tab-btn" [class.active]="activeWorkOrderTab === 'releases'" (click)="setActiveWorkOrderTab('releases')">
+                       <i class="pi pi-box"></i>
+                       <span>Releases</span>
+                     </button>
+                   </div>
+                 </div>
+
+                  <!-- Scrollable Content Area -->
+                  <div class="scrollable-content">
+                    <!-- Details Tab Content -->
+                    @if (isDefaultMode && activeWorkOrderTab === 'details') {
+                    <div class="content-section">
+                      <div class="status-and-share-container">
+                        <div class="status-section">
+                          <label class="status-label">Status</label>
+                          <div class="status-workflow">
+                            <div class="status-item active">
+                              <div class="status-icon">🔓</div>
+                              <span>Open</span>
+                            </div>
+                            <div class="status-item">
+                              <div class="status-icon">⏸️</div>
+                              <span>On Hold</span>
+                            </div>
+                            <div class="status-item">
+                              <div class="status-icon">🔄</div>
+                              <span>In Progress</span>
+                            </div>
+                            <div class="status-item">
+                              <div class="status-icon">✅</div>
+                              <span>Complete</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="share-external">
+                          <button class="share-btn">📤 Share Externally</button>
+                        </div>
+                      </div>
+                      <div class="details-grid">
+                        <div class="detail-item">
+                          <label>Start Date</label>
+                          <div class="detail-value" [class.missing-start-date]="isStartDateMissing(selectedWorkOrder)" [class.highlight-missing]="isStartDateMissing(selectedWorkOrder)">
+                            @if (selectedWorkOrder.startDate) {
+                              {{ selectedWorkOrder.startDate | date:'shortDate' }}
+                              <span class="start-date-status" [class]="getStartDateStatus(selectedWorkOrder)">
+                                {{ formatStartDate(selectedWorkOrder.startDate) }}
+                              </span>
+                            } @else {
+                              <span class="missing-indicator">⚠️ Not set</span>
+                            }
+                          </div>
+                        </div>
+                        <div class="detail-item">
+                          <label>Due Date</label>
+                          <div class="detail-value" [class.overdue-date]="selectedWorkOrder.isOverdue">
+                            @if (selectedWorkOrder.dueDate) {
+                              {{ selectedWorkOrder.dueDate | date:'shortDate' }}
+                              @if (selectedWorkOrder.isOverdue) {
+                                📅 Overdue
+                              }
+                            } @else {
+                              Not set
+                            }
+                          </div>
+                        </div>
+                      </div>
+                      <div class="details-grid">
+                        <div class="detail-item">
+                          <label>Work Order ID</label>
+                          <div class="detail-value">#{{ selectedWorkOrder.id }}</div>
+                        </div>
+                        <div class="detail-item">
+                          <!-- Validation message for start date -->
+                          @if (validateStartDate(selectedWorkOrder)) {
+                            <label class="validation-error">Date Validation</label>
+                            <div class="detail-value validation-error">
+                              ⚠️ {{ validateStartDate(selectedWorkOrder) }}
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="content-section">
+                      <div class="detail-item">
+                        <label>Assigned To</label>
+                        <div class="detail-value assigned-user">
+                          <span class="user-avatar">👤</span>
+                          {{ selectedWorkOrder.assignedTo }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="content-section">
+                      <div class="detail-item">
+                        <label>Description</label>
+                        <div class="detail-value">{{ selectedWorkOrder.description }}</div>
+                      </div>
+                    </div>
+
+                    <div class="content-section">
+                      <div class="details-grid">
+                        <div class="detail-item">
+                          <label>Asset</label>
+                          <div class="detail-value asset-info">
+                            <span class="asset-icon">📦</span>
+                            Test
+                            <span class="asset-status online">● Online</span>
+                          </div>
+                        </div>
+                        <div class="detail-item">
+                          <label>Location</label>
+                          <div class="detail-value">
+                            <span class="location-icon">📍</span>
+                            {{ selectedWorkOrder.location }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="details-grid">
+                        <div class="detail-item">
+                          <label>Estimated Time</label>
+                          <div class="detail-value">{{ selectedWorkOrder.estimatedTime }}</div>
+                        </div>
+                        <div class="detail-item">
+                          <label>Work Type</label>
+                          <div class="detail-value">{{ selectedWorkOrder.workType | titlecase }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="content-section">
+                      <div class="detail-item">
+                        <label>Categories</label>
+                        <div class="detail-value">
+                          <span class="category-tag">{{ selectedWorkOrder.category }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Schedule Conditions Section -->
+                    <div class="content-section">
+                      <div class="detail-item">
+                        <label>Schedule conditions</label>
+                        <div class="detail-value">
+                          <p class="schedule-description">This Work Order will repeat based on time.</p>
+                          <div class="schedule-info">
+                            <i class="pi pi-calendar schedule-icon"></i>
+                            <span>Repeats every day after completion of this Work Order.</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Cost Tracking Section -->
+                    <div class="content-section">
+                      <div class="detail-item">
+                        <label>Cost Tracking</label>
+                        <div class="detail-value">
+                          <div class="cost-tracking-list">
+                            <div class="cost-item">
+                              <span class="cost-label">Parts</span>
+                              <button class="add-link" (click)="switchToPartsMode()">Add ></button>
+                            </div>
+                            <div class="cost-item">
+                              <span class="cost-label">Other Costs</span>
+                              <button class="add-link" (click)="switchToCostsMode()">Add ></button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Created/Updated Info Section -->
+                    <div class="content-section">
+                      <div class="meta-info">
+                        <div class="meta-item">
+                          <span>Created by</span>
+                          <span class="user-info">
+                            <span class="user-avatar-small">👤</span>
+                            {{ selectedWorkOrder.requestedBy }} on {{ selectedWorkOrder.createdAt | date:'MM/dd/yyyy, h:mm a' }}
+                          </span>
+                        </div>
+                        <div class="meta-item">
+                          <span>Last updated on {{ selectedWorkOrder.createdAt | date:'MM/dd/yyyy, h:mm a' }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="content-section">
+                      <div class="detail-item">
+                        <label>Comments</label>
+                        <div class="detail-value">
+                          <div class="comments-section">
+                            <!-- Comment Input -->
+                            <div class="comment-input-section">
+                              <textarea
+                                class="comment-input"
+                                placeholder="Write a comment..."
+                                [(ngModel)]="newComment"
+                                rows="3"></textarea>
+                              <div class="comment-actions">
+                                <button class="attach-btn">📎</button>
+                                <button class="send-btn" (click)="addComment()" [disabled]="!newComment.trim()">Send</button>
+                              </div>
+                            </div>
+
+                            <!-- Comments List -->
+                            <div class="comments-list">
+                              @for (comment of comments; track comment.id) {
+                                <div class="comment-item">
+                                  <div class="comment-avatar">{{ comment.avatar }}</div>
+                                  <div class="comment-content">
+                                    <div class="comment-header">
+                                      <span class="comment-author">{{ comment.author }}</span>
+                                      <span class="comment-timestamp">{{ comment.timestamp }}</span>
+                                    </div>
+                                    <div class="comment-message">{{ comment.message }}</div>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- ECN Management Tab Content -->
+                  @if (isDefaultMode && activeWorkOrderTab === 'releases') {
+                    <div class="ecn-content">
+                      <div class="ecn-header">
+                        <h3>Engineering Change Notice (ECN)</h3>
+                        <button class="btn btn-primary" (click)="openCreateECNModal()">
+                          <i class="pi pi-plus"></i>
+                          Create ECN
+                        </button>
+                      </div>
+
+                      <!-- ECN Sub-Tabs -->
+                      <div class="ecn-sub-tabs">
+                        <div class="sub-tab-container">
+                          <button class="sub-tab-btn" [class.active]="activeECNTab === 'dashboard'" (click)="setActiveECNTab('dashboard')">
+                            <i class="pi pi-th-large"></i>
+                            <span>Dashboard</span>
+                          </button>
+                          <button class="sub-tab-btn" [class.active]="activeECNTab === 'create'" (click)="setActiveECNTab('create')">
+                            <i class="pi pi-file-edit"></i>
+                            <span>Create ECN</span>
+                          </button>
+                          <button class="sub-tab-btn" [class.active]="activeECNTab === 'impact'" (click)="setActiveECNTab('impact')">
+                            <i class="pi pi-chart-line"></i>
+                            <span>Impact Analysis</span>
+                          </button>
+                          <button class="sub-tab-btn" [class.active]="activeECNTab === 'approvals'" (click)="setActiveECNTab('approvals')">
+                            <i class="pi pi-check-circle"></i>
+                            <span>Approvals</span>
+                          </button>
+                          <button class="sub-tab-btn" [class.active]="activeECNTab === 'attachments'" (click)="setActiveECNTab('attachments')">
+                            <i class="pi pi-paperclip"></i>
+                            <span>Attachments</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- ECN Dashboard Sub-Tab -->
+                      @if (activeECNTab === 'dashboard') {
+                        <div class="ecn-dashboard">
+                          <!-- ECN Filters -->
+                          <div class="ecn-filters">
+                            <div class="filter-group">
+                              <label>Status Filter:</label>
+                              <div class="filter-buttons">
+                                <button class="filter-btn" [class.active]="ecnStatusFilter === 'all'" (click)="setECNStatusFilter('all')">
+                                  All ({{ getAllECNs().length }})
+                                </button>
+                                <button class="filter-btn" [class.active]="ecnStatusFilter === 'draft'" (click)="setECNStatusFilter('draft')">
+                                  Draft ({{ getECNsByStatus('draft').length }})
+                                </button>
+                                <button class="filter-btn" [class.active]="ecnStatusFilter === 'under_review'" (click)="setECNStatusFilter('under_review')">
+                                  Under Review ({{ getECNsByStatus('under_review').length }})
+                                </button>
+                                <button class="filter-btn" [class.active]="ecnStatusFilter === 'approved'" (click)="setECNStatusFilter('approved')">
+                                  Approved ({{ getECNsByStatus('approved').length }})
+                                </button>
+                                <button class="filter-btn" [class.active]="ecnStatusFilter === 'released'" (click)="setECNStatusFilter('released')">
+                                  Released ({{ getECNsByStatus('released').length }})
+                                </button>
+                                <button class="filter-btn" [class.active]="ecnStatusFilter === 'closed'" (click)="setECNStatusFilter('closed')">
+                                  Closed ({{ getECNsByStatus('closed').length }})
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- ECN Cards -->
+                          <div class="ecn-cards">
+                            @for (ecn of getFilteredECNs(); track ecn.id) {
+                              <div class="ecn-card" [class]="'status-' + ecn.status">
+                                <div class="ecn-card-header">
+                                  <div class="ecn-number">{{ ecn.number }}</div>
+                                  <div class="ecn-status" [class]="'status-' + ecn.status">
+                                    <i [class]="getECNStatusIcon(ecn.status)"></i>
+                                    <span>{{ ecn.status | titlecase }}</span>
+                                  </div>
+                                </div>
+                                <div class="ecn-card-body">
+                                  <h4 class="ecn-title">{{ ecn.title }}</h4>
+                                  <p class="ecn-description">{{ ecn.description }}</p>
+                                  <div class="ecn-meta">
+                                    <div class="ecn-requester">
+                                      <i class="pi pi-user"></i>
+                                      <span>{{ ecn.createdBy }}</span>
+                                    </div>
+                                    <div class="ecn-date">
+                                      <i class="pi pi-calendar"></i>
+                                      <span>{{ ecn.createdAt | date:'MMM d, y' }}</span>
+                                    </div>
+                                  </div>
+                                  <div class="ecn-progress">
+                                    <div class="progress-label">Approval Progress</div>
+                                    <div class="progress-bar">
+                                      <div class="progress-fill" [style.width.%]="getECNProgress(ecn)"></div>
+                                    </div>
+                                    <div class="progress-text">{{ getECNProgress(ecn) }}% Complete</div>
+                                  </div>
+                                </div>
+                                <div class="ecn-card-actions">
+                                  <button class="btn btn-sm btn-primary" (click)="viewECNDetails(ecn)">
+                                    <i class="pi pi-eye"></i>
+                                    View
+                                  </button>
+                                  @if (canEditECN(ecn)) {
+                                    <button class="btn btn-sm btn-secondary" (click)="editECN(ecn)">
+                                      <i class="pi pi-pencil"></i>
+                                      Edit
+                                    </button>
+                                  }
+                                  @if (canApproveECN(ecn)) {
+                                    <button class="btn btn-sm btn-success" (click)="approveECN(ecn)">
+                                      <i class="pi pi-check"></i>
+                                      Approve
+                                    </button>
+                                  }
+                                </div>
+                              </div>
+                            }
+
+                            @if (getFilteredECNs().length === 0) {
+                              <div class="empty-ecns">
+                                <div class="empty-icon">
+                                  <i class="pi pi-file-edit"></i>
+                                </div>
+                                <h4>No ECNs Found</h4>
+                                <p>No engineering change notices match your current filter.</p>
+                                <button class="btn btn-primary" (click)="openCreateECNModal()">
+                                  <i class="pi pi-plus"></i>
+                                  Create First ECN
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Create ECN Sub-Tab -->
+                      @if (activeECNTab === 'create') {
+                        <div class="ecn-create">
+                          <div class="create-ecn-form">
+                            <h4>Create New Engineering Change Notice</h4>
+                            <form class="ecn-form">
+                              <div class="form-row">
+                                <div class="form-group">
+                                  <label for="ecnTitle">ECN Title *</label>
+                                  <input
+                                    type="text"
+                                    id="ecnTitle"
+                                    [(ngModel)]="newECN.title"
+                                    class="form-input"
+                                    name="ecnTitle"
+                                    placeholder="Brief description of the change"
+                                    required>
+                                </div>
+                                <div class="form-group">
+                                  <label for="ecnReason">Reason for Change *</label>
+                                  <select
+                                    id="ecnReason"
+                                    [(ngModel)]="newECN.reason"
+                                    class="form-input"
+                                    name="ecnReason"
+                                    required>
+                                    <option value="">Select reason</option>
+                                    <option value="design_improvement">Design Improvement</option>
+                                    <option value="cost_reduction">Cost Reduction</option>
+                                    <option value="quality_issue">Quality Issue</option>
+                                    <option value="customer_request">Customer Request</option>
+                                    <option value="supplier_change">Supplier Change</option>
+                                    <option value="regulatory_compliance">Regulatory Compliance</option>
+                                    <option value="other">Other</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="ecnDescription">Detailed Description *</label>
+                                <textarea
+                                  id="ecnDescription"
+                                  [(ngModel)]="newECN.description"
+                                  class="form-input"
+                                  name="ecnDescription"
+                                  rows="4"
+                                  placeholder="Provide detailed description of the engineering change..."
+                                  required></textarea>
+                              </div>
+
+                              <div class="form-row">
+                                <div class="form-group">
+                                  <label for="ecnUrgency">Urgency Level</label>
+                                  <select
+                                    id="ecnUrgency"
+                                    [(ngModel)]="newECN.urgency"
+                                    class="form-input"
+                                    name="ecnUrgency">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="critical">Critical</option>
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label for="ecnTargetDate">Target Implementation Date</label>
+                                  <input
+                                    type="date"
+                                    id="ecnTargetDate"
+                                    [(ngModel)]="newECN.targetDate"
+                                    class="form-input"
+                                    name="ecnTargetDate">
+                                </div>
+                              </div>
+
+                              <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" (click)="cancelECNCreation()">
+                                  Cancel
+                                </button>
+                                <button type="button" class="btn btn-primary" (click)="saveECNDraft()" [disabled]="!isECNValid()">
+                                  <i class="pi pi-save"></i>
+                                  Save as Draft
+                                </button>
+                                <button type="button" class="btn btn-success" (click)="submitECNForReview()" [disabled]="!isECNValid()">
+                                  <i class="pi pi-send"></i>
+                                  Submit for Review
+                                </button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Impact Analysis Sub-Tab -->
+                      @if (activeECNTab === 'impact') {
+                        <div class="ecn-impact">
+                          <div class="impact-header">
+                            <h4>Impact Analysis</h4>
+                            <p>Analyze the impact of engineering changes on BOM, costs, and production</p>
+                          </div>
+
+                          <div class="impact-sections">
+                            <!-- BOM Impact -->
+                            <div class="impact-section">
+                              <div class="section-header">
+                                <h5><i class="pi pi-sitemap"></i> BOM Impact Analysis</h5>
+                                <button class="btn btn-sm btn-primary" (click)="runBOMImpactAnalysis()">
+                                  <i class="pi pi-refresh"></i>
+                                  Analyze BOM
+                                </button>
+                              </div>
+                              <div class="impact-content">
+                                <div class="bom-comparison">
+                                  <div class="bom-before">
+                                    <h6>Before (Current BOM)</h6>
+                                    <div class="bom-items">
+                                      @for (item of getCurrentBOMItems(); track item.id) {
+                                        <div class="bom-item">
+                                          <span class="item-part">{{ item.partNumber }}</span>
+                                          <span class="item-qty">{{ item.quantity }}</span>
+                                          <span class="item-rev">{{ item.revision }}</span>
+                                        </div>
+                                      }
+                                    </div>
+                                  </div>
+                                  <div class="bom-after">
+                                    <h6>After (Proposed BOM)</h6>
+                                    <div class="bom-items">
+                                      @for (item of getProposedBOMItems(); track item.id) {
+                                        <div class="bom-item" [class]="getBOMItemChangeType(item)">
+                                          <span class="item-part">{{ item.partNumber }}</span>
+                                          <span class="item-qty">{{ item.quantity }}</span>
+                                          <span class="item-rev">{{ item.revision }}</span>
+                                          <span class="change-indicator">{{ getBOMItemChangeType(item) }}</span>
+                                        </div>
+                                      }
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Cost Impact -->
+                            <div class="impact-section">
+                              <div class="section-header">
+                                <h5><i class="pi pi-dollar"></i> Cost Impact Analysis</h5>
+                              </div>
+                              <div class="impact-content">
+                                <div class="cost-summary">
+                                  <div class="cost-item">
+                                    <span class="cost-label">Material Cost Change:</span>
+                                    <span class="cost-value" [class]="getCostChangeClass(getCostImpact().material)">
+                                      {{ getCostImpact().material | currency }}
+                                    </span>
+                                  </div>
+                                  <div class="cost-item">
+                                    <span class="cost-label">Labor Cost Change:</span>
+                                    <span class="cost-value" [class]="getCostChangeClass(getCostImpact().labor)">
+                                      {{ getCostImpact().labor | currency }}
+                                    </span>
+                                  </div>
+                                  <div class="cost-item">
+                                    <span class="cost-label">Total Cost Impact:</span>
+                                    <span class="cost-value total" [class]="getCostChangeClass(getCostImpact().total)">
+                                      {{ getCostImpact().total | currency }}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Production Impact -->
+                            <div class="impact-section">
+                              <div class="section-header">
+                                <h5><i class="pi pi-cog"></i> Production Impact Analysis</h5>
+                              </div>
+                              <div class="impact-content">
+                                <div class="production-impact">
+                                  <div class="impact-item">
+                                    <i class="pi pi-clock"></i>
+                                    <span>Lead Time Impact: {{ getProductionImpact().leadTime }} days</span>
+                                  </div>
+                                  <div class="impact-item">
+                                    <i class="pi pi-box"></i>
+                                    <span>WIP Impact: {{ getProductionImpact().wipUnits }} units</span>
+                                  </div>
+                                  <div class="impact-item">
+                                    <i class="pi pi-users"></i>
+                                    <span>Resource Impact: {{ getProductionImpact().resourceHours }} hours</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Approvals Sub-Tab -->
+                      @if (activeECNTab === 'approvals') {
+                        <div class="ecn-approvals">
+                          <div class="approvals-header">
+                            <h4>ECN Approval Workflow</h4>
+                            <p>Track and manage approval status for engineering changes</p>
+                          </div>
+
+                          <div class="approval-workflow">
+                            @for (approval of getECNApprovals(); track approval.id) {
+                              <div class="approval-step" [class]="'status-' + approval.status">
+                                <div class="step-indicator">
+                                  <i [class]="getApprovalStepIcon(approval.status)"></i>
+                                </div>
+                                <div class="step-content">
+                                  <div class="step-header">
+                                    <h6>{{ approval.role | titlecase }} Approval</h6>
+                                    <span class="step-status" [class]="'status-' + approval.status">
+                                      {{ approval.status | titlecase }}
+                                    </span>
+                                  </div>
+                                  <div class="step-details">
+                                    <div class="approver">
+                                      <i class="pi pi-user"></i>
+                                      <span>{{ approval.approverName }}</span>
+                                    </div>
+                                    @if (approval.comments) {
+                                      <div class="approval-comments">
+                                        <i class="pi pi-comment"></i>
+                                        <span>{{ approval.comments }}</span>
+                                      </div>
+                                    }
+                                    @if (approval.approvedAt) {
+                                      <div class="approval-date">
+                                        <i class="pi pi-calendar"></i>
+                                        <span>{{ approval.approvedAt | date:'MMM d, y h:mm a' }}</span>
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
+                                @if (canApproveStep(approval)) {
+                                  <div class="step-actions">
+                                    <button class="btn btn-sm btn-success" (click)="approveStep(approval)">
+                                      <i class="pi pi-check"></i>
+                                      Approve
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" (click)="rejectStep(approval)">
+                                      <i class="pi pi-times"></i>
+                                      Reject
+                                    </button>
+                                  </div>
+                                }
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Attachments Sub-Tab -->
+                      @if (activeECNTab === 'attachments') {
+                        <div class="ecn-attachments">
+                          <!-- ECN Selection -->
+                          <div class="ecn-selection">
+                            <div class="selection-header">
+                              <h4>ECN Attachments</h4>
+                              <div class="ecn-selector">
+                                <label>Select ECN:</label>
+                                <select class="form-input" [(ngModel)]="selectedECN" (change)="onECNSelectionChange()">
+                                  <option [ngValue]="null">Choose an ECN...</option>
+                                  @for (ecn of getAllECNs(); track ecn.id) {
+                                    <option [ngValue]="ecn">{{ ecn.number }} - {{ ecn.title }}</option>
+                                  }
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          @if (selectedECN) {
+                            <!-- Selected ECN Info -->
+                            <div class="selected-ecn-info">
+                              <div class="ecn-badge">
+                                <i [class]="getECNStatusIcon(selectedECN.status)"></i>
+                                <span class="ecn-number">{{ selectedECN.number }}</span>
+                                <span class="ecn-title">{{ selectedECN.title }}</span>
+                                <span class="ecn-status" [class]="'status-' + selectedECN.status">
+                                  {{ selectedECN.status | titlecase }}
+                                </span>
+                              </div>
+                              <button class="btn btn-sm btn-secondary" (click)="clearSelectedECN()">
+                                <i class="pi pi-times"></i>
+                                Clear Selection
+                              </button>
+                            </div>
+
+                            <!-- Attachments for Selected ECN -->
+                            <div class="attachments-section">
+                              <div class="attachments-header">
+                                <h5>Attachments for {{ selectedECN.number }}</h5>
+                                <button class="btn btn-primary" (click)="openAttachmentUpload()">
+                                  <i class="pi pi-upload"></i>
+                                  Upload Files
+                                </button>
+                              </div>
+
+                              <div class="attachments-list">
+                                @for (attachment of getECNAttachments(); track attachment.id) {
+                                  <div class="attachment-item">
+                                    <div class="attachment-icon">
+                                      <i [class]="getFileIcon(attachment.fileType)"></i>
+                                    </div>
+                                    <div class="attachment-info">
+                                      <div class="attachment-name">{{ attachment.fileName }}</div>
+                                      <div class="attachment-meta">
+                                        <span class="file-size">{{ attachment.fileSize }}</span>
+                                        <span class="upload-date">{{ attachment.uploadedAt | date:'MMM d, y' }}</span>
+                                        <span class="uploader">{{ attachment.uploadedBy }}</span>
+                                      </div>
+                                    </div>
+                                    <div class="attachment-actions">
+                                      <button class="btn btn-sm btn-primary" (click)="downloadAttachment(attachment)">
+                                        <i class="pi pi-download"></i>
+                                      </button>
+                                      <button class="btn btn-sm btn-danger" (click)="deleteAttachment(attachment.id)">
+                                        <i class="pi pi-trash"></i>
+                                      </button>
+                                    </div>
+                                  </div>
+                                }
+
+                                @if (getECNAttachments().length === 0) {
+                                  <div class="empty-attachments">
+                                    <div class="empty-icon">
+                                      <i class="pi pi-paperclip"></i>
+                                    </div>
+                                    <h5>No Attachments for {{ selectedECN.number }}</h5>
+                                    <p>Upload drawings, specifications, or other supporting documents for this ECN.</p>
+                                    <button class="btn btn-primary" (click)="openAttachmentUpload()">
+                                      <i class="pi pi-upload"></i>
+                                      Upload First File
+                                    </button>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          } @else {
+                            <!-- No ECN Selected -->
+                            <div class="no-ecn-selected">
+                              <div class="empty-icon">
+                                <i class="pi pi-file-edit"></i>
+                              </div>
+                              <h5>Select an ECN to View Attachments</h5>
+                              <p>Choose an ECN from the dropdown above to view and manage its attachments.</p>
+                              <div class="ecn-suggestions">
+                                <h6>Recent ECNs:</h6>
+                                <div class="suggestion-list">
+                                  @for (ecn of getAllECNs().slice(0, 3); track ecn.id) {
+                                    <button class="suggestion-btn" (click)="selectECNForAttachments(ecn)">
+                                      <i [class]="getECNStatusIcon(ecn.status)"></i>
+                                      <span>{{ ecn.number }} - {{ ecn.title }}</span>
+                                    </button>
+                                  }
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <!-- Comments Mode -->
+                  @if (isCommentsMode) {
+                    <div class="comments-content">
+                      <div class="comment-input-section">
+                        <textarea
+                          class="comment-input"
+                          placeholder="Write a comment..."
+                          [(ngModel)]="newComment"
+                          rows="3"></textarea>
+                        <div class="comment-actions">
+                          <button class="attach-btn">📎</button>
+                          <button class="send-btn" (click)="addComment()" [disabled]="!newComment.trim()">Send</button>
+                        </div>
+                      </div>
+
+                      <div class="comments-list">
+                        @for (comment of comments; track comment.id) {
+                          <div class="comment-item">
+                            <div class="comment-avatar">{{ comment.avatar }}</div>
+                            <div class="comment-content">
+                              <div class="comment-header">
+                                <span class="comment-author">{{ comment.author }}</span>
+                                <span class="comment-timestamp">{{ comment.timestamp }}</span>
+                              </div>
+                              <div class="comment-message">{{ comment.message }}</div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Edit Mode -->
+                  @if (isEditMode) {
+                    <div class="edit-content">
+                      <div class="edit-form">
+                        <div class="form-section">
+                          <h4>{{ selectedWorkOrder.title || 'Work Order' }}</h4>
+                        </div>
+
+                        <div class="form-section">
+                          <div class="image-upload-area">
+                            <div class="upload-placeholder">
+                              <i class="pi pi-camera upload-icon"></i>
+                              <p>Add or drag pictures</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-section">
+                          <label class="form-label">Description</label>
+                          <textarea
+                            class="form-textarea"
+                            [value]="selectedWorkOrder.description"
+                            rows="4"></textarea>
+                        </div>
+
+                        <div class="form-section">
+                          <label class="form-label">Location</label>
+                          <p-dropdown
+                            [options]="[{label: 'General', value: 'general'}, {label: 'Building A', value: 'building-a'}, {label: 'Warehouse', value: 'warehouse'}]"
+                            [(ngModel)]="editForm.location"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select location"
+                            styleClass="full-width"></p-dropdown>
+                        </div>
+
+                        <div class="form-row">
+                          <div class="form-section">
+                            <label class="form-label">Asset</label>
+                            <p-dropdown
+                              [options]="[{label: 'Test', value: 'test'}, {label: 'Equipment A', value: 'equipment-a'}]"
+                              [(ngModel)]="editForm.asset"
+                              optionLabel="label"
+                              optionValue="value"
+                              placeholder="Select asset"
+                              styleClass="full-width"></p-dropdown>
+                          </div>
+                          <div class="form-section">
+                            <label class="form-label">Asset Status</label>
+                            <p-dropdown
+                              [options]="[{label: 'Online', value: 'online'}, {label: 'Offline', value: 'offline'}, {label: 'Maintenance', value: 'maintenance'}]"
+                              [(ngModel)]="editForm.assetStatus"
+                              optionLabel="label"
+                              optionValue="value"
+                              placeholder="Select status"
+                              styleClass="full-width"></p-dropdown>
+                          </div>
+                        </div>
+
+                        <div class="form-section">
+                          <label class="form-label">Procedure</label>
+                          <div class="procedure-section">
+                            <div class="procedure-info">
+                              <i class="pi pi-list procedure-icon"></i>
+                              <span>Create or attach new Form, Procedure or Checklist</span>
+                            </div>
+                            <button class="add-procedure-btn">+ Add Procedure</button>
+                          </div>
+                        </div>
+
+                        <div class="form-actions">
+                          <button class="update-btn" (click)="updateWorkOrder()">Update</button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Parts Mode -->
+                  @if (isPartsMode) {
+                    <div class="parts-content">
+                      <div class="parts-form">
+                        <div class="form-section">
+                          <label class="form-label">Parts</label>
+                          <div class="parts-search-container">
+                            <i class="pi pi-search parts-search-icon"></i>
+                            <select class="parts-dropdown">
+                              <option value="">Start typing...</option>
+                            </select>
+                            <i class="pi pi-chevron-down parts-dropdown-icon"></i>
+                          </div>
+                        </div>
+
+                        <div class="parts-actions">
+                          <button class="cancel-btn" (click)="cancelPartsUpdate()">Cancel</button>
+                          <button class="update-btn" (click)="updateParts()">Update</button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Costs Mode -->
+                  @if (isCostsMode) {
+                    <div class="costs-content">
+                      <div class="costs-overview">
+                        <!-- Cost Summary Section -->
+                        <div class="cost-summary-container">
+                          <div class="cost-summary-item">
+                            <div class="cost-amount">$0.00</div>
+                            <div class="cost-label">Total Other Costs</div>
+                          </div>
+                          <div class="cost-summary-item">
+                            <div class="cost-amount">$0.00</div>
+                            <button class="my-costs-btn">My Other Costs</button>
+                          </div>
+                        </div>
+
+                        <!-- Add Costs Section -->
+                        <div class="add-costs-section">
+                          <div class="section-title">Add Other Costs To This Work Order</div>
+                          <button class="add-cost-btn-main" (click)="openAddCostModal()">Add Cost</button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Timesheet Mode -->
+                  @if (isTimesheetMode) {
+                    <div class="timesheet-content">
+                      <!-- Timesheet Header -->
+                      <div class="timesheet-header">
+                        <div class="timesheet-title-section">
+                          <h3>Timesheet - {{ selectedWorkOrder.title }}</h3>
+                          <div class="week-info">
+                            Week: {{ getSafeTimesheetWeek().weekStart | date:'MMM d' }} - {{ getSafeTimesheetWeek().weekEnd | date:'MMM d, y' }}
+                          </div>
+                        </div>
+                        <div class="timesheet-controls">
+                          <div class="view-toggle">
+                            <button class="view-btn" [class.active]="!isCalendarView" (click)="setTimesheetView('list')">
+                              <i class="pi pi-list"></i>
+                              <span>List</span>
+                            </button>
+                            <button class="view-btn" [class.active]="isCalendarView" (click)="setTimesheetView('calendar')">
+                              <i class="pi pi-calendar"></i>
+                              <span>Calendar</span>
+                            </button>
+                          </div>
+                          <div class="timesheet-navigation">
+                            <button class="nav-btn" (click)="navigateTimesheetWeek('prev')" title="Previous Week">
+                              <i class="pi pi-chevron-left"></i>
+                            </button>
+                            <button class="nav-btn" (click)="navigateTimesheetWeek('next')" title="Next Week">
+                              <i class="pi pi-chevron-right"></i>
+                            </button>
+                          </div>
+                          <div class="timesheet-test-controls">
+                            <button class="btn btn-secondary btn-sm" (click)="initializeSampleTimesheetEntries()" title="Load sample timesheet data">
+                              <i class="pi pi-refresh"></i>
+                              Load Sample
+                            </button>
+                            <button class="btn btn-secondary btn-sm" (click)="clearAllTimesheetEntries()" title="Clear all timesheet entries">
+                              <i class="pi pi-trash"></i>
+                              Clear All
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Weekly Summary -->
+                      <div class="weekly-summary">
+                        <div class="summary-item">
+                          <span class="summary-label">Total Hours:</span>
+                          <span class="summary-value">{{ getDurationInHours(getSafeTimesheetWeek().totalHours * 60) }}</span>
+                        </div>
+                        <div class="summary-item">
+                          <span class="summary-label">Status:</span>
+                          <span class="status-badge status-draft">Draft</span>
+                        </div>
+                      </div>
+
+
+                      <!-- List View (Table) -->
+                      @if (!isCalendarView) {
+                        <div>isCalendarView: {{isCalendarView}}</div>
+                        <div>allTimesheetEntries: {{getAllTimesheetEntries()}}</div>
+                        <div class="timesheet-table-container">
+                          <div class="table-header">
+                            <h4>Timesheet Entries</h4>
+                            <div class="header-actions">
+                              @if (currentUserRole.permissions.canLogTime) {
+                                <button class="btn btn-primary" (click)="openAddEntryDialog()">
+                                  <i class="pi pi-plus"></i>
+                                  Add Entry
+                                </button>
+                              }
+                              <!-- Test button for empty state -->
+                              <button class="btn btn-secondary btn-sm" (click)="clearAllTimesheetEntries()" title="Clear all entries (for testing)">
+                                <i class="pi pi-trash"></i>
+                                Clear All
+                              </button>
+                              <button class="btn btn-secondary btn-sm" (click)="initializeSampleTimesheetEntries()" title="Load sample data (for testing)">
+                                <i class="pi pi-refresh"></i>
+                                Load Sample
+                              </button>
+                            </div>
+                          </div>
+
+                          <div class="table-responsive">
+                            <table class="timesheet-table">
+                              <thead>
+                                <tr>
+                                  <th>Date</th>
+                                  <th>Start Time</th>
+                                  <th>Duration</th>
+                                  <th>Description</th>
+                                  <th>Status</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (entry of getAllTimesheetEntries(); track entry.id) {
+                                  <tr [class.editing]="editingEntry?.id === entry.id">
+                                    <!-- Date -->
+                                    <td>
+                                      @if (editingEntry?.id === entry.id) {
+                                        <input type="date" [(ngModel)]="editingEntry!.date" class="form-input">
+                                      } @else {
+                                        {{ entry.date | date:'MMM d, y' }}
+                                      }
+                                    </td>
+
+                                    <!-- Start Time -->
+                                    <td>
+                                      @if (editingEntry?.id === entry.id) {
+                                        <input type="time" [(ngModel)]="editingEntry!.startTime" class="form-input">
+                                      } @else {
+                                        {{ entry.startTime }}
+                                      }
+                                    </td>
+
+                                    <!-- Duration -->
+                                    <td>
+                                      @if (editingEntry?.id === entry.id) {
+                                        <input type="number" [(ngModel)]="editingEntry!.duration" class="form-input" min="1" max="1440">
+                                      } @else {
+                                        {{ formatDuration(entry.duration) }}
+                                      }
+                                    </td>
+
+                                    <!-- Description -->
+                                    <td>
+                                      @if (editingEntry?.id === entry.id) {
+                                        <input type="text" [(ngModel)]="editingEntry!.description" class="form-input" placeholder="Enter description">
+                                      } @else {
+                                        {{ entry.description }}
+                                      }
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td>
+                                      @if (editingEntry?.id === entry.id) {
+                                        <select [(ngModel)]="editingEntry!.status" class="form-input">
+                                          <option value="draft">Draft</option>
+                                          <option value="submitted">Submitted</option>
+                                          <option value="approved">Approved</option>
+                                        </select>
+                                      } @else {
+                                        <span class="status-badge" [class]="'status-' + entry.status">
+                                          {{ entry.status | titlecase }}
+                                        </span>
+                                      }
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td>
+                                      @if (editingEntry?.id === entry.id) {
+                                        <div class="action-buttons">
+                                          <button class="btn btn-success btn-sm" (click)="saveTimeEntry()" title="Save">
+                                            <i class="pi pi-check"></i>
+                                          </button>
+                                          <button class="btn btn-secondary btn-sm" (click)="cancelEdit()" title="Cancel">
+                                            <i class="pi pi-times"></i>
+                                          </button>
+                                        </div>
+                                      } @else {
+                                        <div class="action-buttons">
+                                          <button class="btn btn-info btn-sm" (click)="viewTimeEntry(entry)" title="View Details">
+                                            <i class="pi pi-eye"></i>
+                                          </button>
+                                          <button class="btn btn-warning btn-sm" (click)="editTimeEntry(entry)" title="Edit">
+                                            <i class="pi pi-pencil"></i>
+                                          </button>
+                                          <button class="btn btn-danger btn-sm" (click)="deleteTimeEntry(entry.id)" title="Delete">
+                                            <i class="pi pi-trash"></i>
+                                          </button>
+                                        </div>
+                                      }
+                                    </td>
+                                  </tr>
+                                }
+
+                                <!-- Empty state -->
+                                @if (getAllTimesheetEntries().length === 0) {
+                                  <tr>
+                                    <td colspan="6" class="empty-state">
+                                      <div class="empty-message">
+                                        <i class="pi pi-calendar-times"></i>
+                                        <p>No time entries found for this week</p>
+                                        @if (currentUserRole.permissions.canLogTime) {
+                                          <button class="btn btn-primary" (click)="openAddEntryDialog()">
+                                            <i class="pi pi-plus"></i>
+                                            Add Your First Entry
+                                          </button>
+                                        }
+                                      </div>
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          </div>
+
+                          <!-- Summary Row -->
+                          <div class="table-summary">
+                            <div class="summary-stats">
+                              <span class="stat-item">
+                                <strong>Total Entries:</strong> {{ getAllTimesheetEntries().length }}
+                              </span>
+                              <span class="stat-item">
+                                <strong>Total Hours:</strong> {{ getTotalHours() }}
+                              </span>
+                              <span class="stat-item">
+                                <strong>Week:</strong> {{ getSafeTimesheetWeek().weekStart | date:'MMM d' }} - {{ getSafeTimesheetWeek().weekEnd | date:'MMM d, y' }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Add Entry Modal Dialog -->
+                      @if (showAddEntryModal) {
+                        <div class="modal-overlay" (click)="closeAddEntryDialog()">
+                          <div class="modal-dialog" (click)="$event.stopPropagation()">
+                            <div class="modal-header">
+                              <h3>Add Timesheet Entry</h3>
+                              <button class="modal-close" (click)="closeAddEntryDialog()">
+                                <i class="pi pi-times"></i>
+                              </button>
+                            </div>
+
+                            <!-- Debug info -->
+                            <div style="background: #f0f0f0; padding: 10px; margin: 10px; border-radius: 4px; font-size: 12px;">
+                              Debug: showAddEntryModal = {{ showAddEntryModal }}, isLoading = {{ isLoading }}
+                            </div>
+
+                            <div class="modal-body">
+                              <form class="timesheet-form">
+                                <div class="form-row">
+                                  <div class="form-group">
+                                    <label for="entryDate">Date *</label>
+                                    <input
+                                      type="date"
+                                      id="entryDate"
+                                      [(ngModel)]="newTimeEntry.date"
+                                      class="form-input"
+                                      name="entryDate"
+                                      required>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label for="startTime">Start Time *</label>
+                                    <input
+                                      type="time"
+                                      id="startTime"
+                                      [(ngModel)]="newTimeEntry.startTime"
+                                      class="form-input"
+                                      name="startTime"
+                                      required>
+                                  </div>
+                                </div>
+
+                                <div class="form-row">
+                                  <div class="form-group">
+                                    <label for="duration">Duration (minutes) *</label>
+                                    <input
+                                      type="number"
+                                      id="duration"
+                                      [(ngModel)]="newTimeEntry.duration"
+                                      class="form-input"
+                                      name="duration"
+                                      min="1"
+                                      max="1440"
+                                      placeholder="e.g., 60 for 1 hour"
+                                      required>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label for="status">Status</label>
+                                    <select
+                                      id="status"
+                                      [(ngModel)]="newTimeEntry.status"
+                                      class="form-input"
+                                      name="status">
+                                      <option value="draft">Draft</option>
+                                      <option value="submitted">Submitted</option>
+                                      <option value="approved">Approved</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="description">Description *</label>
+                                  <textarea
+                                    id="description"
+                                    [(ngModel)]="newTimeEntry.description"
+                                    class="form-input"
+                                    name="description"
+                                    rows="3"
+                                    placeholder="Describe the work performed..."
+                                    required></textarea>
+                                </div>
+                              </form>
+                            </div>
+
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" (click)="closeAddEntryDialog()">
+                                Cancel
+                              </button>
+                              <button type="button" class="btn btn-primary" (click)="saveNewTimeEntry()" [disabled]="!isNewEntryValid() || isLoading">
+                                @if (isLoading) {
+                                  <i class="pi pi-spin pi-spinner"></i>
+                                  Saving...
+                                } @else {
+                                  <i class="pi pi-check"></i>
+                                  Save Entry
+                                }
+                              </button>
+                              <!-- Debug button -->
+                              <button type="button" class="btn" style="background: #ff6b6b; color: white;" (click)="closeAddEntryDialog()">
+                                Force Close (Debug)
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Calendar View (New Tempo-style) -->
+                      @if (isCalendarView) {
+                        <!-- Debug Info Panel for Calendar -->
+                        <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px; border-radius: 4px;">
+                          <strong>Calendar Debug Info:</strong><br>
+                          Total Entries: {{ getAllTimesheetEntries().length }}<br>
+                          Week Days: {{ getSafeTimesheetWeek().days.length || 0 }}<br>
+                          @if (getSafeTimesheetWeek().days && getSafeTimesheetWeek().days.length > 0) {
+                            First Day: {{ getSafeTimesheetWeek().days[0].date | date:'shortDate' }}<br>
+                            First Day Entries: {{ getSafeTimesheetWeek().days[0].entries.length || 0 }}<br>
+                          }
+                          @if (getAllTimesheetEntries().length > 0) {
+                            Sample Entry Date: {{ getAllTimesheetEntries()[0].date | date:'shortDate' }}<br>
+                            Sample Entry Time: {{ getAllTimesheetEntries()[0].startTime }}<br>
+                          }
+                        </div>
+
+                        <div class="calendar-timesheet">
+
+                          <!-- Calendar Grid -->
+                          <div class="calendar-grid">
+                            <!-- Time Column Header -->
+                            <div class="time-header">
+                              <div class="time-label">Time</div>
+                            </div>
+
+                            <!-- Day Headers -->
+                            @for (day of getSafeTimesheetWeek().days; track day.date; let i = $index) {
+                              <div class="day-header" [class.weekend]="isWeekend(day.date)" [attr.data-day]="day.dayName" [style.grid-column]="i + 2">
+                                <div class="day-info">
+                                  <div class="day-name">{{ day.dayName }}</div>
+                                  <div class="day-date">{{ day.date | date:'d' }}</div>
+                                  <div class="day-total">{{ getDurationInHours(day.totalHours * 60) }}</div>
+                                </div>
+                                @if (currentUserRole.permissions.canLogTime && !isWeekend(day.date)) {
+                                  <button class="log-activities-btn" (click)="openTimeEntryModal(day.date)">
+                                    <i class="pi pi-plus"></i>
+                                    Log Activities
+                                  </button>
+                                }
+                              </div>
+                            }
+
+                            <!-- Time Column -->
+                            <div class="time-column">
+                              @for (timeSlot of getTimeSlots(); track timeSlot.time) {
+                                <div class="time-slot" [class.current-time]="isCurrentTime(timeSlot.time)">
+                                  <div class="time-label">{{ timeSlot.displayTime }}</div>
+                                </div>
+                              }
+                            </div>
+                            <!-- Day Columns -->
+                            @for (day of getSafeTimesheetWeek().days; track day.date; let i = $index) {
+                              <div class="day-column" [class.weekend]="isWeekend(day.date)" [attr.data-column]="i + 2" [attr.data-day]="day.dayName" [style.grid-column]="i + 2">
+                                <!-- Time Slots for All Days -->
+                                @for (timeSlot of getTimeSlots(); track timeSlot.time) {
+                                  <div class="time-slot-cell"
+                                       [class.weekend-slot]="isWeekend(day.date)"
+                                       (click)="!isWeekend(day.date) ? openTimeEntryModalForSlot(day.date, timeSlot.time) : null"
+                                       [class.has-entry]="hasTimeEntryAtSlot(day, timeSlot.time)"
+                                       [class.current-time]="isCurrentTime(timeSlot.time)">
+                                    <!-- Time Entry Blocks -->
+                                    @for (entry of getTimeEntriesForSlot(day, timeSlot.time); track entry.id) {
+                                      <div class="time-entry-block"
+                                           [class]="'status-' + entry.status"
+                                           [style.top.%]="getEntryTopPosition(entry)"
+                                           [style.height.%]="getEntryHeight(entry)"
+                                           (click)="$event.stopPropagation()">
+                                        <div class="entry-content">
+                                          <div class="entry-time">{{ entry.startTime }}</div>
+                                          <div class="entry-description">{{ entry.description }}</div>
+                                          <div class="entry-duration">{{ formatDuration(entry.duration) }}</div>
+                                        </div>
+                                        <div class="entry-actions">
+                                          @if (currentUserRole.permissions.canEditOwnTimesheet && entry.userId === 'current-user') {
+                                            <button class="entry-action-btn" title="Edit" (click)="editTimeEntry(entry)">
+                                              <i class="pi pi-pencil"></i>
+                                            </button>
+                                            <button class="entry-action-btn delete" (click)="deleteTimeEntry(entry.id)" title="Delete">
+                                              <i class="pi pi-trash"></i>
+                                            </button>
+                                          }
+                                        </div>
+                                      </div>
+                                    }
+                                    <!-- Plus icon for empty slots (only on weekdays) -->
+                                    @if (!hasTimeEntryAtSlot(day, timeSlot.time) && currentUserRole.permissions.canLogTime && !isWeekend(day.date)) {
+                                      <div class="time-slot-plus">
+                                        <i class="pi pi-plus"></i>
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Timesheet Actions -->
+                      <div class="timesheet-actions">
+                        <button class="btn btn-outline" (click)="goBackToDefault()">
+                          <i class="pi pi-arrow-left"></i>
+                          Back to Details
+                        </button>
+                        <div class="action-buttons-right">
+                          <button class="btn btn-outline">Export</button>
+                          <button class="btn btn-primary">Submit Timesheet</button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Add Release Modal Dialog -->
+                  @if (showAddReleaseModal) {
+                    <div class="modal-overlay" (click)="closeAddReleaseModal()">
+                      <div class="modal-dialog" (click)="$event.stopPropagation()">
+                        <div class="modal-header">
+                          <h3>Add Release</h3>
+                          <button class="modal-close" (click)="closeAddReleaseModal()">
+                            <i class="pi pi-times"></i>
+                          </button>
+                        </div>
+
+                        <div class="modal-body">
+                          <form class="release-form">
+                            <div class="form-group">
+                              <label for="releaseVersion">Version *</label>
+                              <input
+                                type="text"
+                                id="releaseVersion"
+                                [(ngModel)]="newRelease.version"
+                                class="form-input"
+                                name="releaseVersion"
+                                placeholder="e.g., v1.0.0"
+                                required>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="releaseTime">Time *</label>
+                              <input
+                                type="datetime-local"
+                                id="releaseTime"
+                                [(ngModel)]="newRelease.time"
+                                class="form-input"
+                                name="releaseTime"
+                                required>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="bomPath">BOM Path (Excel File URL)</label>
+                              <input
+                                type="url"
+                                id="bomPath"
+                                [(ngModel)]="newRelease.bomPath"
+                                class="form-input"
+                                name="bomPath"
+                                placeholder="https://example.com/path/to/bom.xlsx">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="releaseNotes">Release Notes</label>
+                              <textarea
+                                id="releaseNotes"
+                                [(ngModel)]="newRelease.notes"
+                                class="form-input"
+                                name="releaseNotes"
+                                rows="3"
+                                placeholder="Describe what's new in this release..."></textarea>
+                            </div>
+                          </form>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" (click)="closeAddReleaseModal()">
+                            Cancel
+                          </button>
+                          <button type="button" class="btn btn-primary" (click)="saveNewRelease()" [disabled]="!isNewReleaseValid() || isLoading">
+                            @if (isLoading) {
+                              <i class="pi pi-spin pi-spinner"></i>
+                              Saving...
+                            } @else {
+                              <i class="pi pi-check"></i>
+                              Save Release
+                            }
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <!-- No Selection State -->
+                <div class="no-selection">
+                  <div class="no-selection-icon">📋</div>
+                  <h3 class="no-selection-title">Select a work order</h3>
+                  <p class="no-selection-text">Choose a work order from the list to view its details, make updates, and manage its progress.</p>
+                  @if (activeTab === 'todo' && hasTodoWorkOrders) {
+                    <div class="no-selection-hint">
+                      <i class="pi pi-arrow-left"></i>
+                      <span>Select from {{ totalTodoWorkOrders }} pending work orders</span>
+                    </div>
+                  }
+                  @if (activeTab === 'done' && hasDoneWorkOrders) {
+                    <div class="no-selection-hint">
+                      <i class="pi pi-arrow-left"></i>
+                      <span>Select from {{ totalDoneWorkOrders }} completed work orders</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+          </div>
+        }
+
+        <!-- Calendar View Mode -->
+        @if (currentViewMode === 'calendar') {
+          <!-- Calendar Filters Bar -->
+          <div class="calendar-filters-bar">
+            <div class="calendar-filters-left">
+              <!-- Assigned To Filter -->
+              <button class="calendar-filter-btn" [class.active]="calendarFilters.assignedTo.active">
+                <i class="pi pi-user"></i>
+                <span>Assigned To</span>
+              </button>
+
+              <!-- Location Filter -->
+              <button class="calendar-filter-btn active">
+                <i class="pi pi-map-marker"></i>
+                <span>Location</span>
+                <span class="filter-count">2</span>
+              </button>
+
+              <!-- Priority Filter -->
+              <button class="calendar-filter-btn" [class.active]="calendarFilters.priority.active">
+                <i class="pi pi-flag"></i>
+                <span>Priority</span>
+              </button>
+
+              <!-- Due Date Filter -->
+              <button class="calendar-filter-btn" [class.active]="calendarFilters.dueDate.active">
+                <i class="pi pi-calendar"></i>
+                <span>Due Date</span>
+              </button>
+
+              <!-- Add Filter -->
+              <button class="add-calendar-filter-btn">
+                <i class="pi pi-plus"></i>
+                <span>Add Filter</span>
+              </button>
+            </div>
+
+            <div class="calendar-filters-right">
+              <button class="calendar-action-btn secondary">Reset Filters</button>
+              <button class="calendar-action-btn secondary">Save Filters</button>
+              <button class="calendar-action-btn secondary">
+                <i class="pi pi-sliders-h"></i>
+                <span>My Filters</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar View Controls -->
+          <div class="calendar-view-controls">
+            <!-- View Mode Tabs -->
+            <div class="calendar-view-tabs">
+              <button class="calendar-tab" [class.active]="calendarViewMode === 'month'" (click)="setCalendarViewMode('month')">
+                Month
+              </button>
+              <button class="calendar-tab" [class.active]="calendarViewMode === 'week'" (click)="setCalendarViewMode('week')">
+                Week
+              </button>
+            </div>
+
+            <!-- Calendar Navigation -->
+            <div class="calendar-navigation">
+              <button class="nav-btn" (click)="navigateCalendar('prev')">
+                <i class="pi pi-chevron-left"></i>
+              </button>
+              <h2 class="calendar-title">{{ getCalendarTitle() }}</h2>
+              <button class="nav-btn" (click)="navigateCalendar('next')">
+                <i class="pi pi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar Grid -->
+          <div class="calendar-container">
+            <!-- Month View -->
+            @if (calendarViewMode === 'month') {
+              <div class="calendar-grid month-view">
+                <!-- Day Headers -->
+                <div class="calendar-header">
+                  @for (day of dayHeaders; track day) {
+                    <div class="day-header">{{ day }}</div>
+                  }
+                </div>
+
+                <!-- Calendar Days -->
+                <div class="calendar-body">
+                  @for (week of calendarWeeks; track $index) {
+                    @for (day of week; track day.date) {
+                      <div class="calendar-day"
+                           [class.other-month]="!day.isCurrentMonth"
+                           [class.today]="day.isToday"
+                           [class.selected]="day.isSelected">
+                        <div class="day-number">{{ day.dayNumber }}</div>
+                        <div class="day-content">
+                          @for (workOrder of day.workOrders; track workOrder.id) {
+                            <div class="calendar-work-order"
+                                 [class]="getWorkOrderCalendarClass(workOrder)"
+                                 (click)="openWorkOrderInCalendar(workOrder)">
+                              <span class="work-order-title">{{ workOrder.title }}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Week View -->
+            @if (calendarViewMode === 'week') {
+              <div class="calendar-grid week-view">
+                <!-- Day Headers -->
+                <div class="calendar-header">
+                  @for (day of weekDays; track day.date) {
+                    <div class="week-day-header" [class.today]="day.isToday">
+                      <div class="day-name">{{ day.dayName }}</div>
+                      <div class="day-number" [class.today-number]="day.isToday">{{ day.dayNumber }}</div>
+                    </div>
+                  }
+                </div>
+
+                <!-- Week Days -->
+                <div class="week-body">
+                  @for (day of weekDays; track day.date) {
+                    <div class="week-day" [class.today]="day.isToday">
+                      <div class="week-day-content">
+                        @for (workOrder of day.workOrders; track workOrder.id) {
+                          <div class="week-work-order"
+                               [class]="getWorkOrderCalendarClass(workOrder)"
+                               (click)="openWorkOrderInCalendar(workOrder)">
+                            <span class="work-order-title">{{ workOrder.title }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Workload View -->
+        @if (currentViewMode === 'workload') {
+          <!-- New Feature Banner -->
+          @if (showBanner) {
+            <div class="workload-banner">
+            <div class="banner-content">
+              <span class="banner-icon">✨ New</span>
+              <span class="banner-text">View work order assignments and estimated hours by team member across the week.</span>
+              <button class="banner-link">Learn More</button>
+            </div>
+            <button class="banner-close" (click)="closeBanner()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          }
+
+          <!-- Workload Controls -->
+          <div class="workload-controls">
+            <div class="workload-controls-left">
+              <button class="users-btn">
+                <i class="pi pi-users"></i>
+                <span>{{ workloadUsers.length }} Users</span>
+              </button>
+            </div>
+            <div class="workload-controls-right">
+              <div class="date-selector">
+                <button class="date-nav-btn" (click)="navigateWorkloadWeek('prev')">
+                  <i class="pi pi-chevron-left"></i>
+                </button>
+                <div class="date-range">
+                  <span>{{ getWorkloadDateRange() }}</span>
+                  <span class="week-label">{{ getCapacityPercentage() }}% capacity</span>
+                </div>
+                <button class="date-nav-btn" (click)="navigateWorkloadWeek('next')">
+                  <i class="pi pi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Workload Content -->
+          <div class="workload-content">
+            <!-- Total Resource Capacity -->
+            <div class="workload-section">
+              <div class="section-header">
+                <h3 class="section-title">Total Team Capacity</h3>
+                <div class="capacity-summary">
+                  <span class="capacity-text">{{ totalScheduledHours }}h scheduled / {{ totalCapacityHours }}h total capacity</span>
+                  <div class="capacity-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" [style.width]="getCapacityPercentage() + '%'"></div>
+                    </div>
+                    <span class="capacity-percentage">{{ getCapacityPercentage() }}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="daily-capacity-grid">
+                @for (day of workloadWeekDays; track day.date) {
+                  <div class="daily-capacity-item">
+                    <div class="day-header">
+                      <div class="day-name">{{ day.dayName }}</div>
+                      <div class="day-number"
+                           [class.today]="day.isToday"
+                           [class.has-work]="day.hasWork">{{ day.dayNumber }}</div>
+                    </div>
+                    <div class="capacity-bar-container">
+                      <div class="capacity-bar">
+                        <div class="capacity-fill"
+                             [style.height]="day.capacityPercentage + '%'"
+                             [class.over-capacity]="day.capacityPercentage > 100"></div>
+                      </div>
+                      <div class="capacity-hours"
+                           [class.over-capacity]="day.scheduledHours > 8"
+                           [class.no-work]="day.scheduledHours === 0">{{ day.scheduledHours }}h</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Unscheduled Work Orders -->
+            <div class="workload-section">
+              <div class="section-header">
+                <h3 class="section-title">Unscheduled Work Orders</h3>
+                <p class="section-description">Work orders that need start dates to appear on the workload view.</p>
+              </div>
+
+              <div class="unscheduled-grid">
+                <div class="unscheduled-item overdue" title="Work orders past their due date">
+                  <div class="status-indicator"></div>
+                  <div class="status-content">
+                    <div class="status-label">Overdue</div>
+                    <div class="status-count">{{ unscheduledCounts.overdue }}</div>
+                  </div>
+                </div>
+
+                <div class="unscheduled-item due-soon" title="Work orders due within 3 days">
+                  <div class="status-indicator"></div>
+                  <div class="status-content">
+                    <div class="status-label">Due Soon</div>
+                    <div class="status-count">{{ unscheduledCounts.dueSoon }}</div>
+                  </div>
+                </div>
+
+                <div class="unscheduled-item open" title="Open work orders without start dates">
+                  <div class="status-indicator"></div>
+                  <div class="status-content">
+                    <div class="status-label">Open</div>
+                    <div class="status-count">{{ unscheduledCounts.open }}</div>
+                  </div>
+                </div>
+
+                <div class="unscheduled-item on-hold" title="Work orders currently on hold">
+                  <div class="status-indicator"></div>
+                  <div class="status-content">
+                    <div class="status-label">On Hold</div>
+                    <div class="status-count">{{ unscheduledCounts.onHold }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Users Capacity -->
+            <div class="workload-section">
+              <div class="section-header">
+                <h3 class="section-title">Individual Workload by Day</h3>
+                <p class="section-description">Scheduled work orders and estimated hours for each team member.</p>
+              </div>
+
+              <div class="users-capacity-container">
+                <!-- Header Row -->
+                <div class="users-capacity-header">
+                  <div class="user-column-header">
+                    <span class="header-label">Team Member</span>
+                  </div>
+                  @for (day of workloadWeekDays; track day.date) {
+                    <div class="day-column-header">
+                      <div class="day-header-content">
+                        <div class="day-name">{{ day.dayName }}</div>
+                        <div class="day-number">{{ day.dayNumber }}</div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <!-- User Rows -->
+                <div class="users-capacity-body">
+                  @for (user of workloadUsers; track user.id) {
+                    <div class="user-capacity-row">
+                      <div class="user-info">
+                        <div class="user-info-content">
+                          <div class="user-avatar">
+                            <span>{{ user.initials }}</span>
+                          </div>
+                          <div class="user-details">
+                            <div class="user-name">{{ user.name }}</div>
+                            <div class="user-role">{{ user.role }}</div>
+                            <div class="user-total-hours">{{ user.totalScheduledHours }}h this week</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      @for (day of user.weeklyCapacity; track $index) {
+                        <div class="user-day-capacity" [title]="day.scheduledHours + 'h scheduled / 8h capacity'">
+                          <div class="day-capacity-content">
+                            <!-- Capacity Visual Indicator -->
+                            <div class="day-capacity-bar">
+                              <div class="capacity-fill"
+                                   [style.height]="day.capacityPercentage + '%'"
+                                   [class.over-capacity]="day.capacityPercentage > 100"></div>
+                            </div>
+
+                            <!-- Hours Summary -->
+                            <div class="day-capacity-hours"
+                                 [class.over-capacity]="day.scheduledHours > day.capacity">
+                              {{ day.scheduledHours }}h
+                            </div>
+
+                            <!-- Work Orders for this day -->
+                            @if (day.workOrders.length > 0) {
+                              <div class="day-work-orders">
+                                @for (workOrder of day.workOrders; track workOrder.id) {
+                                  <div class="work-order-item"
+                                       [class]="'status-' + workOrder.status + ' priority-' + workOrder.priority"
+                                       [title]="workOrder.title + ' - ' + workOrder.estimatedTime + ' (' + workOrder.status + ')'">
+                                    <div class="work-order-title">{{ workOrder.title }}</div>
+                                    <div class="work-order-time">{{ workOrder.estimatedTime }}</div>
+                                    <div class="work-order-priority" [class]="'priority-' + workOrder.priority">
+                                      {{ getPriorityIcon(workOrder.priority) }}
+                                    </div>
+                                  </div>
+                                }
+                              </div>
+                            } @else {
+                              <div class="no-work-orders">
+                                <span class="no-work-text">No scheduled work</span>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- Summary Row -->
+                <div class="capacity-summary-row">
+                  <div class="summary-label">
+                    <strong>Daily Totals</strong>
+                  </div>
+                  @for (day of workloadWeekDays; track day.date) {
+                    <div class="day-total">
+                      <div class="total-hours">{{ day.scheduledHours }}h</div>
+                      <div class="total-percentage">{{ day.capacityPercentage | number:'1.0-0' }}%</div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Empty State for No Users -->
+              @if (workloadUsers.length === 0) {
+                <div class="empty-workload-state">
+                  <div class="empty-icon">👥</div>
+                  <div class="empty-title">No assigned work orders</div>
+                  <div class="empty-desc">Work orders with assigned users and start dates will appear here</div>
+                  <button class="create-first-btn" (click)="openNewWorkOrderModal()">Create work order</button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Work Order Details Dialog (for Table View) -->
+      <p-dialog
+        [(visible)]="showWorkOrderDialog"
+        [modal]="true"
+        [style]="{'width': '800px'}"
+        [contentStyle]="{'max-height':'90vh','overflow':'auto'}"
+        [header]="selectedWorkOrderForDialog?.title || 'Work Order Details'"
+        (onHide)="closeWorkOrderDialog()">
+
+        @if (selectedWorkOrderForDialog) {
+          <div class="work-order-dialog-content">
+            <div class="dialog-header-info">
+              <div class="work-order-id">#{{ selectedWorkOrderForDialog.id }}</div>
+              <span class="status-badge" [ngClass]="getStatusBadgeClass(selectedWorkOrderForDialog.status)">
+                {{ getStatusIcon(selectedWorkOrderForDialog.status) }} {{ selectedWorkOrderForDialog.status | titlecase }}
+              </span>
+            </div>
+
+            <div class="dialog-section">
+              <label>Description</label>
+              <p>{{ selectedWorkOrderForDialog.description }}</p>
+            </div>
+
+            <div class="dialog-grid">
+              <div class="dialog-item">
+                <label>Work Type</label>
+                <span>{{ selectedWorkOrderForDialog.workType }}</span>
+              </div>
+              <div class="dialog-item">
+                <label>Priority</label>
+                <span>{{ selectedWorkOrderForDialog.priority || 'None' }}</span>
+              </div>
+            </div>
+
+            <div class="dialog-grid">
+              <div class="dialog-item">
+                <label>Assigned To</label>
+                <span>{{ selectedWorkOrderForDialog.assignedTo || 'Unassigned' }}</span>
+              </div>
+              <div class="dialog-item">
+                <label>Requested By</label>
+                <span>{{ selectedWorkOrderForDialog.requestedBy }}</span>
+              </div>
+            </div>
+
+            <div class="dialog-grid">
+              <div class="dialog-item">
+                <label>Asset</label>
+                <span>{{ selectedWorkOrderForDialog.asset }}</span>
+              </div>
+              <div class="dialog-item">
+                <label>Location</label>
+                <span>{{ selectedWorkOrderForDialog.location }}</span>
+              </div>
+            </div>
+
+            <div class="dialog-grid">
+              <div class="dialog-item">
+                <label>Category</label>
+                <span>{{ selectedWorkOrderForDialog.category || 'None' }}</span>
+              </div>
+              <div class="dialog-item">
+                <label>Estimated Time</label>
+                <span>{{ selectedWorkOrderForDialog.estimatedTime }}</span>
+              </div>
+            </div>
+
+            <div class="dialog-section">
+              <label>Created</label>
+              <p>{{ formatDate(selectedWorkOrderForDialog.createdAt) }} by {{ selectedWorkOrderForDialog.createdBy }}</p>
+            </div>
+
+            <div class="dialog-section">
+              <label>Last Updated</label>
+              <p>{{ formatDate(selectedWorkOrderForDialog.updatedOn) }}</p>
+            </div>
+          </div>
+        }
+      </p-dialog>
+
+      <!-- New Work Order Modal -->
+      <p-dialog header="New Work Order" [(visible)]="showNewWorkOrderModal" [modal]="true" [style]="{width: '700px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}" (onHide)="closeNewWorkOrderModal()">
+        <div class="new-work-order-form">
+          <!-- Title Section -->
+          <div class="form-section">
+            <label class="form-label required">Work Order Title *</label>
+            <input
+              type="text"
+              [(ngModel)]="newWorkOrder.title"
+              placeholder="Enter a descriptive title"
+              class="form-input"
+              maxlength="200">
+          </div>
+
+          <!-- Work Type and Priority Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label required">Work Type *</label>
+              <p-dropdown
+                [(ngModel)]="newWorkOrder.workType"
+                [options]="workTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select work type"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Priority</label>
+              <p-dropdown
+                [(ngModel)]="newWorkOrder.priority"
+                [options]="formPriorityOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select priority"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+          </div>
+
+          <!-- Description Section -->
+          <div class="form-section">
+            <label class="form-label">Description</label>
+            <textarea
+              [(ngModel)]="newWorkOrder.description"
+              placeholder="Describe the work that needs to be done..."
+              rows="4"
+              class="form-textarea"
+              maxlength="1000">
+            </textarea>
+          </div>
+
+          <!-- Location and Asset Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Location</label>
+              <p-dropdown
+                [(ngModel)]="newWorkOrder.location"
+                [options]="locationOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select location"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Asset</label>
+              <p-dropdown
+                [(ngModel)]="newWorkOrder.asset"
+                [options]="assetOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select asset"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+          </div>
+
+          <!-- Assigned To and Category Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Assigned To</label>
+              <p-dropdown
+                [(ngModel)]="newWorkOrder.assignedTo"
+                [options]="assignedToOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select assignee"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Category</label>
+              <p-dropdown
+                [(ngModel)]="newWorkOrder.category"
+                [options]="categoryOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select category"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+          </div>
+
+          <!-- Start Date and Due Date Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Start Date</label>
+              <p-calendar
+                [(ngModel)]="newWorkOrder.startDate"
+                [showIcon]="true"
+                placeholder="Select start date"
+                dateFormat="mm/dd/yy"
+                class="form-calendar">
+              </p-calendar>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Due Date</label>
+              <p-calendar
+                [(ngModel)]="newWorkOrder.dueDate"
+                [showIcon]="true"
+                placeholder="Select due date"
+                dateFormat="mm/dd/yy"
+                class="form-calendar">
+              </p-calendar>
+            </div>
+          </div>
+
+          <!-- Estimated Time Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Estimated Time</label>
+              <input
+                type="text"
+                [(ngModel)]="newWorkOrder.estimatedTime"
+                placeholder="e.g., 2 hours, 1 day"
+                class="form-input">
+            </div>
+            <div class="form-field">
+              <!-- Empty field for layout balance -->
+            </div>
+          </div>
+
+          <!-- Manufacturing Order & Project Specific Fields -->
+          @if (newWorkOrder.workType === 'manufacturing-order' || newWorkOrder.workType === 'project') {
+            <div class="manufacturing-section" [class.project-type]="newWorkOrder.workType === 'project'">
+              <h4 class="section-title" [class.manufacturing-title]="newWorkOrder.workType === 'manufacturing-order'" [class.project-title]="newWorkOrder.workType === 'project'">
+                @if (newWorkOrder.workType === 'manufacturing-order') {
+                  Manufacturing Order Details
+                } @else {
+                  Project Details
+                }
+              </h4>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label class="form-label">
+                    @if (newWorkOrder.workType === 'manufacturing-order') {
+                      Product
+                    } @else {
+                      Item/Deliverable
+                    }
+                  </label>
+                  <p-dropdown
+                    [options]="newWorkOrder.workType === 'manufacturing-order' ? [
+                      {label: 'Chocolate Bar 100g', value: 'CHB-100'},
+                      {label: 'Protein Bar 50g', value: 'PRB-050'},
+                      {label: 'Granola Mix 500g', value: 'GRM-500'},
+                      {label: 'Energy Drink 250ml', value: 'END-250'},
+                      {label: 'Protein Powder 1kg', value: 'PPW-1000'}
+                    ] : [
+                      {label: 'Equipment Installation', value: 'EQUIP-INSTALL'},
+                      {label: 'System Upgrade', value: 'SYS-UPGRADE'},
+                      {label: 'Building Renovation', value: 'BUILD-RENOV'},
+                      {label: 'Process Improvement', value: 'PROC-IMPROVE'},
+                      {label: 'Training Program', value: 'TRAIN-PROG'}
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                    [placeholder]="newWorkOrder.workType === 'manufacturing-order' ? 'Select product' : 'Select deliverable'"
+                    class="form-dropdown">
+                  </p-dropdown>
+                </div>
+                <div class="form-field">
+                  <label class="form-label">
+                    @if (newWorkOrder.workType === 'manufacturing-order') {
+                      Quantity
+                    } @else {
+                      Target/Goal
+                    }
+                  </label>
+                  <input
+                    type="number"
+                    [placeholder]="newWorkOrder.workType === 'manufacturing-order' ? 'Enter quantity' : 'Enter target value'"
+                    class="form-input"
+                    min="1">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label class="form-label">
+                    @if (newWorkOrder.workType === 'manufacturing-order') {
+                      Production Line
+                    } @else {
+                      Assignment/Area
+                    }
+                  </label>
+                  <p-dropdown
+                    [options]="newWorkOrder.workType === 'manufacturing-order' ? [
+                      {label: 'Line 4', value: 'Line 4'},
+                      {label: 'Line 5', value: 'Line 5'},
+                      {label: 'Line 6', value: 'Line 6'}
+                    ] : [
+                      {label: 'Team Alpha', value: 'Team Alpha'},
+                      {label: 'Team Beta', value: 'Team Beta'},
+                      {label: 'Engineering Dept', value: 'Engineering Dept'},
+                      {label: 'Operations Dept', value: 'Operations Dept'}
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                    [placeholder]="newWorkOrder.workType === 'manufacturing-order' ? 'Select production line' : 'Select assignment'"
+                    class="form-dropdown">
+                  </p-dropdown>
+                </div>
+                <div class="form-field">
+                  <label class="form-label">
+                    @if (newWorkOrder.workType === 'manufacturing-order') {
+                      Batch Size
+                    } @else {
+                      Phase/Milestone
+                    }
+                  </label>
+                  <input
+                    type="number"
+                    [placeholder]="newWorkOrder.workType === 'manufacturing-order' ? 'Enter batch size' : 'Enter phase number'"
+                    class="form-input"
+                    min="1">
+                </div>
+              </div>
+
+              <div class="form-section">
+                <label class="form-label">
+                  @if (newWorkOrder.workType === 'manufacturing-order') {
+                    Special Instructions
+                  } @else {
+                    Project Requirements
+                  }
+                </label>
+                <textarea
+                  [placeholder]="newWorkOrder.workType === 'manufacturing-order' ? 'Any special manufacturing instructions or requirements...' : 'Any special project requirements, constraints, or instructions...'"
+                  rows="3"
+                  class="form-textarea">
+                </textarea>
+              </div>
+
+              <!-- BOM File Upload Section -->
+              <div class="form-section">
+                <label class="form-label">
+                  @if (newWorkOrder.workType === 'manufacturing-order') {
+                    BOM File Upload
+                  } @else {
+                    Project File Upload (BOM/Parts List)
+                  }
+                </label>
+                <div class="bom-upload-container">
+                  <div class="bom-upload-area" [class.has-file]="uploadedBOM">
+                    <input
+                      type="file"
+                      #bomFileInput
+                      accept=".xlsx,.xls,.csv"
+                      (change)="onBOMFileSelected($event)"
+                      class="bom-file-input"
+                      id="bomFileInput">
+
+                    @if (!uploadedBOM) {
+                      <div class="bom-upload-placeholder" (click)="bomFileInput.click()">
+                        <i class="pi pi-cloud-upload bom-upload-icon"></i>
+                        <p class="bom-upload-text">
+                          <span class="bom-upload-link">Click to upload</span> or drag and drop your
+                          @if (newWorkOrder.workType === 'manufacturing-order') {
+                            BOM file
+                          } @else {
+                            project file (BOM/parts list)
+                          }
+                        </p>
+                        <p class="bom-upload-hint">Supported formats: Excel (.xlsx, .xls), CSV (.csv) - Max 10MB</p>
+                      </div>
+                    } @else {
+                      <div class="bom-file-info">
+                        <div class="bom-file-details">
+                          <i class="pi pi-file-excel bom-file-icon"></i>
+                          <div class="bom-file-content">
+                            <div class="bom-file-name">{{ uploadedBOM.bomName }}</div>
+                            <div class="bom-file-summary">{{ getBOMSummary() }}</div>
+                          </div>
+                        </div>
+                        <div class="bom-file-actions">
+                          <button type="button" class="bom-preview-btn" (click)="toggleBOMPreview()">
+                            <i class="pi pi-eye"></i> Preview
+                          </button>
+                          <button type="button" class="bom-remove-btn" (click)="removeBOMUpload()">
+                            <i class="pi pi-times"></i>
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- BOM Preview Table -->
+                  @if (showBOMPreview && uploadedBOM) {
+                    <div class="bom-preview-section">
+                      <div class="bom-preview-header">
+                        <h5>BOM Preview - {{ uploadedBOM.bomName }}</h5>
+                        <span class="bom-preview-count">{{ uploadedBOM.items.length }} items</span>
+                      </div>
+                      <div class="bom-preview-table">
+                        <table class="bom-table">
+                          <thead>
+                            <tr>
+                              <th>Part Number</th>
+                              <th>Part Name</th>
+                              <th>Quantity</th>
+                              <th>Unit</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (item of uploadedBOM.items; track item.id) {
+                              <tr>
+                                <td>{{ item.partNumber }}</td>
+                                <td>{{ item.partName }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.unitOfMeasure }}</td>
+                                <td>
+                                  <span class="bom-status" [class.new-part]="item.isNewPart" [class.existing-part]="!item.isNewPart">
+                                    {{ item.isNewPart ? 'New Part' : 'Existing' }}
+                                  </span>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- File Upload Section -->
+          <div class="form-section">
+            <label class="form-label">Attachments</label>
+            <div class="file-upload-area">
+              <div class="upload-zone">
+                <i class="pi pi-cloud-upload upload-icon"></i>
+                <p class="upload-text">Drag and drop files here or <span class="upload-link">browse</span></p>
+                <p class="upload-hint">Supported formats: JPG, PNG, PDF, DOC (Max 10MB)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeNewWorkOrderModal()">
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="create-btn"
+              (click)="createWorkOrder()"
+              [disabled]="!newWorkOrder.title.trim()">
+              Create Work Order
+            </button>
+          </div>
+        </div>
+      </p-dialog>
+
+      <!-- Add Cost Modal -->
+      <p-dialog header="Add Cost" [(visible)]="showAddCostModal" [modal]="true" [style]="{width: '500px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}" [showHeader]="true">
+        <div class="add-cost-form">
+          <!-- User Section -->
+          <div class="form-field">
+            <label class="field-label">User</label>
+            <p-dropdown
+              [(ngModel)]="newCost.user"
+              [options]="[{label: 'Jun Ren', value: 'Jun Ren'}]"
+              placeholder="Select user"
+              class="user-dropdown">
+            </p-dropdown>
+          </div>
+
+          <!-- Cost Section -->
+          <div class="form-field">
+            <label class="field-label">Cost</label>
+            <div class="cost-input-container">
+              <span class="currency-symbol">$</span>
+              <input
+                type="number"
+                [(ngModel)]="newCost.cost"
+                placeholder="0.00"
+                class="cost-input">
+            </div>
+          </div>
+
+          <!-- Description Section -->
+          <div class="form-field">
+            <label class="field-label">Description (Optional)</label>
+            <textarea
+              [(ngModel)]="newCost.description"
+              placeholder="Add a description"
+              rows="3"
+              class="description-input">
+            </textarea>
+          </div>
+
+          <!-- Cost Category Section -->
+          <div class="form-field">
+            <label class="field-label">Cost Category</label>
+            <p-dropdown
+              [(ngModel)]="newCost.category"
+              [options]="[
+                {label: 'Labor', value: 'Labor'},
+                {label: 'Materials', value: 'Materials'},
+                {label: 'Equipment', value: 'Equipment'},
+                {label: 'Travel', value: 'Travel'},
+                {label: 'Other', value: 'Other'}
+              ]"
+              placeholder="Select category"
+              class="category-dropdown">
+            </p-dropdown>
+          </div>
+
+          <!-- Add Pictures/Files Section -->
+          <div class="form-field">
+            <div class="file-upload-area">
+              <div class="upload-icon">📸</div>
+              <div class="upload-text">Add Pictures/Files</div>
+            </div>
+          </div>
+
+          <!-- Modal Actions -->
+          <div class="modal-actions">
+            <button type="button" class="cancel-btn-modal" (click)="closeAddCostModal()">Cancel</button>
+            <button type="button" class="add-btn-modal" (click)="addCost()" [disabled]="!newCost.cost">Add</button>
+          </div>
+        </div>
+      </p-dialog>
+
+      <!-- Bulk Start Date Modal -->
+      <p-dialog header="Set Start Date for Selected Work Orders" [(visible)]="showBulkStartDateModal" [modal]="true" [style]="{width: '500px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}" [showHeader]="true">
+        <div class="bulk-start-date-form">
+          <div class="bulk-form-info">
+            Set start date for {{ selectedWorkOrderIds.size }} selected work orders
+          </div>
+
+          <div class="bulk-form-field">
+            <label class="bulk-form-label">Start Date *</label>
+            <p-calendar
+              [(ngModel)]="bulkStartDate"
+              [showIcon]="true"
+              placeholder="Select start date"
+              dateFormat="mm/dd/yy"
+              class="form-calendar">
+            </p-calendar>
+          </div>
+
+          <div class="bulk-form-actions">
+            <button type="button" class="bulk-cancel-btn" (click)="closeBulkStartDateModal()">Cancel</button>
+            <button type="button" class="bulk-set-btn" (click)="setBulkStartDate()" [disabled]="!bulkStartDate">Set Start Date</button>
+          </div>
+        </div>
+      </p-dialog>
+
+      <!-- Create Sub-Work Order Modal -->
+      <p-dialog header="Create Sub-Work Order" [(visible)]="showCreateSubWorkOrderModal" [modal]="true" [style]="{width: '700px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}" (onHide)="closeCreateSubWorkOrderModal()">
+        <div class="create-sub-workorder-form">
+          @if (parentWorkOrder) {
+            <div class="parent-context">
+              <div class="parent-context-label">Creating sub-work order for:</div>
+              <div class="parent-context-title">{{ parentWorkOrder.title }}</div>
+            </div>
+          }
+
+          <!-- Title Section -->
+          <div class="form-section">
+            <label class="form-label required">Sub-Work Order Title *</label>
+            <input
+              type="text"
+              [(ngModel)]="newSubWorkOrder.title"
+              placeholder="Enter a descriptive title"
+              class="form-input"
+              maxlength="200">
+          </div>
+
+          <!-- Work Type and Priority Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label required">Work Type *</label>
+              <p-dropdown
+                [(ngModel)]="newSubWorkOrder.workType"
+                [options]="workTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select work type"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Priority</label>
+              <p-dropdown
+                [(ngModel)]="newSubWorkOrder.priority"
+                [options]="formPriorityOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select priority"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+          </div>
+
+          <!-- Description Section -->
+          <div class="form-section">
+            <label class="form-label">Description</label>
+            <textarea
+              [(ngModel)]="newSubWorkOrder.description"
+              placeholder="Describe the work that needs to be done..."
+              rows="4"
+              class="form-textarea"
+              maxlength="1000">
+            </textarea>
+          </div>
+
+          <!-- Assigned To and Category Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Assigned To</label>
+              <p-dropdown
+                [(ngModel)]="newSubWorkOrder.assignedTo"
+                [options]="assignedToOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select assignee"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Category</label>
+              <p-dropdown
+                [(ngModel)]="newSubWorkOrder.category"
+                [options]="categoryOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select category"
+                class="form-dropdown">
+              </p-dropdown>
+            </div>
+          </div>
+
+          <!-- Start Date and Due Date Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Start Date</label>
+              <p-calendar
+                [(ngModel)]="newSubWorkOrder.startDate"
+                [showIcon]="true"
+                placeholder="Select start date"
+                dateFormat="mm/dd/yy"
+                class="form-calendar">
+              </p-calendar>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Due Date</label>
+              <p-calendar
+                [(ngModel)]="newSubWorkOrder.dueDate"
+                [showIcon]="true"
+                placeholder="Select due date"
+                dateFormat="mm/dd/yy"
+                class="form-calendar">
+              </p-calendar>
+            </div>
+          </div>
+
+          <!-- Estimated Time Row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Estimated Time</label>
+              <input
+                type="text"
+                [(ngModel)]="newSubWorkOrder.estimatedTime"
+                placeholder="e.g., 2 hours, 1 day"
+                class="form-input">
+            </div>
+            <div class="form-field">
+              <!-- Empty field for layout balance -->
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="closeCreateSubWorkOrderModal()">
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="create-btn"
+              (click)="createSubWorkOrder()"
+              [disabled]="!newSubWorkOrder.title.trim()">
+              Create Sub-Work Order
+            </button>
+          </div>
+        </div>
+      </p-dialog>
+
+      <!-- Time Entry Modal -->
+      <p-dialog header="Log Time" [(visible)]="showTimeEntryModal" [modal]="true" [style]="{width: '500px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}" (onHide)="closeTimeEntryModal()">
+        <div class="time-entry-form">
+          @if (selectedTimesheetDate) {
+            <div class="entry-date-info">
+              <div class="date-label">Date:</div>
+              <div class="date-value">{{ selectedTimesheetDate | date:'EEEE, MMM d, y' }}</div>
+            </div>
+          }
+
+          @if (selectedWorkOrder) {
+            <div class="work-order-info">
+              <div class="wo-label">Work Order:</div>
+              <div class="wo-value">{{ selectedWorkOrder.title }}</div>
+            </div>
+          }
+
+          @if (selectedTimeSlot && isCalendarView) {
+            <div class="time-slot-info">
+              <div class="slot-label">Selected Time Slot:</div>
+              <div class="slot-value">{{ selectedTimeSlot }}</div>
+            </div>
+          }
+
+          <!-- Start Time -->
+          <div class="form-field">
+            <label class="form-label required">Start Time *</label>
+            <input
+              type="time"
+              [(ngModel)]="newTimeEntry.startTime"
+              class="form-input"
+              required>
+          </div>
+
+          <!-- Duration -->
+          <div class="form-field">
+            <label class="form-label required">Duration (minutes) *</label>
+            <input
+              type="number"
+              [(ngModel)]="newTimeEntry.duration"
+              class="form-input"
+              min="1"
+              max="1440"
+              placeholder="15"
+              required>
+            <small class="form-hint">Enter duration in minutes (e.g., 15 for 15 minutes, 60 for 1 hour)</small>
+          </div>
+
+          <!-- Description -->
+          <div class="form-field">
+            <label class="form-label required">Description *</label>
+            <textarea
+              [(ngModel)]="newTimeEntry.description"
+              class="form-textarea"
+              rows="3"
+              placeholder="Describe the work performed..."
+              maxlength="500"
+              required></textarea>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-outline"
+              (click)="closeTimeEntryModal()">
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="addTimeEntry()"
+              [disabled]="!newTimeEntry.startTime || !newTimeEntry.duration || !newTimeEntry.description?.trim()">
+              Log Time
+            </button>
+          </div>
+        </div>
+      </p-dialog>
+
+      <!-- Bulk Actions Bar -->
+      @if (showBulkActions) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-actions-info">
+            {{ selectedWorkOrderIds.size }} work orders selected
+          </div>
+          <button class="bulk-action-btn secondary" (click)="clearSelection()">Clear Selection</button>
+          <button class="bulk-action-btn" (click)="openBulkStartDateModal()">Set Start Date</button>
+        </div>
+      }
+    </div>

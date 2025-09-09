@@ -1,0 +1,22 @@
+<div class="why-InsightX-container">
+  <div class="why-InsightX-title-container">
+    <h2 class="why-InsightX-title">Why InsightX</h2>
+  </div>
+
+  <div class="timeline-menu">
+    <div
+      *ngFor="let item of menuItems"
+      class="timeline-item"
+      [ngClass]="{'active': item.active}"
+      (click)="selectMenuItem(item)">
+      <div class="timeline-dot"></div>
+      <div class="timeline-text">{{ item.text }}</div>
+    </div>
+
+    <a class="get-started-btn" routerLink="/login">
+      Get Started
+      <span class="arrow-icon"><fa-icon [icon]="faArrowRight"></fa-icon></span>
+    </a>
+  </div>
+
+</div>

@@ -1,0 +1,1099 @@
+<div class="production-layout">
+  <app-nav-menu></app-nav-menu>
+  <div class="manufacturing-main">
+    <!-- Header -->
+    <div class="production-header">
+      <div class="header-left">
+        <h1 class="page-title">Production Planner</h1>
+        <!-- View Selector -->
+        <div class="view-selector" [class.dropdown-open]="showViewDropdown">
+          <button class="view-btn" (click)="toggleViewDropdown()">
+            {{ currentViewModeLabel }}
+            <svg class="dropdown-arrow" [class.rotated]="showViewDropdown" viewBox="0 0 12 7" width="12" height="7">
+              <path d="M5.4.3c.3-.4.9-.4 1.2 0l5.1 5a.9.9 0 1 1-1.2 1.3L6 2.1 1.5 6.6A.9.9 0 1 1 .3 5.4l5-5.1Z" fill="currentColor" stroke="none"></path>
+            </svg>
+          </button>
+
+          <!-- View Dropdown -->
+          @if (showViewDropdown) {
+            <div class="view-dropdown-overlay" (click)="closeViewDropdown()"></div>
+            <div class="view-dropdown">
+              @for (viewMode of viewModes; track viewMode.value) {
+                <div class="view-option"
+                     [class.active]="currentViewMode === viewMode.value"
+                     (click)="selectViewMode(viewMode.value)">
+                  <span class="view-icon">{{ viewMode.icon }}</span>
+                  <span class="view-label">{{ viewMode.label }}</span>
+                  @if (currentViewMode === viewMode.value) {
+                    <i class="pi pi-check view-check"></i>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="header-btn create-btn" (click)="openCreateShiftDialog()">
+          <i class="pi pi-plus"></i>
+          Create Shift
+        </button>
+        <button class="header-btn create-btn secondary" (click)="openCreateEventDialog()">
+          <i class="pi pi-calendar"></i>
+          Add Production Event
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Layout -->
+    <div class="production-content">
+      <!-- Assets Panel -->
+      <div class="assets-panel">
+        <div class="panel-header">
+          <div class="header-title">
+            <h3>Equipment</h3>
+            @if (selectedAssetIds.size > 0) {
+              <span class="selection-count">{{ selectedAssetIds.size }} selected</span>
+            }
+          </div>
+          <div class="panel-actions">
+            <button class="toggle-btn"
+                    [class.active]="multiSelectMode"
+                    (click)="toggleMultiSelectMode()"
+                    title="Toggle multi-select mode">
+              <i class="pi pi-list"></i>
+            </button>
+            <button class="refresh-btn"
+                    (click)="refreshData()"
+                    title="Refresh data (generates new 2-week schedule)">
+              <i class="pi pi-refresh"></i>
+            </button>
+            @if (selectedAssetIds.size > 0) {
+              <button class="clear-btn"
+                      (click)="clearAssetSelection()"
+                      title="Clear selection">
+                <i class="pi pi-times"></i>
+              </button>
+            }
+          </div>
+        </div>
+        <div class="assets-list">
+          @for (asset of getFilteredAssets(); track asset.id) {
+            <div class="asset-item"
+                 [class.selected]="isAssetSelected(asset.id)"
+                 [class.multi-select]="multiSelectMode"
+                 [class.sub-asset]="asset.isSubAsset"
+                 [attr.data-nesting-level]="asset.nestingLevel || 0"
+                 (click)="selectAsset(asset.id)">
+
+              <!-- Dynamic indent for sub-assets based on nesting level -->
+              @if (asset.isSubAsset && asset.nestingLevel && asset.nestingLevel > 0) {
+                <div class="sub-asset-indent" [style.margin-left.px]="(asset.nestingLevel - 1) * 16">
+                  <div class="sub-asset-connector">└─</div>
+                </div>
+              }
+
+              <div class="asset-status-indicator" [class]="'status-' + asset.currentStatus"></div>
+              <div class="asset-details">
+                <div class="asset-name-row">
+                  <div class="asset-name">{{ asset.name }}</div>
+                  @if (asset.subAssets && asset.subAssets.length > 0) {
+                    <button class="sub-assets-toggle"
+                            (click)="toggleAssetExpansion(asset, $event)"
+                            title="{{ isAssetExpanded(asset.id) ? 'Collapse' : 'Expand' }} sub-assets">
+                      <i class="pi" [class.pi-chevron-down]="!isAssetExpanded(asset.id)"
+                                   [class.pi-chevron-up]="isAssetExpanded(asset.id)"></i>
+                      {{ asset.subAssets.length }} Sub-Asset{{ asset.subAssets.length > 1 ? 's' : '' }}
+                    </button>
+                  }
+                </div>
+                <div class="asset-location">{{ asset.location }}</div>
+                <div class="asset-metrics">
+                  <div class="metric">
+                    <span class="metric-label">Theory Rate:</span>
+                    <span class="metric-value">{{ asset.theoryProductionRate }}/hr</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Availability:</span>
+                    <span class="metric-value">{{ asset.theoryAvailability }}%</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Quality:</span>
+                    <span class="metric-value">{{ asset.theoryQuality }}%</span>
+                  </div>
+                </div>
+              </div>
+              <button class="asset-details-btn" (click)="openAssetDetails(asset); $event.stopPropagation()">
+                <i class="pi pi-info-circle"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Calendar View -->
+        @if (currentViewMode === 'calendar') {
+          <div class="calendar-container">
+            <!-- Calendar Header -->
+            <div class="calendar-header">
+              <div class="calendar-navigation">
+                <button class="nav-btn" (click)="navigateDate('prev')">
+                  <i class="pi pi-chevron-left"></i>
+                </button>
+                <h3 class="calendar-title">
+                  {{ selectedDate | date:'MMMM yyyy' }}
+                </h3>
+                <button class="nav-btn" (click)="navigateDate('next')">
+                  <i class="pi pi-chevron-right"></i>
+                </button>
+              </div>
+
+              <div class="calendar-view-selector">
+                <button class="view-toggle"
+                        [class.active]="calendarView === 'day'"
+                        (click)="setCalendarView('day')">Day</button>
+                <button class="view-toggle"
+                        [class.active]="calendarView === 'week'"
+                        (click)="setCalendarView('week')">Week</button>
+                <button class="view-toggle"
+                        [class.active]="calendarView === 'month'"
+                        (click)="setCalendarView('month')">Month</button>
+              </div>
+
+              <div class="timezone-selector">
+                <span class="timezone-label">View in timezone</span>
+                <select class="timezone-select">
+                  <option>Pacific/Auckland +12:00</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Production Schedule -->
+            @if ((selectedAssetIds.size > 0) && calendarView === 'week') {
+              <div class="production-schedule">
+                <div class="schedule-title">
+                  <h4>Production Schedule</h4>
+                  <p>This schedule displays actuals when available, otherwise targets for the timing of production.</p>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="calendar-grid">
+                  <!-- Time column -->
+                  <div class="time-column">
+                    <div class="time-header"></div>
+                    @for (timeSlot of timeSlots.slice(0, 48); track timeSlot) {
+                      <div class="time-slot">{{ timeSlot }}</div>
+                    }
+                  </div>
+
+                  <!-- Day columns -->
+                  @for (day of getCalendarDays(); track day.getTime()) {
+                    <div class="day-column">
+                      <div class="day-header" [class.today]="isToday(day)">
+                        <div class="day-date">{{ day | date:'dd/MM/yyyy' }}</div>
+                        <div class="day-name">{{ day | date:'EEEE' }}</div>
+                      </div>
+
+                      <!-- Time slots for this day -->
+                      <div class="day-content">
+                        @for (timeSlot of timeSlots.slice(0, 48); track timeSlot) {
+                          <div class="time-cell"></div>
+                        }
+
+                        <!-- Production Events for this day -->
+                        @for (event of getEventsForDay(day); track event.id) {
+                          <div class="production-event"
+                               [class.dragging]="isDragging && dragEventId === event.id"
+                               [class.editing]="editingEventId === event.id"
+                               [style.background-color]="event.color"
+                               [style.top.px]="getEventPosition(event).top"
+                               [style.height.px]="getEventPosition(event).height"
+                               (click)="onEventClick(event, $event)"
+                               (mousedown)="onEventMouseDown(event, $event, 'move')">
+
+                            <!-- Resize handle - top -->
+                            <div class="resize-handle resize-handle-top"
+                                 (mousedown)="onEventMouseDown(event, $event, 'resize-start')"></div>
+
+                            <!-- Left edge move zone -->
+                            <div class="move-zone move-zone-left"
+                                 (mousedown)="onEventMouseDown(event, $event, 'move')"></div>
+
+                            <!-- Right edge move zone -->
+                            <div class="move-zone move-zone-right"
+                                 (mousedown)="onEventMouseDown(event, $event, 'move')"></div>
+
+                            <!-- Event content -->
+                            <div class="event-content">
+                              <div class="event-title">{{ event.title }}</div>
+                              <div class="event-time">
+                                {{ event.start | date:'HH:mm' }} - {{ event.end | date:'HH:mm' }}
+                              </div>
+                              @if (getEventDuration(event) >= 60) {
+                                <div class="event-duration">{{ formatEventDuration(event) }}</div>
+                              }
+                            </div>
+
+                            <!-- Resize handle - bottom -->
+                            <div class="resize-handle resize-handle-bottom"
+                                 (mousedown)="onEventMouseDown(event, $event, 'resize-end')"></div>
+
+                            <!-- Edit indicator -->
+                            @if (editingEventId === event.id) {
+                              <div class="edit-indicator">
+                                <i class="pi pi-pencil"></i>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (selectedAssetIds.size === 0) {
+              <div class="no-asset-selected">
+                <div class="no-asset-icon">🏭</div>
+                <h3>Select Equipment</h3>
+                <p>Choose equipment from the left panel to view production schedule</p>
+              </div>
+            }
+
+            <!-- Status Legend -->
+            @if (selectedAssetIds.size > 0) {
+              <div class="status-legend">
+                <h4>Status Legend</h4>
+                <div class="legend-items">
+                  <div class="legend-item">
+                    <div class="legend-color completed"></div>
+                    <span>Completed</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color in-progress"></div>
+                    <span>In Progress</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color planned"></div>
+                    <span>Planned</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color delayed"></div>
+                    <span>Delayed</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color cancelled"></div>
+                    <span>Cancelled</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- List View -->
+        @if (currentViewMode === 'list') {
+          <div class="shifts-list">
+            <!-- Filters -->
+            <div class="list-filters">
+              <select [(ngModel)]="selectedAssetFilter" class="filter-select">
+                <option [value]="null">All Equipment</option>
+                @for (asset of assets; track asset.id) {
+                  <option [value]="asset.id">{{ asset.name }}</option>
+                }
+              </select>
+
+              <select [(ngModel)]="statusFilter" class="filter-select">
+                <option value="all">All Status</option>
+                <option value="planned">Planned</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            <!-- Shifts Table -->
+            <div class="shifts-table">
+              <div class="table-header">
+                <div class="col-shift">Shift Event</div>
+                <div class="col-planned">Planned Start</div>
+                <div class="col-planned">Planned End</div>
+                <div class="col-efficiency">Efficiency</div>
+              </div>
+
+              @for (shift of getFilteredShifts(); track shift.id) {
+                <div class="shift-row">
+                  <!-- Shift Header -->
+                  <div class="shift-header">
+                    <div class="shift-status" [class]="'status-' + shift.status"></div>
+                    <div class="shift-info">
+                      <div class="shift-name">{{ shift.name }} - {{ shift.asset.name }}</div>
+                      <div class="shift-date">{{ shift.date | date:'MMM dd, yyyy' }}</div>
+                    </div>
+                    <div class="shift-times">
+                      <div class="time-range">{{ shift.startTime }} - {{ shift.endTime }}</div>
+                      @if (shift.efficiency) {
+                        <div class="efficiency">{{ shift.efficiency }}% Efficiency</div>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Production Events -->
+                  @for (event of shift.events; track event.id) {
+                    <div class="production-event-row">
+                      <div class="event-product">
+                        <div class="product-icon">📦</div>
+                        <div class="product-info">
+                          <div class="product-name">{{ event.product.name }}</div>
+                          <div class="product-details">
+                            {{ event.product.sku }} &#64; {{ event.plannedRate }} units/hr
+                            <span class="planned-quantity">({{ event.plannedQuantity }} {{ event.product.unitType }})</span>
+                          </div>
+                          <div class="event-breakdown">
+                            <span class="phase">Start Up: {{ formatDuration(event.startUpTime) }}</span>
+                            <span class="phase">Production: {{ formatDuration(event.productionTime) }}</span>
+                            <span class="phase">Shut Down: {{ formatDuration(event.shutDownTime) }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="event-timing">
+                        <div class="planned-start">
+                          {{ event.plannedStart | date:'dd/MM HH:mm' }}
+                        </div>
+                        @if (event.actualStart) {
+                          <div class="actual-start">
+                            ACTUAL: {{ event.actualStart | date:'dd/MM HH:mm' }}
+                          </div>
+                        }
+                      </div>
+
+                      <div class="event-timing">
+                        <div class="planned-end">
+                          {{ event.plannedEnd | date:'dd/MM HH:mm' }}
+                        </div>
+                        @if (event.actualEnd) {
+                          <div class="actual-end">
+                            ACTUAL: {{ event.actualEnd | date:'dd/MM HH:mm' }}
+                          </div>
+                        }
+                      </div>
+
+                      <div class="event-performance">
+                        @if (event.efficiency) {
+                          <div class="efficiency-score" [class.good]="event.efficiency >= 90"
+                                                          [class.average]="event.efficiency >= 80 && event.efficiency < 90"
+                                                          [class.poor]="event.efficiency < 80">
+                            {{ event.efficiency }}%
+                          </div>
+                        }
+                        @if (event.quality) {
+                          <div class="quality-score">Q: {{ event.quality }}%</div>
+                        }
+                      </div>
+
+                      <div class="event-actions">
+                        <button class="action-btn edit" title="Edit">
+                          <i class="pi pi-pencil"></i>
+                        </button>
+                        <button class="action-btn delete" title="Delete">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+
+                  @if (shift.events.length === 0) {
+                    <div class="no-events">
+                      <span>No production events scheduled for this shift</span>
+                      <button class="add-event-btn" (click)="openCreateEventDialog()">
+                        + Add Production Event
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Timeline View -->
+        @if (currentViewMode === 'timeline') {
+          <div class="timeline-container">
+            <!-- Timeline Header -->
+            <div class="timeline-header">
+              <div class="timeline-navigation">
+                <button class="nav-btn" (click)="timelineZoom === 'shift' ? navigateShift('prev') : navigateTimelineDate('prev')">
+                  <i class="pi pi-chevron-left"></i>
+                </button>
+                <h3 class="timeline-title">
+                  @if (timelineZoom === 'shift') {
+                    @if (selectedShift) {
+                      Shift - {{ selectedShift.asset.name }} ({{ selectedShift.date | date:'MMM dd' }})
+                    } @else {
+                      Shift View
+                    }
+                  } @else {
+                    {{ timelineStartDate | date:'MMM dd' }} - {{ timelineEndDate | date:'MMM dd, yyyy' }}
+                  }
+                </h3>
+                <button class="nav-btn" (click)="timelineZoom === 'shift' ? navigateShift('next') : navigateTimelineDate('next')">
+                  <i class="pi pi-chevron-right"></i>
+                </button>
+              </div>
+
+              <div class="timeline-controls">
+                <button class="timeline-zoom-btn"
+                        [class.active]="timelineZoom === 'hour'"
+                        (click)="setTimelineZoom('hour')">Hourly</button>
+                <button class="timeline-zoom-btn"
+                        [class.active]="timelineZoom === 'day'"
+                        (click)="setTimelineZoom('day')">Daily</button>
+                <button class="timeline-zoom-btn"
+                        [class.active]="timelineZoom === 'week'"
+                        (click)="setTimelineZoom('week')">Weekly</button>
+                <button class="timeline-zoom-btn"
+                        [class.active]="timelineZoom === 'shift'"
+                        (click)="setTimelineZoom('shift')">Shift</button>
+              </div>
+
+              <div class="timeline-filters">
+                @if (timelineZoom === 'shift') {
+                  <select [(ngModel)]="selectedShiftId"
+                          (ngModelChange)="selectShift($event)"
+                          class="filter-select shift-select">
+                    <option [value]="null">Select Shift</option>
+                    @for (shift of availableShifts; track shift.id) {
+                      <option [value]="shift.id">
+                        {{ shift.name }} - {{ shift.asset.name }} ({{ shift.date | date:'MMM dd' }})
+                      </option>
+                    }
+                  </select>
+                } @else {
+                  <div class="timeline-filter-section">
+                    @if (selectedAssetIds.size > 0) {
+                      <div class="active-filter-indicator">
+                        <span class="filter-label">Showing {{ selectedAssetIds.size }} selected asset{{ selectedAssetIds.size > 1 ? 's' : '' }}</span>
+                        <button class="clear-filter-btn" (click)="clearAssetSelection()" title="Clear selection">
+                          <i class="pi pi-times"></i>
+                        </button>
+                      </div>
+                    } @else {
+                      <select [(ngModel)]="timelineAssetFilter"
+                              (ngModelChange)="onTimelineAssetFilterChange()"
+                              class="filter-select">
+                        <option [value]="null">All Equipment</option>
+                        @for (asset of assets; track asset.id) {
+                          <option [value]="asset.id">{{ asset.name }}</option>
+                        }
+                      </select>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Shift Details Panel (only for shift view) -->
+            @if (timelineZoom === 'shift' && selectedShift) {
+              <div class="shift-details-panel">
+                <div class="shift-info-header">
+                  <div class="shift-basic-info">
+                    <div class="shift-status-indicator" [class]="'status-' + selectedShift.status"></div>
+                    <div class="shift-primary-info">
+                      <h4>{{ selectedShift.name }} - {{ selectedShift.asset.name }}</h4>
+                      <p>{{ selectedShift.date | date:'EEEE, MMMM dd, yyyy' }} • {{ selectedShift.startTime }} - {{ selectedShift.endTime }}</p>
+                    </div>
+                  </div>
+
+                  @if (getShiftDetailsForTimeline()) {
+                    <div class="shift-summary">
+                      <div class="summary-item">
+                        <span class="summary-label">Events:</span>
+                        <span class="summary-value">{{ getShiftDetailsForTimeline().summary.total }}</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="summary-label">Completed:</span>
+                        <span class="summary-value completed">{{ getShiftDetailsForTimeline().summary.completed }}</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="summary-label">In Progress:</span>
+                        <span class="summary-value in-progress">{{ getShiftDetailsForTimeline().summary.inProgress }}</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="summary-label">Planned:</span>
+                        <span class="summary-value planned">{{ getShiftDetailsForTimeline().summary.planned }}</span>
+                      </div>
+                      <div class="summary-item completion-rate">
+                        <span class="summary-label">Completion:</span>
+                        <span class="summary-value"
+                              [class.good]="getShiftDetailsForTimeline().summary.completionRate >= 80"
+                              [class.average]="getShiftDetailsForTimeline().summary.completionRate >= 60 && getShiftDetailsForTimeline().summary.completionRate < 80"
+                              [class.poor]="getShiftDetailsForTimeline().summary.completionRate < 60">
+                          {{ getShiftDetailsForTimeline().summary.completionRate }}%
+                        </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Timeline Grid -->
+            <div class="timeline-content">
+              <div class="timeline-grid">
+                <!-- Time header -->
+                <div class="timeline-time-header">
+                  <div class="timeline-assets-column-header">
+                    @if (timelineZoom === 'shift') {
+                      Equipment & Events
+                    } @else {
+                      Equipment
+                    }
+                  </div>
+                  <div class="timeline-time-scale">
+                    @for (timePoint of getTimelinePoints(); track timePoint.timestamp) {
+                      <div class="timeline-time-point"
+                           [style.width.px]="getTimePointWidth()">
+                        <div class="time-label">{{ formatTimelineLabel(timePoint) }}</div>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Asset rows -->
+                @if (timelineZoom === 'shift' && selectedShift) {
+                  <!-- Individual event rows for shift view -->
+                  @if (getShiftDetailsForTimeline()) {
+                    @for (event of getShiftDetailsForTimeline().events; track event.id) {
+                      <div class="timeline-row shift-event-row">
+                        <!-- Event column -->
+                        <div class="timeline-asset-column shift-event-column">
+                          <div class="event-row-info">
+                            <div class="event-product-icon">📦</div>
+                            <div class="event-row-details">
+                              <div class="event-product-name">{{ event.product.name }}</div>
+                              <div class="event-quantity">{{ event.plannedQuantity }} {{ event.product.unitType }}</div>
+                              <div class="event-time-range">
+                                {{ event.plannedStart | date:'HH:mm' }} - {{ event.plannedEnd | date:'HH:mm' }}
+                              </div>
+                              <div class="event-status-badge" [class]="'badge-' + event.status">
+                                {{ event.status | titlecase }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Timeline track for this specific event -->
+                        <div class="timeline-track shift-event-track">
+                          <!-- Time grid lines -->
+                          @for (timePoint of getTimelinePoints(); track timePoint.timestamp) {
+                            <div class="timeline-grid-line"
+                                 [style.left.px]="getTimePointPosition(timePoint)"
+                                 [style.width.px]="getTimePointWidth()"></div>
+                          }
+
+                          <!-- Production event for this row -->
+                          @for (timelineEvent of getTimelineEventsForAsset(selectedShift.asset.id); track timelineEvent.id) {
+                            @if (timelineEvent.id === event.id) {
+                              <div class="timeline-event shift-timeline-event"
+                                   [class.dragging]="isDragging && dragEventId === timelineEvent.id"
+                                   [class.editing]="editingEventId === timelineEvent.id"
+                                   [style.background-color]="timelineEvent.color"
+                                   [style.left.px]="getTimelineEventPosition(timelineEvent).left"
+                                   [style.width.px]="getTimelineEventPosition(timelineEvent).width"
+                                   [style.height.px]="timelineEventHeight"
+                                   (click)="onTimelineEventClick(timelineEvent, $event)"
+                                   (mousedown)="onTimelineEventMouseDown(timelineEvent, $event, 'move')">
+
+                                <!-- Event content -->
+                                <div class="timeline-event-content">
+                                  <div class="event-title">{{ timelineEvent.title }}</div>
+                                  <div class="event-time">
+                                    {{ timelineEvent.start | date:'HH:mm' }} - {{ timelineEvent.end | date:'HH:mm' }}
+                                  </div>
+                                  <div class="event-duration">{{ formatEventDuration(timelineEvent) }}</div>
+                                </div>
+
+                                <!-- Resize handles for timeline -->
+                                <div class="timeline-resize-handle timeline-resize-left"
+                                     (mousedown)="onTimelineEventMouseDown(timelineEvent, $event, 'resize-start')"></div>
+                                <div class="timeline-resize-handle timeline-resize-right"
+                                     (mousedown)="onTimelineEventMouseDown(timelineEvent, $event, 'resize-end')"></div>
+
+                                <!-- Edit indicator -->
+                                @if (editingEventId === timelineEvent.id) {
+                                  <div class="timeline-edit-indicator">
+                                    <i class="pi pi-pencil"></i>
+                                  </div>
+                                }
+                              </div>
+                            }
+                          }
+
+                          <!-- Current time indicator -->
+                          @if (isCurrentTimeInView()) {
+                            <div class="current-time-line"
+                                 [style.left.px]="getCurrentTimePosition()">
+                              <div class="current-time-marker"></div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  } @else {
+                    <!-- Fallback if no shift details -->
+                    <div class="timeline-row">
+                      <div class="timeline-asset-column">
+                        <div class="no-events-message">
+                          <p>No events found for this shift</p>
+                        </div>
+                      </div>
+                      <div class="timeline-track"></div>
+                    </div>
+                  }
+                } @else {
+                  <!-- Regular multi-asset view for other zoom levels -->
+                  @for (asset of getFilteredTimelineAssets(); track asset.id) {
+                    <div class="timeline-row">
+                      <!-- Asset column -->
+                      <div class="timeline-asset-column">
+                        <div class="asset-info">
+                          <div class="asset-status-indicator" [class]="'status-' + asset.currentStatus"></div>
+                          <div class="asset-details">
+                            <div class="asset-name">{{ asset.name }}</div>
+                            <div class="asset-location">{{ asset.location }}</div>
+                            <div class="asset-rate">{{ asset.targetProductionRate }}/hr</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Timeline track -->
+                      <div class="timeline-track">
+                        <!-- Time grid lines -->
+                        @for (timePoint of getTimelinePoints(); track timePoint.timestamp) {
+                          <div class="timeline-grid-line"
+                               [style.left.px]="getTimePointPosition(timePoint)"
+                               [style.width.px]="getTimePointWidth()"></div>
+                        }
+
+                        <!-- Production events -->
+                        @for (event of getTimelineEventsForAsset(asset.id); track event.id) {
+                          <div class="timeline-event"
+                               [class.dragging]="isDragging && dragEventId === event.id"
+                               [class.editing]="editingEventId === event.id"
+                               [style.background-color]="event.color"
+                               [style.left.px]="getTimelineEventPosition(event).left"
+                               [style.width.px]="getTimelineEventPosition(event).width"
+                               [style.height.px]="timelineEventHeight"
+                               (click)="onTimelineEventClick(event, $event)"
+                               (mousedown)="onTimelineEventMouseDown(event, $event, 'move')">
+
+                            <!-- Event content -->
+                            <div class="timeline-event-content">
+                              <div class="event-title">{{ event.title }}</div>
+                              <div class="event-time">
+                                {{ event.start | date:'HH:mm' }} - {{ event.end | date:'HH:mm' }}
+                              </div>
+                              @if (timelineZoom === 'hour' && getEventDuration(event) >= 120) {
+                                <div class="event-duration">{{ formatEventDuration(event) }}</div>
+                              }
+                            </div>
+
+                            <!-- Resize handles for timeline -->
+                            <div class="timeline-resize-handle timeline-resize-left"
+                                 (mousedown)="onTimelineEventMouseDown(event, $event, 'resize-start')"></div>
+                            <div class="timeline-resize-handle timeline-resize-right"
+                                 (mousedown)="onTimelineEventMouseDown(event, $event, 'resize-end')"></div>
+
+                            <!-- Edit indicator -->
+                            @if (editingEventId === event.id) {
+                              <div class="timeline-edit-indicator">
+                                <i class="pi pi-pencil"></i>
+                              </div>
+                            }
+                          </div>
+                        }
+
+                        <!-- Current time indicator -->
+                        @if (isCurrentTimeInView()) {
+                          <div class="current-time-line"
+                               [style.left.px]="getCurrentTimePosition()">
+                            <div class="current-time-marker"></div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
+
+                @if (getFilteredTimelineAssets().length === 0 && timelineZoom !== 'shift') {
+                  <div class="no-assets-timeline">
+                    <div class="no-assets-icon">🏭</div>
+                    <h3>No Equipment Available</h3>
+                    <p>Select equipment from the filters or add new assets</p>
+                  </div>
+                }
+
+                @if (timelineZoom === 'shift' && !selectedShift) {
+                  <div class="no-shift-selected">
+                    <div class="no-shift-icon">⏰</div>
+                    <h3>No Shift Selected</h3>
+                    <p>Select a shift from the dropdown above to view detailed timeline</p>
+                  </div>
+                }
+              </div>
+
+              <!-- Timeline legend -->
+              <div class="timeline-legend">
+                <div class="legend-item">
+                  <div class="legend-color" style="background-color: #10b981;"></div>
+                  <span>Completed</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background-color: #f59e0b;"></div>
+                  <span>In Progress</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background-color: #3b82f6;"></div>
+                  <span>Planned</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background-color: #ef4444;"></div>
+                  <span>Delayed</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background-color: #6b7280;"></div>
+                  <span>Cancelled</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Shift Dialog -->
+@if (showCreateShiftDialog) {
+  <div class="modal-overlay" (click)="showCreateShiftDialog = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Create Shift</h3>
+        <button class="close-btn" (click)="showCreateShiftDialog = false">×</button>
+      </div>
+
+      <form (ngSubmit)="createShift()" #shiftForm="ngForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Shift Name</label>
+            <input type="text"
+                   [(ngModel)]="newShift.name"
+                   name="name"
+                   placeholder="e.g., Day Shift, Night Shift"
+                   class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Equipment *</label>
+            <select [(ngModel)]="newShift.assetId"
+                    name="assetId"
+                    required
+                    class="form-control">
+              <option value="">Select Equipment</option>
+              @for (asset of assets; track asset.id) {
+                <option [value]="asset.id">{{ asset.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date"
+                   [ngModel]="newShift.date | date:'yyyy-MM-dd'"
+                   (ngModelChange)="newShift.date = $event"
+                   name="date"
+                   required
+                   class="form-control">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Start Time *</label>
+              <select [(ngModel)]="newShift.startTime"
+                      name="startTime"
+                      required
+                      class="form-control">
+                @for (timeSlot of timeSlots.slice(0, 48); track timeSlot) {
+                  <option [value]="timeSlot">{{ timeSlot }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>End Time *</label>
+              <select [(ngModel)]="newShift.endTime"
+                      name="endTime"
+                      required
+                      class="form-control">
+                @for (timeSlot of timeSlots.slice(0, 48); track timeSlot) {
+                  <option [value]="timeSlot">{{ timeSlot }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="showCreateShiftDialog = false">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!shiftForm.valid">
+            Create Shift
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Create Production Event Dialog -->
+@if (showCreateEventDialog) {
+  <div class="modal-overlay" (click)="closeEventDialog()">
+    <div class="modal-content large scrollable" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingProductionEvent ? 'Edit Production Event' : 'Create Production Event' }}</h3>
+        <button class="close-btn" (click)="closeEventDialog()">×</button>
+      </div>
+
+      <form (ngSubmit)="saveProductionEvent()" #eventForm="ngForm">
+        <div class="modal-body scrollable-content">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Event Type *</label>
+              <select value="production" class="form-control" disabled>
+                <option value="production">Planned Production Time</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Equipment *</label>
+              <select [(ngModel)]="newProductionEvent.assetId"
+                      name="assetId"
+                      required
+                      class="form-control">
+                <option value="">Select Equipment</option>
+                @for (asset of assets; track asset.id) {
+                  <option [value]="asset.id">{{ asset.name }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Product Model *</label>
+            <select [(ngModel)]="newProductionEvent.productId"
+                    name="productId"
+                    required
+                    (change)="onProductChange()"
+                    class="form-control">
+              <option value="">Select Product</option>
+              @for (product of products; track product.id) {
+                <option [value]="product.id">{{ product.name }} - {{ product.sku }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Production Rate (units/hr)</label>
+              <input type="number"
+                     [(ngModel)]="newProductionEvent.plannedRate"
+                     name="plannedRate"
+                     class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label>Total Quantity *</label>
+              <input type="number"
+                     [(ngModel)]="newProductionEvent.plannedQuantity"
+                     name="plannedQuantity"
+                     required
+                     class="form-control">
+            </div>
+          </div>
+
+          <div class="timing-section">
+            <h4>Timing Breakdown</h4>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Start Up Time (minutes)</label>
+                <input type="number"
+                       [(ngModel)]="newProductionEvent.startUpTime"
+                       name="startUpTime"
+                       class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label>Setup Time (minutes)</label>
+                <input type="number"
+                       [(ngModel)]="newProductionEvent.setupTime"
+                       name="setupTime"
+                       class="form-control">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Wrap Up Time (minutes)</label>
+                <input type="number"
+                       [(ngModel)]="newProductionEvent.wrapUpTime"
+                       name="wrapUpTime"
+                       class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label>Shut Down Time (minutes)</label>
+                <input type="number"
+                       [(ngModel)]="newProductionEvent.shutDownTime"
+                       name="shutDownTime"
+                       class="form-control">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Planned Start Time *</label>
+              <input type="datetime-local"
+                     [ngModel]="newProductionEvent.plannedStart | date:'yyyy-MM-ddTHH:mm'"
+                     (ngModelChange)="newProductionEvent.plannedStart = $event"
+                     name="plannedStart"
+                     required
+                     class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label>Planned End Time</label>
+              <input type="datetime-local"
+                     [ngModel]="getPlannedEndTime() | date:'yyyy-MM-ddTHH:mm'"
+                     readonly
+                     class="form-control readonly"
+                     placeholder="Auto-calculated">
+            </div>
+          </div>
+
+          @if (newProductionEvent.plannedQuantity > 0 && newProductionEvent.plannedRate > 0) {
+            <div class="estimated-duration">
+              <h4>Estimated Duration</h4>
+              <p>
+                Production Time: {{ formatDuration(newProductionEvent.plannedQuantity / newProductionEvent.plannedRate * 60) }}
+                <br>
+                Total Duration: {{ formatDuration(newProductionEvent.startUpTime + newProductionEvent.setupTime +
+                                                  newProductionEvent.wrapUpTime + newProductionEvent.shutDownTime +
+                                                  (newProductionEvent.plannedQuantity / newProductionEvent.plannedRate * 60)) }}
+              </p>
+            </div>
+          }
+
+          <!-- Inheritance Information -->
+          @if (!editingProductionEvent) {
+            <div class="inheritance-info">
+              <h4>Sub-Asset Inheritance</h4>
+              <p class="inheritance-description">
+                <i class="pi pi-info-circle"></i>
+                Creating this production event will automatically generate corresponding events for all sub-assets with adjusted parameters (rates, quantities, timing).
+              </p>
+            </div>
+          }
+
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea [(ngModel)]="newProductionEvent.notes"
+                      name="notes"
+                      rows="3"
+                      class="form-control"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          @if (editingProductionEvent) {
+            <button type="button" class="btn-danger" (click)="deleteProductionEvent()">
+              <i class="pi pi-trash"></i>
+              {{ getDeleteButtonText() }}
+            </button>
+            <div class="footer-spacer"></div>
+          }
+          <button type="button" class="btn-secondary" (click)="closeEventDialog()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!eventForm.valid">
+            {{ editingProductionEvent ? 'Update Event' : 'Create Event' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Asset Details Dialog -->
+@if (showAssetDetailsDialog && selectedAsset) {
+  <div class="modal-overlay" (click)="showAssetDetailsDialog = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ selectedAsset.name }} Details</h3>
+        <button class="close-btn" (click)="showAssetDetailsDialog = false">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="asset-performance">
+          <h4>Performance Metrics</h4>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Theory Production Rate</div>
+              <div class="metric-value">{{ selectedAsset.theoryProductionRate }} units/hr</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Target Production Rate</div>
+              <div class="metric-value">{{ selectedAsset.targetProductionRate }} units/hr</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Theory Availability</div>
+              <div class="metric-value">{{ selectedAsset.theoryAvailability }}%</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Theory Quality</div>
+              <div class="metric-value">{{ selectedAsset.theoryQuality }}%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="asset-status">
+          <h4>Current Status</h4>
+          <div class="status-indicator" [class]="'status-' + selectedAsset.currentStatus">
+            {{ selectedAsset.currentStatus | titlecase }}
+          </div>
+        </div>
+
+        <div class="production-lines">
+          <h4>Production Lines</h4>
+          <div class="lines-list">
+            @for (line of selectedAsset.productionLines; track line) {
+              <div class="line-item">{{ line }}</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" (click)="showAssetDetailsDialog = false">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+}

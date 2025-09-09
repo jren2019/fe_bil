@@ -1,0 +1,449 @@
+<div class="sales-layout">
+  <app-nav-menu></app-nav-menu>
+  <div class="sales-main">
+    <!-- Header -->
+    <div class="sales-header">
+      <div class="header-left">
+        <h1 class="page-title">Sales Dashboard</h1>
+        <p class="page-subtitle">Track sales performance, pipeline, and revenue targets</p>
+      </div>
+      <div class="header-right">
+        <button pButton label="Export Report" class="p-button-secondary export-btn" icon="pi pi-download"></button>
+        <button pButton label="+ New Deal" class="p-button-primary new-deal-btn" (click)="openNewSaleDialog()"></button>
+      </div>
+    </div>
+
+    <!-- Sales Metrics -->
+    <div class="metrics-section">
+      <div class="metrics-grid">
+        @for (metric of salesMetrics; track metric.title) {
+          <div class="metric-card">
+            <div class="metric-icon">{{ metric.icon }}</div>
+            <div class="metric-content">
+              <div class="metric-value">{{ metric.value }}</div>
+              <div class="metric-title">{{ metric.title }}</div>
+              <div class="metric-change" [class]="'trend-' + metric.trend">
+                <span class="change-indicator">
+                  @if (metric.trend === 'up') { ↗ }
+                  @else if (metric.trend === 'down') { ↘ }
+                  @else { → }
+                </span>
+                {{ metric.change }}
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Charts and Pipeline Overview -->
+    <div class="dashboard-content">
+      <div class="charts-section">
+        <!-- Revenue Chart -->
+        <div class="chart-card">
+          <div class="card-header">
+            <h3 class="card-title">Revenue vs Target</h3>
+            <div class="card-actions">
+              <button class="chart-action-btn">6M</button>
+              <button class="chart-action-btn active">YTD</button>
+              <button class="chart-action-btn">All</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <p-chart type="line" [data]="chartData" [options]="chartOptions" height="300px"></p-chart>
+          </div>
+        </div>
+
+        <!-- Pipeline Summary -->
+        <div class="pipeline-summary-card">
+          <div class="card-header">
+            <h3 class="card-title">Pipeline Summary</h3>
+          </div>
+          <div class="pipeline-stats">
+            <div class="pipeline-stat">
+              <div class="stat-value">{{ formatCurrency(pipelineValue) }}</div>
+              <div class="stat-label">Weighted Pipeline</div>
+            </div>
+            <div class="pipeline-stat">
+              <div class="stat-value">{{ formatCurrency(closedWonValue) }}</div>
+              <div class="stat-label">Closed Won (YTD)</div>
+            </div>
+            <div class="pipeline-stat">
+              <div class="stat-value">{{ salesData.length }}</div>
+              <div class="stat-label">Total Deals</div>
+            </div>
+          </div>
+
+          <!-- Deal Status Breakdown -->
+          <div class="status-breakdown">
+            <h4 class="breakdown-title">Active Deals by Status</h4>
+            <div class="status-items">
+              @for (status of activeStatusKeys; track status) {
+                <div class="status-item">
+                  <span class="status-badge" [class]="getStatusBadgeClass(status)">
+                    {{ getStatusLabel(status) }}
+                  </span>
+                  <span class="status-count">{{ activeDealsByStatus[status] }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Pipeline Table -->
+      <div class="pipeline-section">
+        <div class="section-header">
+          <h2 class="section-title">Sales Pipeline</h2>
+          <div class="section-actions">
+            <div class="search-container">
+              <i class="pi pi-search search-icon"></i>
+              <input type="text" placeholder="Search deals..." class="search-input" />
+            </div>
+            <button class="filter-btn">
+              <i class="pi pi-filter"></i>
+              Filter
+            </button>
+          </div>
+        </div>
+
+        <div class="pipeline-table-container">
+          <p-table [value]="salesData" [paginator]="true" [rows]="5" styleClass="sales-table">
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="customerName">
+                  Customer
+                  <p-sortIcon field="customerName"></p-sortIcon>
+                </th>
+                <th pSortableColumn="product">
+                  Product
+                  <p-sortIcon field="product"></p-sortIcon>
+                </th>
+                <th pSortableColumn="amount">
+                  Amount
+                  <p-sortIcon field="amount"></p-sortIcon>
+                </th>
+                <th pSortableColumn="status">
+                  Status
+                  <p-sortIcon field="status"></p-sortIcon>
+                </th>
+                <th pSortableColumn="probability">
+                  Probability
+                  <p-sortIcon field="probability"></p-sortIcon>
+                </th>
+                <th pSortableColumn="salesRep">
+                  Sales Rep
+                  <p-sortIcon field="salesRep"></p-sortIcon>
+                </th>
+                <th pSortableColumn="date">
+                  Date
+                  <p-sortIcon field="date"></p-sortIcon>
+                </th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-sale>
+              <tr>
+                <td>
+                  <div class="customer-cell">
+                    <div class="customer-avatar">{{ sale.customerName.charAt(0) }}</div>
+                    <div class="customer-info">
+                      <div class="customer-name">{{ sale.customerName }}</div>
+                      <div class="next-action">{{ sale.nextAction }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="product-name">{{ sale.product }}</span>
+                </td>
+                <td>
+                  <span class="amount">{{ formatCurrency(sale.amount) }}</span>
+                </td>
+                <td>
+                  <span class="status-badge" [class]="getStatusBadgeClass(sale.status)">
+                    {{ getStatusLabel(sale.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="probability-cell">
+                    <span class="probability-value">{{ sale.probability }}%</span>
+                    <p-progressBar [value]="sale.probability" [showValue]="false" styleClass="probability-bar"></p-progressBar>
+                  </div>
+                </td>
+                <td>
+                  <div class="sales-rep-cell">
+                    <span class="rep-avatar">{{ getSalesRepInitials(sale.salesRep) }}</span>
+                    <span class="rep-name">{{ sale.salesRep }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="date">{{ sale.date | date:'MMM d, y' }}</span>
+                </td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="action-btn" title="Edit" (click)="openEditSaleDialog(sale)">
+                      <i class="pi pi-pencil"></i>
+                    </button>
+                    <button class="action-btn" title="View Details" (click)="openViewSaleDialog(sale)">
+                      <i class="pi pi-eye"></i>
+                    </button>
+                    <button class="action-btn" title="View Details">
+                      <a href="{{sale.sharepointLink}}"><i class="pi pi-eye"></i></a> 
+                    </button>
+                    
+                    <button class="action-btn" title="More Actions">
+                      <i class="pi pi-ellipsis-v"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Deal Dialog -->
+    <p-dialog header="Create New Deal" [(visible)]="showNewSaleDialog" [modal]="true" [style]="{width: '600px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}">
+      <div class="new-deal-form">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Customer Name</label>
+            <input type="text" pInputText [(ngModel)]="newSale.customerName" placeholder="Enter customer name" class="form-input" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Product</label>
+            <p-dropdown [options]="productOptions" [(ngModel)]="newSale.product" placeholder="Select product" class="form-dropdown"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Deal Amount</label>
+            <input type="number" pInputText [(ngModel)]="newSale.amount" placeholder="0" class="form-input" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Status</label>
+            <p-dropdown [options]="statusOptions" [(ngModel)]="newSale.status" placeholder="Select status" class="form-dropdown"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Sales Rep</label>
+            <p-dropdown [options]="salesRepOptions" [(ngModel)]="newSale.salesRep" placeholder="Select sales rep" class="form-dropdown"></p-dropdown>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Probability (%)</label>
+            <input type="number" pInputText [(ngModel)]="newSale.probability" min="0" max="100" placeholder="25" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Next Action</label>
+          <input type="text" pInputText [(ngModel)]="newSale.nextAction" placeholder="What's the next step?" class="form-input" />
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">SharePoint Link</label>
+          <input type="url" pInputText [(ngModel)]="newSale.sharepointLink" placeholder="https://facteonglobal.sharepoint.com/sites/..." class="form-input" />
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Cancel" class="p-button-secondary" (click)="closeNewSaleDialog()"></button>
+          <button pButton label="Create Deal" class="p-button-primary" (click)="createSale()" [disabled]="!newSale.customerName || !newSale.product || !newSale.amount"></button>
+        </div>
+      </div>
+    </p-dialog>
+
+    <!-- Edit Sale Dialog -->
+    <p-dialog header="Edit Deal" [(visible)]="showEditSaleDialog" [modal]="true" [style]="{width: '600px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}">
+      <div class="edit-deal-form">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Customer Name</label>
+            <input type="text" pInputText [(ngModel)]="editSale.customerName" placeholder="Enter customer name" class="form-input" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Product</label>
+            <p-dropdown [options]="productOptions" [(ngModel)]="editSale.product" placeholder="Select product" class="form-dropdown"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Deal Amount</label>
+            <input type="number" pInputText [(ngModel)]="editSale.amount" placeholder="0" class="form-input" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Status</label>
+            <p-dropdown [options]="statusOptions" [(ngModel)]="editSale.status" placeholder="Select status" class="form-dropdown"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Sales Rep</label>
+            <p-dropdown [options]="salesRepOptions" [(ngModel)]="editSale.salesRep" placeholder="Select sales rep" class="form-dropdown"></p-dropdown>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Probability (%)</label>
+            <input type="number" pInputText [(ngModel)]="editSale.probability" min="0" max="100" placeholder="25" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Next Action</label>
+          <input type="text" pInputText [(ngModel)]="editSale.nextAction" placeholder="What's the next step?" class="form-input" />
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">SharePoint Link</label>
+          <input type="url" pInputText [(ngModel)]="editSale.sharepointLink" placeholder="https://facteonglobal.sharepoint.com/sites/..." class="form-input" />
+        </div>
+
+        <div class="form-actions">
+          <button pButton label="Cancel" class="p-button-secondary" (click)="closeEditSaleDialog()"></button>
+          <button pButton label="Update Deal" class="p-button-primary" (click)="updateSale()" [disabled]="!editSale.customerName || !editSale.product || !editSale.amount"></button>
+        </div>
+      </div>
+    </p-dialog>
+
+    <!-- View Sale Dialog -->
+    <p-dialog [header]="'Deal Details - ' + (selectedSale?.customerName || '')" [(visible)]="showViewSaleDialog" [modal]="true" [style]="{width: '700px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}">
+      @if (selectedSale) {
+        <div class="view-deal-details">
+          <!-- Deal Overview -->
+          <div class="detail-section">
+            <h3 class="section-title">Deal Overview</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label class="detail-label">Customer</label>
+                <div class="detail-value customer-detail">
+                  <div class="customer-avatar">{{ selectedSale.customerName.charAt(0) }}</div>
+                  <span class="customer-name">{{ selectedSale.customerName }}</span>
+                </div>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Product</label>
+                <div class="detail-value">{{ selectedSale.product }}</div>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Deal Amount</label>
+                <div class="detail-value amount-value">{{ formatCurrency(selectedSale.amount) }}</div>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Status</label>
+                <div class="detail-value">
+                  <span class="status-badge" [class]="getStatusBadgeClass(selectedSale.status)">
+                    {{ getStatusLabel(selectedSale.status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sales Information -->
+          <div class="detail-section">
+            <h3 class="section-title">Sales Information</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label class="detail-label">Sales Representative</label>
+                <div class="detail-value sales-rep-detail">
+                  <div class="rep-avatar">{{ getSalesRepInitials(selectedSale.salesRep) }}</div>
+                  <span class="rep-name">{{ selectedSale.salesRep }}</span>
+                </div>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Probability</label>
+                <div class="detail-value">
+                  <div class="probability-detail">
+                    <span class="probability-percentage">{{ selectedSale.probability }}%</span>
+                    <p-progressBar [value]="selectedSale.probability" [showValue]="false" styleClass="probability-bar-detail"></p-progressBar>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Date Created</label>
+                <div class="detail-value">{{ selectedSale.date | date:'MMM d, y' }}</div>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Weighted Value</label>
+                <div class="detail-value amount-value">{{ formatCurrency(selectedSale.amount * selectedSale.probability / 100) }}</div>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">SharePoint Link</label>
+                <div class="detail-value">
+                  @if (selectedSale.sharepointLink) {
+                    <a [href]="selectedSale.sharepointLink" target="_blank" class="sharepoint-link">
+                      <i class="pi pi-external-link"></i>
+                      Open SharePoint Site
+                    </a>
+                  } @else {
+                    <span class="no-sharepoint">No SharePoint link available</span>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Steps -->
+          <div class="detail-section">
+            <h3 class="section-title">Next Action</h3>
+            <div class="next-action-card">
+              <div class="action-icon">📋</div>
+              <div class="action-content">
+                <div class="action-text">{{ selectedSale.nextAction }}</div>
+                <div class="action-meta">Assigned to {{ selectedSale.salesRep }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SharePoint Link -->
+          <div class="detail-section">
+            <h3 class="section-title">SharePoint</h3>
+            <div class="sharepoint-card">
+              <div class="sharepoint-icon">🔗</div>
+              <div class="sharepoint-content">
+                <div class="sharepoint-label">Document Library</div>
+                @if (selectedSale.sharepointLink) {
+                  <a [href]="selectedSale.sharepointLink" target="_blank" class="sharepoint-link">
+                    {{ selectedSale.sharepointLink }}
+                  </a>
+                } @else {
+                  <div class="sharepoint-empty">No SharePoint link configured</div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Deal Timeline -->
+          <div class="detail-section">
+            <h3 class="section-title">Deal Timeline</h3>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-marker current"></div>
+                <div class="timeline-content">
+                  <div class="timeline-title">{{ getStatusLabel(selectedSale.status) }}</div>
+                  <div class="timeline-date">Current status</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-marker completed"></div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Deal Created</div>
+                  <div class="timeline-date">{{ selectedSale.date | date:'MMM d, y' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="view-actions">
+            <button pButton label="Edit Deal" class="p-button-primary" (click)="closeViewSaleDialog(); openEditSaleDialog(selectedSale)" icon="pi pi-pencil"></button>
+            <button pButton label="Close" class="p-button-secondary" (click)="closeViewSaleDialog()"></button>
+          </div>
+        </div>
+      }
+    </p-dialog>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="splash-bg"></div>
+<div class="login-page-center">
+  <div class="splash-center-card login-card">
+    <div class="help-link">
+      <span class="help-icon">❓</span>
+      <a routerLink="/home">Back to Home</a>
+    </div>
+    <img src="assets/images/ufo-aliens.png" alt="UFO" class="login-ufo" />
+    <div class="splash-logo">
+      <div><span class="AssetX">AssetX</span><span class="cloud">cloud</span></div>
+      <div class="by-ariga">by Businessify</div>
+    </div>
+    <form class="login-form" (ngSubmit)="onSubmit()">
+      @if (loginError) {
+        <div class="login-error">{{ loginError }}</div>
+      }
+      <input type="text" placeholder="Username" [(ngModel)]="username" name="username" required />
+      <input type="password" placeholder="Password" [(ngModel)]="password" name="password" required />
+      <button type="submit">Login</button>
+    </form>
+    <div class="login-actions">
+      <button type="button" class="signup-link" (click)="goToSignup()">Sign up</button>
+    </div>
+  </div>
+</div>
+<footer class="splash-footer">
+  <a href="#">Terms of Service</a> &nbsp; <a href="#">Privacy Policy</a> &nbsp; © Businessify 2025
+</footer>

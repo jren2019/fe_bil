@@ -1,0 +1,637 @@
+<div class="assets-layout">
+  <app-nav-menu></app-nav-menu>
+  <div class="assets-main">
+    <!-- Header -->
+    <div class="assets-header">
+      <div class="header-left">
+        <h1 class="page-title">Assets</h1>
+        <!-- View Selector -->
+        <div class="view-selector" [class.dropdown-open]="showViewDropdown">
+          <button class="view-btn" (click)="toggleViewDropdown()">
+            {{ currentViewModeLabel }}
+            <svg class="dropdown-arrow" [class.rotated]="showViewDropdown" viewBox="0 0 12 7" width="12" height="7">
+              <path d="M5.4.3c.3-.4.9-.4 1.2 0l5.1 5a.9.9 0 1 1-1.2 1.3L6 2.1 1.5 6.6A.9.9 0 1 1 .3 5.4l5-5.1Z" fill="currentColor" stroke="none"></path>
+            </svg>
+          </button>
+
+          <!-- View Dropdown -->
+          @if (showViewDropdown) {
+            <div class="view-dropdown-overlay" (click)="closeViewDropdown()"></div>
+            <div class="view-dropdown">
+              @for (viewMode of viewModes; track viewMode.value) {
+                <div class="view-option"
+                     [class.active]="currentViewMode === viewMode.value"
+                     (click)="selectViewMode(viewMode.value)">
+                  <span class="view-icon">{{ viewMode.icon }}</span>
+                  <span class="view-label">{{ viewMode.label }}</span>
+                  @if (currentViewMode === viewMode.value) {
+                    <i class="pi pi-check view-check"></i>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="header-btn create-btn" (click)="openAssetDialogNew()">
+          <i class="pi pi-plus"></i>
+          Create Asset
+        </button>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-filters">
+      <div class="search-container">
+        <i class="pi pi-search search-icon"></i>
+        <input type="text"
+               placeholder="Search assets..."
+               [(ngModel)]="searchTerm"
+               class="search-input">
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="assets-content">
+      <!-- Panel View -->
+      @if (currentViewMode === 'panel') {
+        <div class="panel-layout">
+          <!-- Left Panel -->
+          <div class="assets-panel">
+            <div class="panel-header">
+              <h3>Assets ({{ filteredAssets.length }})</h3>
+            </div>
+            <div class="assets-list">
+              @for (asset of filteredAssets; track asset.id) {
+                <div class="asset-item"
+                     [class.selected]="selectedAssetId === asset.id"
+                     (click)="selectAsset(asset.id)">
+                  <div class="asset-icon">📦</div>
+                  <div class="asset-details">
+                    <div class="asset-name">{{ asset.name }}</div>
+                    <div class="asset-location">{{ asset.location }}</div>
+                    <div class="asset-status" [class]="'status-' + asset.status">
+                      {{ asset.status }}
+                    </div>
+                    @if (asset.subAssets && asset.subAssets.length > 0) {
+                      <div class="sub-assets-link" (click)="showSubAssets(asset); $event.stopPropagation()">
+                        {{ asset.subAssets.length }} Sub-Assets >
+                      </div>
+                    }
+                  </div>
+                  <!-- Hover Add Sub-Asset Button -->
+                  <div class="hover-actions">
+                    <button class="add-sub-btn"
+                            (click)="openCreateSubAssetModalForParent(asset); $event.stopPropagation()">
+                      + Sub
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Right Panel -->
+          <div class="details-panel">
+            @if (selectedAsset && currentView === 'details') {
+              <div class="details-header">
+                <h2>{{ selectedAsset.name }}</h2>
+                <div class="details-actions">
+                  <button class="details-btn" (click)="editAsset(selectedAsset)">Edit</button>
+                  <button class="details-btn primary" (click)="openCreateSubAssetModal()">+ Add Sub-Asset</button>
+                </div>
+              </div>
+
+              <!-- Tabs -->
+              <div class="details-tabs">
+                <button class="tab-btn"
+                        [class.active]="selectedTab === 'details'"
+                        (click)="switchTab('details')">
+                  Details
+                </button>
+                <button class="tab-btn"
+                        [class.active]="selectedTab === 'history'"
+                        (click)="switchTab('history')">
+                  History
+                </button>
+                <button class="tab-btn"
+                        [class.active]="selectedTab === 'work-orders'"
+                        (click)="switchTab('work-orders')">
+                  Work Orders
+                </button>
+              </div>
+
+              <!-- Tab Content -->
+              <div class="tab-content">
+                @if (selectedTab === 'details') {
+                  <div class="details-content">
+                    <div class="details-section">
+                      <h3>Basic Information</h3>
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <span class="label">Status</span>
+                          <span class="value status" [class]="'status-' + selectedAsset.status">
+                            {{ selectedAsset.status }}
+                          </span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Location</span>
+                          <span class="value">{{ selectedAsset.location }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Type</span>
+                          <span class="value">{{ selectedAsset.assetType }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Created</span>
+                          <span class="value">{{ selectedAsset.createdAt | date:'shortDate' }}</span>
+                        </div>
+                        @if (getManufacturerName(selectedAsset.manufacturer)) {
+                          <div class="info-item">
+                            <span class="label">Manufacturer</span>
+                            <span class="value">{{ getManufacturerName(selectedAsset.manufacturer) }}</span>
+                          </div>
+                        }
+                        @if (selectedAsset.model) {
+                          <div class="info-item">
+                            <span class="label">Model</span>
+                            <span class="value">{{ selectedAsset.model }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    @if (selectedAsset.subAssets && selectedAsset.subAssets.length > 0) {
+                      <div class="details-section">
+                        <h3>Sub-Assets ({{ selectedAsset.subAssets.length }})</h3>
+                        <div class="sub-assets-grid">
+                          @for (subAsset of selectedAsset.subAssets; track subAsset.id) {
+                            <div class="sub-asset-card" (click)="selectSubAsset(subAsset)">
+                              <div class="sub-asset-header">
+                                <div class="sub-asset-icon">🔧</div>
+                                <div class="sub-asset-info">
+                                  <div class="sub-asset-name">{{ subAsset.name }}</div>
+                                  <div class="sub-asset-type">{{ subAsset.assetType }}</div>
+                                </div>
+                              </div>
+                              <div class="sub-asset-status" [class]="'status-' + subAsset.status">
+                                {{ subAsset.status }}
+                              </div>
+                              <!-- Hover Add Sub-Asset Button for Sub-Assets -->
+                              <div class="hover-add-btn"
+                                   (click)="openCreateSubAssetModalForParent(subAsset); $event.stopPropagation()">
+                                + Sub
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                @if (selectedTab === 'history') {
+                  <div class="history-content">
+                    <div class="history-header">
+                      <h3>Asset History</h3>
+                      <div class="history-filters">
+                        <select class="history-filter-select" [(ngModel)]="historyFilter" (change)="onHistoryFilter()">
+                          <option value="all">All Events</option>
+                          <option value="maintenance">Maintenance</option>
+                          <option value="upgrade">Upgrades</option>
+                          <option value="status-change">Status Changes</option>
+                          <option value="inspection">Inspections</option>
+                          <option value="configuration">Configuration</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="history-timeline">
+                      @for (event of filteredHistory; track event.id) {
+                        <div class="history-item" [attr.data-type]="event.type">
+                          <div class="history-date">
+                            <div class="date-month">{{ event.date | date:'MMM' }}</div>
+                            <div class="date-day">{{ event.date | date:'dd' }}</div>
+                            <div class="date-year">{{ event.date | date:'yyyy' }}</div>
+                          </div>
+
+                          <div class="history-icon" [class]="'type-' + event.type">
+                            {{ getEventIcon(event.type) }}
+                          </div>
+
+                          <div class="history-content-item">
+                            <div class="history-action">{{ event.action }}</div>
+                            <div class="history-description">{{ event.details }}</div>
+                            <div class="history-meta">
+                              <div class="history-user">
+                                <div class="user-avatar">{{ event.updatedByAvatar }}</div>
+                                <span class="user-name">{{ event.updatedBy }}</span>
+                              </div>
+                              <div class="history-timestamp">
+                                {{ event.date | date:'MMM dd, yyyy • h:mm a' }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      }
+
+                      @if (filteredHistory.length === 0) {
+                        <div class="no-history">
+                          <div class="no-history-icon">📝</div>
+                          <h4>No history found</h4>
+                          <p>No history records match the selected filter.</p>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @if (selectedTab === 'work-orders') {
+                  <div class="work-orders-content">
+                    <!-- Work Order History Chart -->
+                    <div class="work-order-chart-section">
+                      <div class="chart-header">
+                        <h3>Work Order History</h3>
+                        <div class="chart-controls">
+                          <span class="time-range">Last 70 days</span>
+                          <button class="config-btn" (click)="openChartConfig()">
+                            <i class="pi pi-cog"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="chart-container">
+                        <svg class="work-order-chart" viewBox="0 0 800 200" width="100%" height="200">
+                          <!-- Chart grid lines -->
+                          @for (line of workOrderChartGridLines; track line.y) {
+                            <line [attr.x1]="line.x1" [attr.y1]="line.y" [attr.x2]="line.x2" [attr.y2]="line.y"
+                                  stroke="#f0f0f0" stroke-width="1"/>
+                          }
+
+                          <!-- Chart data line -->
+                          <path [attr.d]="workOrderChartPath"
+                                fill="rgba(26, 108, 255, 0.1)"
+                                stroke="#1a6cff"
+                                stroke-width="2"/>
+
+                          <!-- Chart data points -->
+                          @for (point of workOrderChartPoints; track point.x) {
+                            <circle [attr.cx]="point.x" [attr.cy]="point.y" r="3"
+                                    fill="#1a6cff"
+                                    (mouseenter)="showChartTooltip(point, $event)"
+                                    (mouseleave)="hideChartTooltip()"/>
+                          }
+
+                          <!-- X-axis labels -->
+                          @for (label of workOrderChartXLabels; track label.x) {
+                            <text [attr.x]="label.x" [attr.y]="190"
+                                  text-anchor="middle"
+                                  font-size="11"
+                                  fill="#6b7280">{{ label.text }}</text>
+                          }
+
+                          <!-- Y-axis labels -->
+                          @for (label of workOrderChartYLabels; track label.y) {
+                            <text [attr.x]="30" [attr.y]="label.y"
+                                  text-anchor="end"
+                                  font-size="11"
+                                  fill="#6b7280">{{ label.text }}</text>
+                          }
+                        </svg>
+
+                        <!-- Chart tooltip -->
+                        @if (chartTooltip.visible) {
+                          <div class="chart-tooltip"
+                               [style.left.px]="chartTooltip.x"
+                               [style.top.px]="chartTooltip.y">
+                            <div class="tooltip-date">{{ chartTooltip.date }}</div>
+                            <div class="tooltip-value">{{ chartTooltip.count }} work orders</div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Open Work Orders List -->
+                    <div class="open-work-orders-section">
+                      <div class="work-orders-header">
+                        <h3>Open Work Orders ({{ getAssetWorkOrders().length }})</h3>
+                        <button class="work-order-btn" (click)="createWorkOrder()">
+                          <i class="pi pi-plus"></i>
+                          Create Work Order
+                        </button>
+                      </div>
+
+                      <div class="work-orders-list">
+                        @for (workOrder of getAssetWorkOrders(); track workOrder.id) {
+                          <div class="work-order-item" (click)="openWorkOrder(workOrder)">
+                            <div class="work-order-main">
+                              <div class="work-order-title">{{ workOrder.title }}</div>
+                              <div class="work-order-details">
+                                <span class="work-order-number">#{{ workOrder.id }}</span>
+                                <span class="work-order-asset">{{ getWorkOrderAssetName(workOrder) }}</span>
+                                <i class="pi pi-map-marker location-icon"></i>
+                                <span class="work-order-location">{{ getWorkOrderLocation(workOrder) }}</span>
+                              </div>
+                              <div class="work-order-meta">
+                                <div class="assignee">
+                                  <i class="pi pi-user"></i>
+                                  <span>{{ getAssignedToName(workOrder.assignedTo) }}</span>
+                                  @if (workOrder.estimatedHours) {
+                                    <span class="estimated-time">{{ workOrder.estimatedHours }}h</span>
+                                  }
+                                </div>
+                                <div class="due-date">
+                                  Due: {{ workOrder.dueDate | date:'MM/dd/yyyy' }}
+                                </div>
+                              </div>
+                            </div>
+                            <div class="work-order-status">
+                              <span class="status-badge" [class]="'status-' + workOrder.status">
+                                {{ workOrder.status | titlecase }}
+                              </span>
+                              <span class="priority-badge" [class]="'priority-' + workOrder.priority">
+                                {{ workOrder.priority | titlecase }}
+                              </span>
+                            </div>
+                          </div>
+                        }
+
+                        @if (getAssetWorkOrders().length === 0) {
+                          <div class="no-work-orders">
+                            <div class="no-work-orders-icon">📋</div>
+                            <h4>No open work orders</h4>
+                            <p>There are currently no open work orders for this asset or its sub-assets.</p>
+                            <button class="create-work-order-btn" (click)="createWorkOrder()">
+                              <i class="pi pi-plus"></i>
+                              Create Work Order
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Sub-Assets View -->
+            @if (currentView === 'sub-assets' && parentAsset) {
+              <div class="sub-assets-view">
+                <div class="sub-assets-header">
+                  <button class="back-btn" (click)="goBackToParent()">
+                    <i class="pi pi-arrow-left"></i> Back
+                  </button>
+                  <h2>{{ parentAsset.name }} - Sub-Assets</h2>
+                  <button class="create-sub-btn" (click)="openCreateSubAssetModal()">+ Add Sub-Asset</button>
+                </div>
+
+                <div class="sub-assets-grid">
+                  @for (subAsset of parentAsset.subAssets; track subAsset.id) {
+                    <div class="sub-asset-card" (click)="selectSubAsset(subAsset)">
+                      <div class="sub-asset-header">
+                        <div class="sub-asset-icon">🔧</div>
+                        <div class="sub-asset-info">
+                          <div class="sub-asset-name">{{ subAsset.name }}</div>
+                          <div class="sub-asset-type">{{ subAsset.assetType }}</div>
+                        </div>
+                      </div>
+                      <div class="sub-asset-status" [class]="'status-' + subAsset.status">
+                        {{ subAsset.status }}
+                      </div>
+                      @if (subAsset.subAssets && subAsset.subAssets.length > 0) {
+                        <div class="sub-assets-count"
+                             (click)="showSubAssets(subAsset); $event.stopPropagation()">
+                          {{ subAsset.subAssets.length }} Sub-Assets >
+                        </div>
+                      }
+                      <div class="hover-add-btn"
+                           (click)="openCreateSubAssetModalForParent(subAsset); $event.stopPropagation()">
+                        + Sub
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (!selectedAsset) {
+              <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <h3>Select an asset</h3>
+                <p>Choose an asset from the list to view details</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Table View -->
+      @if (currentViewMode === 'table') {
+        <div class="table-view">
+          <div class="table-container">
+            <table class="assets-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Sub-Assets</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (asset of filteredAssets; track asset.id) {
+                  <tr (click)="selectAsset(asset.id)" [class.selected]="selectedAssetId === asset.id">
+                    <td>
+                      <div class="asset-cell">
+                        <span class="asset-icon">📦</span>
+                        {{ asset.name }}
+                      </div>
+                    </td>
+                    <td>{{ asset.assetType }}</td>
+                    <td>{{ asset.location }}</td>
+                    <td>
+                      <span class="status-badge" [class]="'status-' + asset.status">
+                        {{ asset.status }}
+                      </span>
+                    </td>
+                    <td>{{ asset.subAssets?.length || 0 }}</td>
+                    <td>
+                      <button class="table-btn" (click)="editAsset(asset); $event.stopPropagation()">
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Create Asset Modal -->
+@if (assetDialogVisible) {
+  <div class="modal-overlay" (click)="assetDialogVisible = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingAsset ? 'Edit Asset' : 'Create Asset' }}</h3>
+        <button class="close-btn" (click)="assetDialogVisible = false">×</button>
+      </div>
+
+      <form (ngSubmit)="saveAsset()" #assetForm="ngForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text"
+                   [(ngModel)]="assetFormData.name"
+                   name="name"
+                   required
+                   class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Type *</label>
+            <select [(ngModel)]="assetFormData.assetType"
+                    name="assetType"
+                    required
+                    class="form-control">
+              <option value="">Select Type</option>
+              @for (category of categories; track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Location *</label>
+            <input type="text"
+                   [(ngModel)]="assetFormData.location"
+                   name="location"
+                   required
+                   class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select [(ngModel)]="assetFormData.status"
+                    name="status"
+                    class="form-control">
+              @for (option of statusOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea [(ngModel)]="assetFormData.description"
+                      name="description"
+                      rows="3"
+                      class="form-control"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="assetDialogVisible = false">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!assetForm.valid">
+            {{ editingAsset ? 'Update' : 'Create' }} Asset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Create Sub-Asset Modal -->
+@if (showCreateSubAssetModal) {
+  <div class="modal-overlay" (click)="closeCreateSubAssetModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Create Sub-Asset</h3>
+        <button class="close-btn" (click)="closeCreateSubAssetModal()">×</button>
+      </div>
+
+      <form (ngSubmit)="createSubAsset()" #subAssetForm="ngForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text"
+                   [(ngModel)]="newSubAsset.name"
+                   name="name"
+                   required
+                   class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Description *</label>
+            <textarea [(ngModel)]="newSubAsset.description"
+                      name="description"
+                      required
+                      rows="3"
+                      class="form-control"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Asset Type *</label>
+            <select [(ngModel)]="newSubAsset.assetType"
+                    name="assetType"
+                    required
+                    class="form-control">
+              <option value="">Select Type</option>
+              @for (option of assetTypeOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select [(ngModel)]="newSubAsset.status"
+                    name="status"
+                    class="form-control">
+              @for (option of statusOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox"
+                     [(ngModel)]="newSubAsset.inheritFromParent"
+                     name="inheritFromParent"
+                     (change)="onInheritanceToggle()">
+              Inherit properties from parent asset
+            </label>
+          </div>
+
+          @if (!newSubAsset.inheritFromParent) {
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text"
+                     [(ngModel)]="newSubAsset.location"
+                     name="location"
+                     class="form-control">
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeCreateSubAssetModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!subAssetForm.valid">
+            Create Sub-Asset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,81 @@
+<div class="blog-container">
+  <div class="blog-header">
+    <h1>Our blog</h1>
+    <p>Insights and updates from out team <br> regarding technology, products, and solutions.</p>
+  </div>
+  <div class="blog-controls">
+    <input type="text" class="blog-search" placeholder="Search article..." />
+    <select class="blog-select">
+      <option>Newest First</option>
+      <option>Oldest First</option>
+    </select>
+    <select class="blog-select">
+      <option>All Content</option>
+      <option>Product</option>
+      <option>Engineering</option>
+      <option>News</option>
+    </select>
+  </div>
+  
+  <div class="blog-grid">
+    <div class="blog-card" *ngFor="let blog of blogs">
+      <div class="blog-image">
+        <img [src]="blog.image" [alt]="blog.title">
+      </div>
+      <div class="blog-content">
+        <h2>{{ blog.title }}</h2>
+        <p class="blog-date">{{ blog.date }}</p>
+        <p class="blog-excerpt">{{ blog.excerpt }}</p>
+        <a [routerLink]="['/blog', blog.slug]" class="read-more">Read More</a>
+      </div>
+    </div>
+
+    <div class="blog-card" *ngFor="let blog of blogs">
+        <div class="blog-image">
+          <img [src]="blog.image" [alt]="blog.title">
+        </div>
+        <div class="blog-content">
+          <h2>{{ blog.title }}</h2>
+          <p class="blog-date">{{ blog.date }}</p>
+          <p class="blog-excerpt">{{ blog.excerpt }}</p>
+          <a [routerLink]="['/blog', blog.slug]" class="read-more">Read More</a>
+        </div>
+    </div>
+    <div class="blog-card" *ngFor="let blog of blogs">
+        <div class="blog-image">
+          <img [src]="blog.image" [alt]="blog.title">
+        </div>
+        <div class="blog-content">
+          <h2>{{ blog.title }}</h2>
+          <p class="blog-date">{{ blog.date }}</p>
+          <p class="blog-excerpt">{{ blog.excerpt }}</p>
+          <a [routerLink]="['/blog', blog.slug]" class="read-more">Read More</a>
+        </div>
+    </div>
+
+    <div class="blog-card" *ngFor="let blog of blogs">
+        <div class="blog-image">
+          <img [src]="blog.image" [alt]="blog.title">
+        </div>
+        <div class="blog-content">
+          <h2>{{ blog.title }}</h2>
+          <p class="blog-date">{{ blog.date }}</p>
+          <p class="blog-excerpt">{{ blog.excerpt }}</p>
+          <a [routerLink]="['/blog', blog.slug]" class="read-more">Read More</a>
+        </div>
+    </div>
+
+    <div class="blog-card" *ngFor="let blog of blogs">
+        <div class="blog-image">
+          <img [src]="blog.image" [alt]="blog.title">
+        </div>
+        <div class="blog-content">
+          <h2>{{ blog.title }}</h2>
+          <p class="blog-date">{{ blog.date }}</p>
+          <p class="blog-excerpt">{{ blog.excerpt }}</p>
+          <a [routerLink]="['/blog', blog.slug]" class="read-more">Read More</a>
+        </div>
+    </div>
+
+  </div>
+</div> 

@@ -1,0 +1,574 @@
+<div class="locations-layout">
+  <app-nav-menu></app-nav-menu>
+
+  <div class="locations-main">
+    <!-- Header -->
+    <div class="locations-header">
+      <div class="header-left">
+        <h1 class="page-title">Locations</h1>
+        <!-- Panel View Dropdown -->
+        <div class="panel-view-selector">
+          <i class="pi pi-list panel-icon"></i>
+          <p-dropdown
+            [options]="panelViewOptions"
+            [(ngModel)]="panelView"
+            placeholder="Panel View"
+            styleClass="panel-dropdown">
+          </p-dropdown>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="search-container">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            type="text"
+            placeholder="Search Locations"
+            class="search-input"
+            [(ngModel)]="searchTerm" />
+        </div>
+        <button
+          pButton
+          label="+ New Location"
+          class="p-button-primary new-btn"
+          (click)="openNewLocationModal()">
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="locations-content">
+      <!-- Left Panel - Locations List -->
+      <div class="locations-list-panel">
+        <!-- Filters -->
+        <div class="filters-section">
+          <button
+            class="filter-btn"
+            [class.active]="activeFilters.teamsInCharge"
+            (click)="toggleFilter('teamsInCharge')">
+            <i class="pi pi-users"></i>
+            <span>Teams in Charge</span>
+          </button>
+          <button
+            class="filter-btn"
+            [class.active]="activeFilters.asset"
+            (click)="toggleFilter('asset')">
+            <i class="pi pi-cog"></i>
+            <span>Asset</span>
+          </button>
+          <button
+            class="filter-btn"
+            [class.active]="activeFilters.procedure"
+            (click)="toggleFilter('procedure')">
+            <i class="pi pi-file-text"></i>
+            <span>Procedure</span>
+          </button>
+          <button class="add-filter-btn">
+            <i class="pi pi-plus"></i>
+            <span>Add Filter</span>
+          </button>
+        </div>
+
+        <!-- Sort Options -->
+        <div class="sort-section">
+          <span class="sort-label">Sort By:</span>
+          <p-dropdown
+            [options]="sortOptions"
+            [(ngModel)]="sortBy"
+            placeholder="Name: Ascending Order"
+            styleClass="sort-dropdown">
+          </p-dropdown>
+        </div>
+
+        <!-- Locations List -->
+        <div class="locations-list">
+
+
+          @for (location of filteredLocations; track location.id) {
+            <div class="location-item"
+                 [class.selected]="selectedLocationId === location.id && !showSubLocations"
+                 (click)="selectLocation(location.id)">
+              <div class="location-main">
+                <div class="location-icon">
+                  <i class="pi pi-map-marker"></i>
+                </div>
+                <div class="location-info">
+                  <div class="location-name">{{ location.name }}</div>
+                  @if (getSubLocationCount(location) > 0) {
+                    <div class="sub-locations-link"
+                         (click)="showLocationSubLocations(location); $event.stopPropagation()">
+                      {{ getSubLocationCount(location) }} Sub-Location{{ getSubLocationCount(location) > 1 ? 's' : '' }}
+                      <i class="pi pi-chevron-right"></i>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        <div>{{showSubLocations|json}}</div>
+      </div>
+
+      <!-- Right Panel - Location Details -->
+      <div class="location-details-panel">
+        <div class="debug-state" style="padding:4px 8px; font-size:12px; color:#6b7280; border-bottom:1px dashed #e5e7eb;">
+          <span>selectedLocationId: {{ selectedLocationId }}</span>
+          <span style="margin-left:12px;">showSubLocations: {{ showSubLocations }}</span>
+          <span style="margin-left:12px;">selectedParentLocation: {{ selectedParentLocation?.id || 'null' }}</span>
+        </div>
+        @if (showSubLocations && selectedParentLocation) {
+          <!-- Sub-Locations View -->
+          <div class="sub-locations-view">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+              <button class="breadcrumb-btn" (click)="goBackToLocations()">
+                <i class="pi pi-chevron-left"></i>
+                {{ selectedParentLocation.name }}
+              </button>
+            </div>
+
+            <!-- Sub-Locations Header -->
+            <div class="sub-locations-header">
+              <h3>Sub-Locations ({{ currentSubLocations.length }})</h3>
+              <button
+                pButton
+                label="+ New Sub-Location"
+                class="p-button-primary p-button-sm"
+                (click)="openNewLocationModal()">
+              </button>
+            </div>
+
+            <!-- Sub-Locations List -->
+            <div class="sub-locations-list">
+              @if (currentSubLocations.length === 0) {
+                <div class="no-sub-locations">
+                  <div class="no-content-icon">📍</div>
+                  <h4>No Sub-Locations</h4>
+                  <p>This location doesn't have any sub-locations yet.</p>
+                  <button
+                    pButton
+                    label="Add First Sub-Location"
+                    class="p-button-primary"
+                    (click)="openNewLocationModal()"
+                    >
+                  </button>
+                </div>
+              } @else {
+                @for (subLocation of currentSubLocations; track subLocation.id) {
+                  <div class="sub-location-item">
+                    <div class="sub-location-main">
+                      <div class="sub-location-icon">
+                        <i class="pi pi-map-marker"></i>
+                      </div>
+                      <div class="sub-location-info">
+                        <div class="sub-location-name">{{ subLocation.name }}</div>
+                        <div class="sub-location-description">{{ subLocation.description }}</div>
+                      </div>
+                    </div>
+                    <div class="sub-location-actions">
+                      <button
+                        class="action-btn"
+                        (click)="openEditLocationModal(subLocation)"
+                        title="Edit">
+                        <i class="pi pi-pencil"></i>
+                      </button>
+                      <button
+                        class="action-btn delete"
+                        (click)="deleteLocation(subLocation.id)"
+                        title="Delete">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        } @else if (selectedLocation && !selectedLocation.parentId) {
+          <!-- Location Details View -->
+          <div class="location-details">
+            <!-- Location Header -->
+            <div class="details-header">
+              <div class="location-title">
+                <h2>{{ selectedLocation.name }}</h2>
+                <div class="location-status"
+                     [class.active]="selectedLocation.isActive"
+                     [class.inactive]="!selectedLocation.isActive">
+                  {{ selectedLocation.isActive ? 'Active' : 'Inactive' }}
+                </div>
+              </div>
+              <div class="header-actions">
+                 <button pButton class="p-button-text icon-btn" (click)="copyLink()" title="Copy Link">
+                  <span class="pi pi-link"></span>
+                </button>
+                <button
+                  pButton
+                  label="Edit"
+                  class="p-button-outlined"
+                  (click)="openEditLocationModal(selectedLocation)">
+                </button>
+                <button
+                  pButton
+                  label="Delete"
+                  class="p-button-outlined p-button-danger"
+                  (click)="deleteLocation(selectedLocation.id)">
+                </button>
+              </div>
+            </div>
+            <hr class="section-divider" />
+
+            <!-- Location Description -->
+            @if (selectedLocation.description) {
+              <div class="location-description">
+                <h4>Description</h4>
+                <p>{{ selectedLocation.description }}</p>
+              </div>
+            }
+            <hr class="section-divider" />
+
+            <!-- Sub-Locations Summary -->
+            @if (getSubLocationCount(selectedLocation) > 0) {
+              <div class="sub-locations-summary">
+                <h4>Sub-Locations</h4>
+                <div class="summary-item" (click)="showLocationSubLocations(selectedLocation)">
+                  <div class="summary-icon">📍</div>
+                  <div class="summary-content">
+                    <div class="summary-count">{{ getSubLocationCount(selectedLocation) }}</div>
+                    <div class="summary-label">Sub-Location{{ getSubLocationCount(selectedLocation) > 1 ? 's' : '' }}</div>
+                  </div>
+                  <i class="pi pi-chevron-right"></i>
+                </div>
+              </div>
+            }
+            <hr class="section-divider" />
+
+            <!-- Teams in Charge -->
+            @if (selectedLocation.teamsInCharge && selectedLocation.teamsInCharge.length > 0) {
+              <div class="teams-section">
+                <h4>Teams in Charge</h4>
+                <div class="teams-list">
+                  @for (team of selectedLocation.teamsInCharge; track team) {
+                    <div class="team-tag">
+                      <i class="pi pi-users"></i>
+                      {{ team }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            <hr class="section-divider" />
+
+            <!-- Assets -->
+            @if (selectedLocation.assets && selectedLocation.assets.length > 0) {
+              <div class="assets-section">
+                <h4>Assets</h4>
+                <div class="assets-list">
+                  @for (asset of selectedLocation.assets; track asset) {
+                    <div class="asset-tag">
+                      <i class="pi pi-cog"></i>
+                      {{ asset }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            <hr class="section-divider" />
+
+            <!-- Procedures -->
+            @if (selectedLocation.procedures && selectedLocation.procedures.length > 0) {
+              <div class="procedures-section">
+                <h4>Procedures</h4>
+                <div class="procedures-list">
+                  @for (procedure of selectedLocation.procedures; track procedure) {
+                    <div class="procedure-tag">
+                      <i class="pi pi-file-text"></i>
+                      {{ procedure }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            <hr class="section-divider" />
+
+            <!-- Metadata -->
+            <div class="metadata-section">
+              <h4>Information</h4>
+              <div class="metadata-grid">
+                <div class="metadata-item">
+                  <span class="metadata-label">Created:</span>
+                  <span class="metadata-value">{{ selectedLocation.createdAt | date:'MMM d, y' }}</span>
+                </div>
+                <div class="metadata-item">
+                  <span class="metadata-label">Last Updated:</span>
+                  <span class="metadata-value">{{ selectedLocation.updatedAt | date:'MMM d, y' }}</span>
+                </div>
+              </div>
+            </div>
+            <hr class="section-divider" />
+            <!-- Meters Section -->
+            @if (selectedLocation.meters && selectedLocation.meters.length > 0) {
+              <div class="meters-section">
+                <h4>Meters ({{ selectedLocation.meters.length }})</h4>
+                <div class="meters-list">
+                  @for (meter of selectedLocation.meters; track meter.id) {
+                    <div class="meter-item" [class]="'meter-' + meter.status">
+                      <div class="meter-info">
+                        <div class="meter-name">
+                          @if (meter.link) {
+                            <a href="{{ meter.link }}" class="meter-link">{{ meter.name }}</a>
+                          } @else {
+                            <span class="meter-text">{{ meter.name }}</span>
+                          }
+                        </div>
+                        <div class="meter-unit">{{ meter.unit }}</div>
+                      </div>
+                      @if (meter.status === 'overdue') {
+                        <div class="meter-status">
+                          <span class="status-indicator overdue">
+                            <i class="pi pi-circle-fill"></i>
+                            Overdue
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            <hr class="section-divider" />
+            <!-- Work Order History Section -->
+            @if (selectedLocation.workOrderHistory && selectedLocation.workOrderHistory.length > 0) {
+              <div>(((999)))</div>
+              <div class="work-order-history-section">
+                <div class="history-header">
+                  <h4>Work Order History</h4>
+                  <div class="history-controls">
+                    <span class="date-range">Aug 18 - Sep 8</span>
+                    <button class="history-settings-btn" title="Settings">
+                      <i class="pi pi-cog"></i>
+                    </button>
+                    <button class="history-filter-btn" title="Filter">
+                      <i class="pi pi-filter"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Chart Placeholder -->
+                <div class="history-chart">
+                  <div class="chart-container">
+                    <svg class="chart-svg" viewBox="0 0 400 200">
+                      <!-- Chart grid lines -->
+                      <defs>
+                        <pattern id="grid" width="40" height="20" patternUnits="userSpaceOnUse">
+                          <path d="M 40 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+                        </pattern>
+                      </defs>
+                      <rect width="100%" height="100%" fill="url(#grid)" />
+
+                      <!-- Y-axis labels -->
+                      <text x="15" y="25" font-size="10" fill="#6b7280">10</text>
+                      <text x="15" y="45" font-size="10" fill="#6b7280">8</text>
+                      <text x="15" y="65" font-size="10" fill="#6b7280">6</text>
+                      <text x="15" y="85" font-size="10" fill="#6b7280">4</text>
+                      <text x="15" y="105" font-size="10" fill="#6b7280">2</text>
+                      <text x="15" y="125" font-size="10" fill="#6b7280">0</text>
+
+                      <!-- Chart line -->
+                      <polyline fill="none" stroke="#3b82f6" stroke-width="2"
+                                points="50,120 150,120 250,120 350,120"/>
+
+                      <!-- Data points -->
+                      <circle cx="50" cy="120" r="3" fill="#3b82f6"/>
+                      <circle cx="150" cy="120" r="3" fill="#3b82f6"/>
+                      <circle cx="250" cy="120" r="3" fill="#3b82f6"/>
+                      <circle cx="350" cy="120" r="3" fill="#3b82f6"/>
+
+                      <!-- X-axis labels -->
+                      <text x="45" y="145" font-size="8" fill="#6b7280" transform="rotate(-45, 45, 145)">08/18/2023</text>
+                      <text x="145" y="145" font-size="8" fill="#6b7280" transform="rotate(-45, 145, 145)">08/26/2023</text>
+                      <text x="245" y="145" font-size="8" fill="#6b7280" transform="rotate(-45, 245, 145)">09/01/2023</text>
+                      <text x="345" y="145" font-size="8" fill="#6b7280" transform="rotate(-45, 345, 145)">09/08/2023</text>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Work Order Items -->
+                <div class="work-order-items">
+                  @for (workOrder of selectedLocation.workOrderHistory; track workOrder.id) {
+                    <div class="work-order-item" [class]="'status-' + workOrder.status">
+                      <div class="work-order-icon">
+                        <i class="pi pi-file"></i>
+                      </div>
+                      <div class="work-order-info">
+                        <div class="work-order-title">{{ workOrder.title }}</div>
+                        <div class="work-order-meta">
+                          <span class="requested-by">Requested by {{ workOrder.requestedBy }}</span>
+                          <span class="work-order-status">
+                            <i class="pi pi-unlock" *ngIf="workOrder.status === 'open'"></i>
+                            Open
+                          </span>
+                        </div>
+                      </div>
+                      <div class="work-order-actions">
+                        <button class="use-in-new-btn">
+                          <i class="pi pi-copy"></i>
+                          Use in New Work Order
+                        </button>
+                        <div class="category-badge" [style.background-color]="workOrder.categoryColor">
+                          {{ workOrder.category }}
+                          <span class="category-number">{{ workOrder.number }}</span>
+                        </div>
+                        @if (workOrder.status === 'overdue') {
+                          <span class="overdue-indicator">
+                            <i class="pi pi-circle-fill"></i>
+                            Overdue
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+          </div>
+        } @else {
+          <!-- No Selection State -->
+          <div class="no-selection">
+            <div class="no-selection-icon">📍</div>
+            <h3>Select a location</h3>
+            <p>Choose a location from the list to view its details and manage sub-locations.</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- New Location Modal -->
+  <p-dialog
+    header="New Location"
+    [(visible)]="showNewLocationModal"
+    [modal]="true"
+    [style]="{width: '500px'}"
+    (onHide)="closeNewLocationModal()">
+    <div class="form-content">
+      <div class="form-field">
+        <label class="form-label required">Location Name *</label>
+        <input
+          type="text"
+          [(ngModel)]="newLocation.name"
+          class="form-input"
+          placeholder="Enter location name"
+          required>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Description</label>
+        <textarea
+          [(ngModel)]="newLocation.description"
+          class="form-textarea"
+          rows="3"
+          placeholder="Enter location description...">
+        </textarea>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Parent Location</label>
+        <p-dropdown
+          [options]="availableParentLocations"
+          [(ngModel)]="newLocation.parentId"
+          placeholder="Select parent location (optional)"
+          [showClear]="true"
+          styleClass="form-dropdown">
+        </p-dropdown>
+      </div>
+
+      <div class="form-field">
+        <div class="checkbox-field">
+          <p-checkbox
+            [(ngModel)]="newLocation.isActive"
+            [binary]="true"
+            inputId="active">
+          </p-checkbox>
+          <label for="active" class="checkbox-label">Active</label>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="modal-actions">
+        <button
+          pButton
+          label="Cancel"
+          class="p-button-outlined"
+          (click)="closeNewLocationModal()">
+        </button>
+        <button
+          pButton
+          label="Create Location"
+          class="p-button-primary"
+          (click)="createLocation()"
+          [disabled]="!newLocation.name.trim()">
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Edit Location Modal -->
+  <p-dialog
+    header="Edit Location"
+    [(visible)]="showEditLocationModal"
+    [modal]="true"
+    [style]="{width: '500px'}"
+    (onHide)="closeEditLocationModal()">
+    <div class="form-content">
+      <div class="form-field">
+        <label class="form-label required">Location Name *</label>
+        <input
+          type="text"
+          [(ngModel)]="editLocation.name"
+          class="form-input"
+          placeholder="Enter location name"
+          required>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Description</label>
+        <textarea
+          [(ngModel)]="editLocation.description"
+          class="form-textarea"
+          rows="3"
+          placeholder="Enter location description...">
+        </textarea>
+      </div>
+
+      <div class="form-field">
+        <div class="checkbox-field">
+          <p-checkbox
+            [(ngModel)]="editLocation.isActive"
+            [binary]="true"
+            inputId="editActive">
+          </p-checkbox>
+          <label for="editActive" class="checkbox-label">Active</label>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="modal-actions">
+        <button
+          pButton
+          label="Cancel"
+          class="p-button-outlined"
+          (click)="closeEditLocationModal()">
+        </button>
+        <button
+          pButton
+          label="Update Location"
+          class="p-button-primary"
+          (click)="updateLocation()"
+          [disabled]="!editLocation.name.trim()">
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

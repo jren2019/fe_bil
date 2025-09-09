@@ -1,0 +1,812 @@
+// Categories page layout
+.categories-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f7faff;
+}
+
+.categories-main {
+  flex: 1;
+  padding: 2rem 2.5rem;
+  background: #f7faff;
+  display: flex;
+  flex-direction: column;
+}
+
+// Header styles
+.categories-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.categories-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #232b4d;
+}
+
+.categories-search {
+  width: 320px;
+  margin-left: auto;
+}
+
+.new-category-btn {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-left: 1rem;
+}
+
+// Content area
+.categories-content {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  align-items: stretch;
+  height: calc(100vh - 150px);
+}
+
+// Categories list panel
+.categories-list-panel {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(6, 11, 40, 0.08);
+  min-width: 340px;
+  max-width: 400px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 150px);
+  overflow-y: auto;
+
+  // Custom scrollbar styling to match right panel
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
+}
+
+.category-list-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 2rem;
+  font-size: 1.1rem;
+  color: #232b4d;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &.selected,
+  &:hover {
+    background: #f7faff;
+    border-left: 4px solid #1a6cff;
+  }
+}
+
+.cat-icon {
+  font-size: 1.5rem;
+}
+
+// Details panel
+.categories-details-panel {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(6, 11, 40, 0.08);
+  flex: 1;
+  min-width: 400px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: calc(100vh - 150px);
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.scrollable-details-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 2rem 2rem 2rem;
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
+}
+
+.details-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #232b4d;
+}
+
+.details-actions button {
+  margin-left: 0.5rem;
+}
+
+.details-meta {
+  color: #232b4d;
+  font-size: 0.98rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  background: #dbeafe;
+  color: #1a6cff;
+  border-radius: 50%;
+  padding: 0.2rem 0.5rem;
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.use-in-wo-btn {
+  margin-top: 2rem;
+  font-weight: 500;
+}
+
+// Category info section
+.category-info {
+  margin-bottom: 2rem;
+}
+
+.category-icon-display {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  .cat-icon-large {
+    font-size: 4rem;
+    display: inline-block;
+    padding: 1rem;
+    background: rgba(26, 108, 255, 0.1);
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    line-height: 80px;
+  }
+}
+
+.category-id {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    font-weight: 500;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+  }
+
+  .id-value {
+    font-family: monospace;
+    background: #f8f9fa;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: #495057;
+    border: 1px solid #dee2e6;
+  }
+}
+
+.category-description {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    font-weight: 500;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #495057;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+// No selection state
+.no-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #6c757d;
+
+  .no-selection-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  .no-selection-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+  }
+
+  .no-selection-text {
+    font-size: 1rem;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+}
+
+// New category form styles
+.new-category-name-input {
+  width: 100%;
+  font-size: 1.1rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.category-icons-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.category-icons-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.cat-icon-option {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.2s;
+
+  &.selected {
+    border: 2px solid #1a6cff;
+  }
+}
+
+.upload-custom-icon {
+  color: #1a6cff;
+  font-size: 0.98rem;
+  margin-left: 0.7rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.category-description-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.category-description-input {
+  width: 100%;
+  min-height: 70px;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #e5eaf2;
+  padding: 0.7rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+
+  .cancel-btn {
+    flex: 1;
+  }
+
+  .create-btn {
+    flex: 1;
+  }
+}
+
+// Chart section styles
+.chart-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h3 {
+      margin: 0;
+      color: #232b4d;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .chart-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .date-range-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+
+      .config-btn {
+        background: none;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 0.5rem;
+        cursor: pointer;
+        color: #6c757d;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: #e9ecef;
+          color: #495057;
+        }
+
+        i {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  .chart-container {
+    height: 300px;
+    position: relative;
+    background: white;
+    border-radius: 6px;
+    padding: 1rem;
+  }
+}
+
+// Configuration dialog styles
+::ng-deep .config-dialog {
+  .p-dialog-content {
+    padding: 1.5rem !important;
+  }
+
+  .config-content {
+    .period-type-buttons {
+      display: flex;
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #dee2e6;
+
+      .period-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: none;
+        background: white;
+        color: #495057;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+
+        &.active {
+          background: #1a6cff;
+          color: white;
+        }
+
+        &:not(.active):hover {
+          background: #f8f9fa;
+        }
+      }
+    }
+
+    .last-period-config {
+      margin-bottom: 1.5rem;
+
+      .input-group {
+        display: flex;
+        gap: 0.5rem;
+
+        .period-input {
+          width: 80px;
+          padding: 0.5rem;
+          border: 1px solid #dee2e6;
+          border-radius: 4px;
+          font-size: 0.9rem;
+
+          &:focus {
+            outline: none;
+            border-color: #1a6cff;
+          }
+        }
+
+        .period-dropdown {
+          flex: 1;
+        }
+      }
+    }
+
+    .between-dates-config {
+      margin-bottom: 1.5rem;
+
+      .date-input-group {
+        margin-bottom: 1rem;
+
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          color: #495057;
+        }
+      }
+    }
+
+    .rolling-dates-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+
+      label {
+        font-weight: 500;
+        color: #495057;
+        cursor: pointer;
+      }
+
+      .info-icon {
+        color: #6c757d;
+        cursor: help;
+        font-size: 0.9rem;
+      }
+    }
+
+    .group-by-section {
+      margin-bottom: 1.5rem;
+
+      > label {
+        display: block;
+        margin-bottom: 1rem;
+        font-weight: 500;
+        color: #495057;
+      }
+
+      .group-by-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        .radio-option {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          label {
+            cursor: pointer;
+            color: #495057;
+          }
+        }
+      }
+    }
+
+    .timezone-info {
+      font-size: 0.85rem;
+      color: #6c757d;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 4px;
+      text-align: center;
+    }
+  }
+
+  .dialog-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+  }
+}
+
+// Open Work Orders section styles
+.open-workorders-section {
+  margin: 2rem 0 3rem 0;
+
+  .section-header {
+    margin-bottom: 1rem;
+
+    h3 {
+      margin: 0;
+      color: #232b4d;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+  }
+
+  .workorders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .workorder-item {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+
+      &:hover {
+        background: #f8f9fa;
+        border-color: #1a6cff;
+        box-shadow: 0 2px 8px rgba(26, 108, 255, 0.1);
+      }
+
+      .workorder-main {
+        flex: 1;
+
+        .workorder-title {
+          font-weight: 600;
+          color: #232b4d;
+          margin-bottom: 0.5rem;
+          font-size: 1rem;
+        }
+
+        .workorder-meta {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 0.5rem;
+          font-size: 0.85rem;
+          color: #6c757d;
+
+          .workorder-id {
+            font-weight: 500;
+            color: #1a6cff;
+          }
+
+          .workorder-asset {
+            color: #495057;
+          }
+
+          .workorder-location {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+
+            i {
+              font-size: 0.8rem;
+            }
+          }
+        }
+
+        .workorder-details {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          font-size: 0.85rem;
+          color: #6c757d;
+
+          .workorder-assignee {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+
+            i {
+              font-size: 0.8rem;
+            }
+          }
+
+          .workorder-time {
+            color: #495057;
+            font-weight: 500;
+          }
+
+          .workorder-due {
+            color: #495057;
+
+            &.overdue {
+              color: #dc3545;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+      .workorder-badges {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
+
+        .status-badge,
+        .priority-badge,
+        .overdue-badge {
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 500;
+          white-space: nowrap;
+        }
+
+        .status-badge {
+          &.status-open {
+            background: #d1ecf1;
+            color: #0c5460;
+          }
+
+          &.status-in-progress {
+            background: #fff3cd;
+            color: #856404;
+          }
+
+          &.status-on-hold {
+            background: #f8d7da;
+            color: #721c24;
+          }
+
+          &.status-complete {
+            background: #d4edda;
+            color: #155724;
+          }
+        }
+
+        .priority-badge {
+          &.priority-high {
+            background: #f8d7da;
+            color: #721c24;
+          }
+
+          &.priority-medium {
+            background: #fff3cd;
+            color: #856404;
+          }
+
+          &.priority-low {
+            background: #d4edda;
+            color: #155724;
+          }
+        }
+
+        .overdue-badge {
+          background: #dc3545;
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+// Work Order Dialog styles
+::ng-deep .work-order-dialog-content {
+  .dialog-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+
+    .work-order-id {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1a6cff;
+    }
+  }
+
+  .dialog-section {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    p {
+      margin: 0;
+      color: #6c757d;
+      line-height: 1.5;
+
+      &.overdue-text {
+        color: #dc3545;
+
+        .overdue-indicator {
+          font-weight: 600;
+          margin-left: 0.5rem;
+        }
+      }
+    }
+  }
+
+  .dialog-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .dialog-item {
+      label {
+        display: block;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      span {
+        color: #6c757d;
+      }
+    }
+  }
+
+  .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+
+    &.status-open {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    &.status-in-progress {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    &.status-on-hold {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    &.status-complete {
+      background: #d4edda;
+      color: #155724;
+    }
+  }
+}

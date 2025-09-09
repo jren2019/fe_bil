@@ -1,0 +1,33 @@
+<div class="signup-bg"></div>
+<div class="signup-page-center">
+  <div class="signup-card">
+    <a routerLink="/home" class="ufo-home-link" title="Back to Home">
+      <img src="assets/images/ufo-aliens.png" alt="UFO" class="login-ufo" />
+    </a>
+    <div class="help-link">
+      <span class="help-icon">❓</span>
+      <a routerLink="/home">Back to Home</a>
+    </div>
+    <h2>Sign Up</h2>
+    <form class="signup-form" (ngSubmit)="onSubmit()">
+      @if (signupError) {
+        <div class="signup-error">{{ signupError }}</div>
+      }
+      @if (signupSuccess) {
+        <div class="signup-success">Sign up successful! Redirecting to login...</div>
+      }
+      <input type="text" placeholder="First Name" [(ngModel)]="firstName" name="firstName" required />
+      <input type="text" placeholder="Last Name" [(ngModel)]="lastName" name="lastName" required />
+      <input type="email" placeholder="Email" [(ngModel)]="email" name="email" required />
+      <input type="password" placeholder="Password" [(ngModel)]="password" name="password" required />
+      <select [(ngModel)]="industry" name="industry" required>
+        <option value="" disabled selected>Select Industry Type</option>
+        <option *ngFor="let ind of industries" [value]="ind">{{ ind }}</option>
+      </select>
+      <button type="submit">Sign Up</button>
+    </form>
+    <div class="signup-login-link">
+      Already have an account? <a routerLink="/login">Login</a>
+    </div>
+  </div>
+</div>

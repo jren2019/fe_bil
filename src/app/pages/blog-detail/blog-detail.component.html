@@ -1,0 +1,38 @@
+<div class="blog-detail-container">
+  <div class="blog-header">
+    <h1>{{ blog?.title }}</h1>
+    <p class="blog-meta">
+      <span class="date">{{ blog?.date }}</span>
+      <span class="author">By {{ blog?.author }}</span>
+    </p>
+  </div>
+
+  <div class="blog-image">
+    <img [src]="blog?.image" [alt]="blog?.title">
+  </div>
+  <div class="table-of-contents">
+    <h3>Table of Contents</h3>
+    <ng-template #tocList let-items>
+      <ul>
+        <li *ngFor="let item of items" [class]="'toc-level-' + item.level">
+          <a href="" (click)="scrollToHeading($event, item.id)">{{ item.text }}</a>
+          @if (item.children && item.children.length > 0) {
+            <ng-template [ngTemplateOutlet]="tocList" [ngTemplateOutletContext]="{ $implicit: item.children }"></ng-template>
+          }
+        </li>
+      </ul>
+    </ng-template>
+    <ng-container *ngTemplateOutlet="tocList; context: { $implicit: tableOfContents }"></ng-container>
+  </div>
+  <div class="blog-layout">
+
+
+    <div class="blog-content">
+      <markdown [data]="blog?.content"></markdown>
+    </div>
+  </div>
+
+  <div class="blog-footer">
+    <a routerLink="/blog" class="back-to-blog">← Back to Blog</a>
+  </div>
+</div>

@@ -1,0 +1,172 @@
+.newsletter {
+  padding: 4rem 0;
+  background: url('/assets/images/background-news-letter.svg') no-repeat right bottom;
+  background-size: cover, 600px auto;
+  // box-shadow: 0 8px 32px rgba(22,36,71,0.07);
+  margin-bottom: 0;
+}
+
+.newsletter-content {
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.newsletter-title {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.newsletter-description {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.newsletter-form {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.newsletter-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border-radius: 0.375rem 0 0 0.375rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+}
+
+.newsletter-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.newsletter-button {
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.social-section {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.social-title {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.social-link {
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.social-link:hover {
+  color: var(--accent-primary);
+}
+
+.InsightX-cloud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: var(--background-secondary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.cloud-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.cloud-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.cloud-title {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.cloud-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cloud-logo-img {
+  height: 30px;
+}
+
+.cloud-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-right: 2rem;
+}
+
+.cloud-button-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.cloud-image {
+  margin-left: 2rem;
+}
+
+.soc2-image {
+  height: 50px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .newsletter-form {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .newsletter-input {
+    border-radius: 0.375rem;
+  }
+
+  .newsletter-button {
+    border-radius: 0.375rem;
+  }
+
+  .InsightX-cloud {
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .cloud-content {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .cloud-image {
+    margin-left: 0;
+    align-self: center;
+  }
+}

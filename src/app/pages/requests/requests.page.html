@@ -1,0 +1,478 @@
+<div class="requests-layout">
+  <app-nav-menu></app-nav-menu>
+  <div class="requests-main">
+    <!-- Header -->
+    <div class="requests-header">
+      <div class="header-left">
+        <h1 class="page-title">Requests</h1>
+        <!-- View Selector Dropdown -->
+        <div class="view-selector" [class.dropdown-open]="showViewDropdown">
+          <button class="view-btn" (click)="toggleViewDropdown()">
+            {{ currentViewModeLabel }}
+            <svg class="dropdown-arrow" [class.rotated]="showViewDropdown" viewBox="0 0 12 7" width="12" height="7">
+              <path d="M5.4.3c.3-.4.9-.4 1.2 0l5.1 5a.9.9 0 1 1-1.2 1.3L6 2.1 1.5 6.6A.9.9 0 1 1 .3 5.4l5-5.1Z" fill="currentColor" stroke="none"></path>
+            </svg>
+          </button>
+
+          <!-- View Dropdown Menu -->
+          @if (showViewDropdown) {
+            <div class="view-dropdown-overlay" (click)="closeViewDropdown()"></div>
+            <div class="view-dropdown">
+              @for (viewMode of viewModes; track viewMode.value) {
+                <div class="view-option"
+                     [class.active]="currentViewMode === viewMode.value"
+                     (click)="selectViewMode(viewMode.value)">
+                  <span class="view-icon">{{ viewMode.icon }}</span>
+                  <span class="view-label">{{ viewMode.label }}</span>
+                  @if (currentViewMode === viewMode.value) {
+                    <i class="pi pi-check view-check"></i>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="search-container">
+          <i class="pi pi-search search-icon"></i>
+          <input type="text" placeholder="Search Requests" class="search-input" [(ngModel)]="searchTerm" />
+        </div>
+        <button pButton label="+ New Request" class="p-button-primary new-btn" (click)="openNewRequestModal()"></button>
+      </div>
+    </div>
+
+    <!-- Panel View Mode -->
+    @if (currentViewMode === 'panel') {
+      <!-- Filters Bar -->
+      <div class="filters-bar">
+        <div class="filter-item">
+          <i class="pi pi-box filter-icon"></i>
+          <span>Asset</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-circle filter-icon"></i>
+          <span>Status</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-exclamation-triangle filter-icon"></i>
+          <span>Priority</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-map-marker filter-icon"></i>
+          <span>Location</span>
+        </div>
+        <div class="filter-item">
+          <i class="pi pi-user filter-icon"></i>
+          <span>Requested By</span>
+        </div>
+        <button class="add-filter-btn">
+          <i class="pi pi-plus"></i>
+          Add Filter
+        </button>
+      </div>
+
+      <!-- Main Content -->
+      <div class="requests-content">
+        <!-- Left Panel - Request List -->
+        <div class="requests-list-panel">
+          <div class="list-header">
+            <div class="list-title">All Requests ({{ allRequests.length }})</div>
+            <div class="list-actions">
+              <button class="action-btn">
+                <i class="pi pi-download"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Request List -->
+          <div class="requests-list">
+            @for (request of filteredRequests; track request.id) {
+              <div class="request-item"
+                   [class.active]="request.id === selectedRequestId"
+                   [class.unread]="request.isUnread"
+                   (click)="selectRequest(request.id)">
+                <div class="request-content-item">
+                  <div class="request-main-info">
+                    <div class="request-avatar">{{ request.requestedByAvatar }}</div>
+                    <div class="request-details">
+                      <div class="request-title">{{ request.title }}</div>
+                      <div class="request-requester">{{ request.requestedBy }}</div>
+                      <div class="request-asset">Asset: {{ request.asset }}</div>
+                    </div>
+                    <div class="request-actions">
+                      <span class="status-badge" [class]="getStatusBadgeClass(request.status)">
+                        {{ getStatusIcon(request.status) }} {{ getStatusLabel(request.status) }}
+                      </span>
+                      @if (request.isUnread) {
+                        <div class="unread-indicator"></div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Panel - Request Details -->
+        <div class="request-details-panel">
+          @if (selectedRequest) {
+            <div class="details-header">
+              <div class="details-title-section">
+                <h2 class="details-title">{{ selectedRequest.title }}</h2>
+                <div class="actions-header">
+                  <button class="action-btn">
+                    <i class="pi pi-comments"></i>
+                    Comments
+                  </button>
+                  <button class="action-btn">
+                    <i class="pi pi-pencil"></i>
+                    Edit
+                  </button>
+                  <button class="action-btn">⋯</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="details-tabs">
+              <div class="tab active">Details</div>
+              <div class="tab">Comments & History</div>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="scrollable-content">
+              <!-- Status Section -->
+              <div class="content-section">
+                <div class="detail-item">
+                  <label>Status</label>
+                  <div class="detail-value">
+                    <div class="status-buttons">
+                      <button [class]="'status-btn ' + (selectedRequest.status === 'open' ? 'active' : '')"
+                              (click)="updateStatus('open')">
+                        <i class="pi pi-lock"></i>
+                        <span>Open</span>
+                      </button>
+                      <button [class]="'status-btn ' + (selectedRequest.status === 'approved' ? 'active' : '')"
+                              (click)="updateStatus('approved')">
+                        <i class="pi pi-check"></i>
+                        <span>Approved</span>
+                      </button>
+                      <button [class]="'status-btn ' + (selectedRequest.status === 'in-progress' ? 'active' : '')"
+                              (click)="updateStatus('in-progress')">
+                        <i class="pi pi-sync"></i>
+                        <span>In Progress</span>
+                      </button>
+                      <button [class]="'status-btn ' + (selectedRequest.status === 'completed' ? 'active' : '')"
+                              (click)="updateStatus('completed')">
+                        <i class="pi pi-check-circle"></i>
+                        <span>Completed</span>
+                      </button>
+                      <button [class]="'status-btn ' + (selectedRequest.status === 'rejected' ? 'active' : '')"
+                              (click)="updateStatus('rejected')">
+                        <i class="pi pi-times"></i>
+                        <span>Rejected</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Request Information Section -->
+              <div class="content-section">
+                <div class="detail-item">
+                  <label>Request Information</label>
+                  <div class="detail-value">
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <span class="info-label">Request ID</span>
+                        <span class="info-value">#{{ selectedRequest.requestId }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Work Order ID</span>
+                        <span class="info-value">{{ selectedRequest.workOrderId ? '#' + selectedRequest.workOrderId : 'Not assigned' }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Priority</span>
+                        <span [class]="'priority-badge ' + selectedRequest.priority">{{ selectedRequest.priority | titlecase }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Work Type</span>
+                        <span class="info-value">{{ selectedRequest.workType | titlecase }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Estimated Time</span>
+                        <span class="info-value">{{ selectedRequest.estimatedTime }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Created Date</span>
+                        <span class="info-value">{{ selectedRequest.createdAt | date:'MMM d, y' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Requester Section -->
+              <div class="content-section">
+                <div class="detail-item">
+                  <label>Requested By</label>
+                  <div class="detail-value requester-info">
+                    <div class="requester-avatar-large">{{ selectedRequest.requestedByAvatar }}</div>
+                    <span class="requester-name">{{ selectedRequest.requestedBy }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset & Location Section -->
+              <div class="content-section">
+                <div class="detail-item">
+                  <label>Asset & Location</label>
+                  <div class="detail-value">
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <span class="info-label">Asset</span>
+                        <span class="info-value">{{ selectedRequest.asset }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Location</span>
+                        <span class="info-value">
+                          <i class="pi pi-map-marker"></i>
+                          {{ selectedRequest.location }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Description Section -->
+              @if (selectedRequest.description) {
+                <div class="content-section">
+                  <div class="detail-item">
+                    <label>Description</label>
+                    <div class="detail-value">
+                      <div class="description-text">{{ selectedRequest.description }}</div>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Action Buttons -->
+              <div class="content-section">
+                <div class="action-buttons">
+                  @if (selectedRequest.status === 'open') {
+                    <button class="action-button">
+                      <i class="pi pi-check"></i>
+                      Approve Request
+                    </button>
+                    <button class="action-button">
+                      <i class="pi pi-times"></i>
+                      Reject Request
+                    </button>
+                  }
+                  @if (selectedRequest.status === 'approved') {
+                    <button class="action-button primary">
+                      <i class="pi pi-plus"></i>
+                      Create Work Order
+                    </button>
+                  }
+                  @if (selectedRequest.status === 'in-progress') {
+                    <button class="action-button primary">
+                      <i class="pi pi-check-circle"></i>
+                      Mark Complete
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          } @else {
+            <!-- No Selection State -->
+            <div class="no-selection">
+              <div class="no-selection-icon">📋</div>
+              <h3 class="no-selection-title">Select a request</h3>
+              <p class="no-selection-text">Choose a request from the list to view its details, track progress, and manage approval status.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Table View Mode -->
+    @if (currentViewMode === 'table') {
+      <div class="table-view-container">
+        <p-table
+          [value]="allRequests"
+          [paginator]="false"
+          styleClass="requests-table"
+          [tableStyle]="{'min-width': '100%'}"
+          selectionMode="single">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="title">
+                Title
+                <p-sortIcon field="title"></p-sortIcon>
+              </th>
+              <th pSortableColumn="requestId">
+                Request ID
+                <p-sortIcon field="requestId"></p-sortIcon>
+              </th>
+              <th pSortableColumn="status">
+                Status
+                <p-sortIcon field="status"></p-sortIcon>
+              </th>
+              <th pSortableColumn="priority">
+                Priority
+                <p-sortIcon field="priority"></p-sortIcon>
+              </th>
+              <th pSortableColumn="workType">
+                Work Type
+                <p-sortIcon field="workType"></p-sortIcon>
+              </th>
+              <th pSortableColumn="requestedBy">
+                Requested By
+                <p-sortIcon field="requestedBy"></p-sortIcon>
+              </th>
+              <th pSortableColumn="asset">
+                Asset
+                <p-sortIcon field="asset"></p-sortIcon>
+              </th>
+              <th pSortableColumn="location">
+                Location
+                <p-sortIcon field="location"></p-sortIcon>
+              </th>
+              <th pSortableColumn="estimatedTime">
+                Estimated Time
+                <p-sortIcon field="estimatedTime"></p-sortIcon>
+              </th>
+              <th pSortableColumn="createdAt">
+                Created Date
+                <p-sortIcon field="createdAt"></p-sortIcon>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-request>
+            <tr (click)="onRequestRowClick(request)" class="clickable-row">
+              <td>
+                <div class="title-cell">
+                  <span class="request-title-table">{{ request.title }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="request-id-table">#{{ request.requestId }}</span>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusBadgeClass(request.status)">
+                  {{ getStatusIcon(request.status) }} {{ getStatusLabel(request.status) }}
+                </span>
+              </td>
+              <td>
+                <span class="priority-badge" [ngClass]="'priority-' + request.priority">
+                  {{ request.priority | titlecase }}
+                </span>
+              </td>
+              <td>
+                <span class="work-type-cell">{{ request.workType | titlecase }}</span>
+              </td>
+              <td>
+                <div class="requested-by-cell">
+                  <span class="user-avatar">{{ request.requestedByAvatar }}</span>
+                  <span class="user-name">{{ request.requestedBy }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="asset-cell">{{ request.asset }}</span>
+              </td>
+              <td>
+                <span class="location-cell">
+                  <i class="pi pi-map-marker"></i>
+                  {{ request.location }}
+                </span>
+              </td>
+              <td>
+                <span class="estimated-time-cell">{{ request.estimatedTime }}</span>
+              </td>
+              <td>
+                <span class="date-cell">{{ formatDate(request.createdAt) }}</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Bottom Paginator for Table View -->
+      <div class="table-paginator-bottom" #paginatorContainer>
+        <p-paginator
+          #bottomPaginator
+          [rows]="paginatorRows"
+          [totalRecords]="allRequests.length"
+          [rowsPerPageOptions]="[10, 20, 50]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          styleClass="custom-paginator"
+          (onPageChange)="onPageChange($event)">
+        </p-paginator>
+      </div>
+    }
+
+    <!-- Request Details Dialog (for backward compatibility) -->
+    <p-dialog [(visible)]="showRequestDialog"
+              [modal]="true"
+              [closable]="true"
+              [draggable]="false"
+              header="Request Details"
+              styleClass="request-details-dialog">
+      @if (selectedRequestForDialog) {
+        <div class="dialog-content">
+          <div class="dialog-header">
+            <h3>{{ selectedRequestForDialog.title }}</h3>
+            <span [class]="'status-badge ' + selectedRequestForDialog.status">
+              {{ selectedRequestForDialog.status | titlecase }}
+            </span>
+          </div>
+
+          <div class="dialog-body">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Request ID</label>
+                <span>#{{ selectedRequestForDialog.requestId }}</span>
+              </div>
+              <div class="info-item">
+                <label>Requested By</label>
+                <span>{{ selectedRequestForDialog.requestedBy }}</span>
+              </div>
+              <div class="info-item">
+                <label>Location</label>
+                <span>{{ selectedRequestForDialog.location }}</span>
+              </div>
+              <div class="info-item">
+                <label>Asset</label>
+                <span>{{ selectedRequestForDialog.asset }}</span>
+              </div>
+              <div class="info-item">
+                <label>Work Type</label>
+                <span>{{ selectedRequestForDialog.workType | titlecase }}</span>
+              </div>
+              <div class="info-item">
+                <label>Priority</label>
+                <span [class]="'priority-badge ' + selectedRequestForDialog.priority">
+                  {{ selectedRequestForDialog.priority | titlecase }}
+                </span>
+              </div>
+            </div>
+
+            @if (selectedRequestForDialog.description) {
+              <div class="description-section">
+                <label>Description</label>
+                <p>{{ selectedRequestForDialog.description }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </p-dialog>
+  </div>
+</div>

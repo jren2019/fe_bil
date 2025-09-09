@@ -1,0 +1,782 @@
+<div class="parts-layout">
+  <app-nav-menu></app-nav-menu>
+  <div class="parts-main">
+    <!-- Header -->
+    <div class="parts-header">
+      <div class="header-left">
+        <h1 class="page-title">Parts</h1>
+        <!-- View Selector Dropdown -->
+        <div class="view-selector" [class.dropdown-open]="showViewDropdown">
+          <button class="view-btn" (click)="toggleViewDropdown()">
+            {{ currentViewModeLabel }}
+            <svg class="dropdown-arrow" [class.rotated]="showViewDropdown" viewBox="0 0 12 7" width="12" height="7">
+              <path d="M5.4.3c.3-.4.9-.4 1.2 0l5.1 5a.9.9 0 1 1-1.2 1.3L6 2.1 1.5 6.6A.9.9 0 1 1 .3 5.4l5-5.1Z" fill="currentColor" stroke="none"></path>
+            </svg>
+          </button>
+
+          <!-- View Dropdown Menu -->
+          @if (showViewDropdown) {
+            <div class="view-dropdown-overlay" (click)="closeViewDropdown()"></div>
+            <div class="view-dropdown">
+              @for (viewMode of viewModes; track viewMode.value) {
+                <div class="view-option"
+                     [class.active]="currentViewMode === viewMode.value"
+                     (click)="selectViewMode(viewMode.value)">
+                  <span class="view-icon">{{ viewMode.icon }}</span>
+                  <span class="view-label">{{ viewMode.label }}</span>
+                  @if (currentViewMode === viewMode.value) {
+                    <i class="pi pi-check view-check"></i>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="search-container">
+          <i class="pi pi-search search-icon"></i>
+          <input type="text"
+                 placeholder="Search Parts"
+                 class="search-input"
+                 [(ngModel)]="searchTerm"
+                 (input)="onSearchChange()" />
+        </div>
+        <button pButton label="+ New Part" class="p-button-primary new-btn"></button>
+      </div>
+    </div>
+
+    <!-- Table View Mode -->
+    @if (currentViewMode === 'table') {
+      <div class="table-view-container">
+        <p-table
+          [value]="filteredParts"
+          [paginator]="false"
+          styleClass="parts-table"
+          [tableStyle]="{'min-width': '100%'}"
+          selectionMode="single">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="name">
+                Name
+                <p-sortIcon field="name"></p-sortIcon>
+              </th>
+              <th pSortableColumn="partNumber">
+                Part Number
+                <p-sortIcon field="partNumber"></p-sortIcon>
+              </th>
+              <th pSortableColumn="category">
+                Category
+                <p-sortIcon field="category"></p-sortIcon>
+              </th>
+              <th pSortableColumn="vendor">
+                Vendor
+                <p-sortIcon field="vendor"></p-sortIcon>
+              </th>
+              <th pSortableColumn="location">
+                Location
+                <p-sortIcon field="location"></p-sortIcon>
+              </th>
+              <th pSortableColumn="stockLevel">
+                Stock Level
+                <p-sortIcon field="stockLevel"></p-sortIcon>
+              </th>
+              <th pSortableColumn="unitCost">
+                Unit Cost
+                <p-sortIcon field="unitCost"></p-sortIcon>
+              </th>
+              <th pSortableColumn="status">
+                Status
+                <p-sortIcon field="status"></p-sortIcon>
+              </th>
+              <th>Actions</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-part>
+            <tr (click)="openPartDialog(part)" class="clickable-row">
+              <td>
+                <div class="part-name-cell">
+                  <span class="part-icon">🔧</span>
+                  <span class="part-name">{{ part.name }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="part-number">{{ part.partNumber }}</span>
+              </td>
+              <td>
+                <span class="category-cell">{{ part.category }}</span>
+              </td>
+              <td>
+                <span class="vendor-cell">{{ part.vendor }}</span>
+              </td>
+              <td>
+                <span class="location-cell">{{ part.location }}</span>
+              </td>
+              <td>
+                <span class="stock-level" [class]="getStockLevelClass(part)">
+                  {{ part.stockLevel }} {{ part.unit }}
+                </span>
+              </td>
+              <td>
+                <span class="unit-cost">{{ formatCurrency(part.unitCost) }}</span>
+              </td>
+              <td>
+                <span class="status-badge" [class]="getStatusBadgeClass(part.status)">
+                  {{ getStatusIcon(part.status) }} {{ part.status | titlecase }}
+                </span>
+              </td>
+              <td>
+                <button pButton
+                        class="p-button-sm p-button-outlined restock-btn"
+                        label="Restock"
+                        (click)="$event.stopPropagation(); openRestockDialog(part)">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+
+    <!-- Panel View Mode -->
+    @if (currentViewMode === 'panel') {
+      <!-- Filters Bar -->
+      <div class="filters-bar">
+        <button class="filter-btn" [class.active]="false">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>Needs Restock</span>
+        </button>
+        <button class="filter-btn" [class.active]="false">
+          <i class="pi pi-tag"></i>
+          <span>Part Types</span>
+        </button>
+        <button class="filter-btn" [class.active]="false">
+          <i class="pi pi-map-marker"></i>
+          <span>Location</span>
+        </button>
+        <button class="filter-btn" [class.active]="false">
+          <i class="pi pi-cube"></i>
+          <span>Asset</span>
+        </button>
+        <button class="filter-btn" [class.active]="false">
+          <i class="pi pi-building"></i>
+          <span>Vendor</span>
+        </button>
+        <button class="filter-btn" [class.active]="false">
+          <i class="pi pi-th-large"></i>
+          <span>Area</span>
+        </button>
+        <button class="filter-btn add-filter-btn">
+          <i class="pi pi-plus"></i>
+          <span>Add Filter</span>
+        </button>
+        <button class="filter-action-btn">
+          <i class="pi pi-sliders-h"></i>
+          <span>My Filters</span>
+        </button>
+      </div>
+
+      <!-- Main Content -->
+      <div class="parts-content">
+        <!-- Left Panel - Parts List -->
+        <div class="parts-list-panel">
+          <div class="list-header">
+            <div class="sort-info">
+              <span class="sort-label">Sort By: <strong>Name - Ascending Order</strong></span>
+            </div>
+          </div>
+
+          <div class="parts-list">
+            @for (part of filteredParts; track part.id) {
+              <div class="part-item"
+                   [class.selected]="selectedPartForDialog?.id === part.id"
+                   (click)="selectPart(part)">
+                <div class="part-item-content">
+                  <div class="part-icon-container">
+                    <span class="part-icon">🔧</span>
+                  </div>
+                  <div class="part-details">
+                    <div class="part-name">{{ part.name }}</div>
+                    <div class="part-meta">
+                      <span class="part-location">📍 {{ part.location }}</span>
+                    </div>
+                    <div class="part-stock-info">
+                      <span class="stock-level" [class]="getStockLevelClass(part)">
+                        {{ part.stockLevel }} {{ part.unit }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="part-actions">
+                    <span class="part-number">#{{ part.partNumber }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Panel - Part Details -->
+        <div class="parts-details-panel">
+          @if (selectedPartForDialog) {
+            <!-- Mode Header -->
+            @if (isEditMode) {
+              <div class="mode-header">
+                <button class="back-btn" (click)="goBackToDefault()">
+                  ← Edit Part
+                </button>
+              </div>
+            }
+
+            @if (isDefaultMode) {
+              <div class="details-header">
+                <div class="details-title-section">
+                  <h2 class="details-title">{{ selectedPartForDialog.name }}</h2>
+                  <div class="actions-header">
+                    <button class="action-btn" (click)="openRestockDialog(selectedPartForDialog)">
+                      <i class="pi pi-plus"></i> Restock
+                    </button>
+                    <button class="action-btn edit-btn" (click)="switchToEditMode()">
+                      <i class="pi pi-pencil"></i> Edit
+                    </button>
+                    <button class="action-btn">
+                      <i class="pi pi-ellipsis-h"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="details-meta">
+                  <span class="stock-status">{{ selectedPartForDialog.stockLevel }} units in stock</span>
+                </div>
+              </div>
+            }
+
+            <div class="scrollable-details-content">
+              <!-- Default Mode Content -->
+              @if (isDefaultMode) {
+                <div class="details-tabs">
+                  <button class="tab-btn" [class.active]="activeDetailsTab === 'details'" (click)="setActiveDetailsTab('details')">Details</button>
+                  <button class="tab-btn" [class.active]="activeDetailsTab === 'history'" (click)="setActiveDetailsTab('history')">History</button>
+                </div>
+
+              @if (activeDetailsTab === 'details') {
+              <div class="details-grid">
+                <div class="detail-item">
+                  <label>Minimum in Stock</label>
+                  <div class="detail-value">{{ selectedPartForDialog.minStock }} units</div>
+                </div>
+                <div class="detail-item">
+                  <label>Unit Cost</label>
+                  <div class="detail-value">{{ formatCurrency(selectedPartForDialog.unitCost) }}</div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Available Quantity</label>
+                <div class="detail-value">{{ selectedPartForDialog.stockLevel }} units</div>
+              </div>
+
+              <div class="location-section">
+                <label>Location</label>
+                <div class="location-table">
+                  <div class="location-header">
+                    <span>Location</span>
+                    <span>Area</span>
+                    <span>Units in Stock</span>
+                    <span>Minimum in Stock</span>
+                  </div>
+                  <div class="location-row">
+                    <div class="location-cell">
+                      <i class="pi pi-map-marker"></i>
+                      {{ selectedPartForDialog.location }}
+                    </div>
+                    <div class="area-cell">–</div>
+                    <div class="stock-cell">{{ selectedPartForDialog.stockLevel }}</div>
+                    <div class="min-stock-cell">{{ selectedPartForDialog.minStock }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>QR Code/Barcode</label>
+                <div class="detail-value">
+                  <div class="barcode-section">
+                    <div class="barcode-text">{{ selectedPartForDialog.barcode }}</div>
+                    <div class="qr-code">
+                      <div class="qr-placeholder">
+                        <!-- QR Code placeholder -->
+                        <div class="qr-grid">
+                          <div class="qr-dot"></div>
+                          <div class="qr-dot"></div>
+                          <div class="qr-dot"></div>
+                          <div class="qr-dot"></div>
+                          <div class="qr-dot"></div>
+                          <div class="qr-dot"></div>
+                          <div class="qr-dot"></div>
+                          <div class="qr-dot"></div>
+                          <div class="qr-dot"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Assets (0)</label>
+                <div class="detail-value">
+                  <div class="assets-section">
+                    <p>Attach this Part to all related Assets</p>
+                    <button class="add-assets-btn">Add Assets</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Vendors</label>
+                <div class="detail-value">{{ selectedPartForDialog.vendor }}</div>
+              </div>
+
+              <div class="work-order-section">
+                <button class="use-in-work-order-btn">
+                  <i class="pi pi-wrench"></i>
+                  Use in New Work Order
+                </button>
+              </div>
+
+              <!-- Additional sections to ensure scrolling -->
+              <div class="detail-item">
+                <label>Part History</label>
+                <div class="detail-value">
+                  <div class="history-item">
+                    <div class="history-date">{{ formatDate(selectedPartForDialog.lastRestocked) }}</div>
+                    <div class="history-action">Restocked +{{ selectedPartForDialog.stockLevel }} units</div>
+                  </div>
+                  <div class="history-item">
+                    <div class="history-date">{{ formatDate(selectedPartForDialog.createdAt) }}</div>
+                    <div class="history-action">Part created</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Usage Statistics</label>
+                <div class="detail-value">
+                  <div class="usage-stats">
+                    <div class="stat-item">
+                      <span class="stat-label">Total Used (30 days):</span>
+                      <span class="stat-value">{{ (selectedPartForDialog.maxStock - selectedPartForDialog.stockLevel) || 0 }} units</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Average Monthly Usage:</span>
+                      <span class="stat-value">{{ getAverageUsage(selectedPartForDialog) }} units</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Reorder Frequency:</span>
+                      <span class="stat-value">Every 2-3 months</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Related Parts</label>
+                <div class="detail-value">
+                  <div class="related-parts">
+                    <div class="related-part-item">
+                      <span class="part-icon">🔧</span>
+                      <span class="part-name">Compatible Seal Kit</span>
+                      <span class="part-number">#PSK-001</span>
+                    </div>
+                    <div class="related-part-item">
+                      <span class="part-icon">🔧</span>
+                      <span class="part-name">Mounting Hardware</span>
+                      <span class="part-number">#MH-2024</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Maintenance Notes</label>
+                <div class="detail-value">
+                  <div class="maintenance-notes">
+                    <p>{{ selectedPartForDialog.notes || 'No maintenance notes available for this part.' }}</p>
+                    <p>Store in dry location at room temperature. Check expiration date before use.</p>
+                    <p>Compatible with standard mounting hardware. Requires specialized tools for installation.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Quality Control</label>
+                <div class="detail-value">
+                  <div class="quality-info">
+                    <div class="quality-item">
+                      <span class="quality-label">Last Inspection:</span>
+                      <span class="quality-value">{{ formatDate(selectedPartForDialog.updatedAt) }}</span>
+                    </div>
+                    <div class="quality-item">
+                      <span class="quality-label">Batch Number:</span>
+                      <span class="quality-value">{{ selectedPartForDialog.barcode?.slice(-6) || 'N/A' }}</span>
+                    </div>
+                    <div class="quality-item">
+                      <span class="quality-label">Quality Grade:</span>
+                      <span class="quality-value">Grade A</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              }
+
+              @if (activeDetailsTab === 'history') {
+                <div class="detail-item">
+                  <label>Part History</label>
+                  <div class="detail-value">
+                    <div class="history-item">
+                      <div class="history-date">{{ formatDate(selectedPartForDialog.lastRestocked) }}</div>
+                      <div class="history-action">Restocked +{{ selectedPartForDialog.stockLevel }} units</div>
+                    </div>
+                    <div class="history-item">
+                      <div class="history-date">{{ formatDate(selectedPartForDialog.createdAt) }}</div>
+                      <div class="history-action">Part created</div>
+                    </div>
+                  </div>
+                </div>
+              }
+              }
+
+              <!-- Edit Mode Content -->
+              @if (isEditMode) {
+                <div class="edit-content">
+                  <div class="edit-form">
+                    <div class="form-section">
+                      <h4>{{ selectedPartForDialog.name || 'Part' }}</h4>
+                    </div>
+
+                    <div class="form-section">
+                      <div class="image-upload-area">
+                        <div class="upload-placeholder">
+                          <i class="pi pi-camera upload-icon"></i>
+                          <p>Add or drag pictures</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-section">
+                        <label class="form-label">Part Name</label>
+                        <input pInputText
+                               type="text"
+                               [(ngModel)]="editForm.name"
+                               placeholder="Enter part name"
+                               styleClass="form-input">
+                      </div>
+                      <div class="form-section">
+                        <label class="form-label">Part Number</label>
+                        <input pInputText
+                               type="text"
+                               [(ngModel)]="editForm.partNumber"
+                               placeholder="Enter part number"
+                               styleClass="form-input">
+                      </div>
+                    </div>
+
+                    <div class="form-section">
+                      <label class="form-label">Description</label>
+                      <textarea
+                        class="form-textarea"
+                        [(ngModel)]="editForm.description"
+                        placeholder="Enter part description"
+                        rows="4">
+                      </textarea>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-section">
+                        <label class="form-label">Category</label>
+                        <p-dropdown
+                          [options]="categoryOptions"
+                          [(ngModel)]="editForm.category"
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select category"
+                          styleClass="full-width">
+                        </p-dropdown>
+                      </div>
+                      <div class="form-section">
+                        <label class="form-label">Vendor</label>
+                        <p-dropdown
+                          [options]="vendorOptions"
+                          [(ngModel)]="editForm.vendor"
+                          optionLabel="label"
+                          optionValue="label"
+                          placeholder="Select vendor"
+                          styleClass="full-width">
+                        </p-dropdown>
+                      </div>
+                    </div>
+
+                    <div class="form-section">
+                      <label class="form-label">Location</label>
+                      <p-dropdown
+                        [options]="locationOptions"
+                        [(ngModel)]="editForm.location"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Select location"
+                        styleClass="full-width">
+                      </p-dropdown>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-section">
+                        <label class="form-label">Unit Cost</label>
+                        <input pInputText
+                               type="number"
+                               [(ngModel)]="editForm.unitCost"
+                               placeholder="0.00"
+                               styleClass="form-input">
+                      </div>
+                      <div class="form-section">
+                        <label class="form-label">Unit</label>
+                        <p-dropdown
+                          [options]="unitOptions"
+                          [(ngModel)]="editForm.unit"
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select unit"
+                          styleClass="full-width">
+                        </p-dropdown>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-section">
+                        <label class="form-label">Stock Level</label>
+                        <input pInputText
+                               type="number"
+                               [(ngModel)]="editForm.stockLevel"
+                               placeholder="0"
+                               styleClass="form-input">
+                      </div>
+                      <div class="form-section">
+                        <label class="form-label">Minimum Stock</label>
+                        <input pInputText
+                               type="number"
+                               [(ngModel)]="editForm.minStock"
+                               placeholder="0"
+                               styleClass="form-input">
+                      </div>
+                    </div>
+
+                    <div class="form-section">
+                      <label class="form-label">Maximum Stock</label>
+                      <input pInputText
+                             type="number"
+                             [(ngModel)]="editForm.maxStock"
+                             placeholder="0"
+                             styleClass="form-input">
+                    </div>
+
+                    <div class="form-section">
+                      <label class="form-label">Barcode</label>
+                      <input pInputText
+                             type="text"
+                             [(ngModel)]="editForm.barcode"
+                             placeholder="Enter barcode"
+                             styleClass="form-input">
+                    </div>
+
+                    <div class="form-section">
+                      <label class="form-label">Notes</label>
+                      <textarea
+                        class="form-textarea"
+                        [(ngModel)]="editForm.notes"
+                        placeholder="Add any notes..."
+                        rows="3">
+                      </textarea>
+                    </div>
+
+                    <div class="form-actions">
+                      <button pButton
+                              type="button"
+                              label="Cancel"
+                              class="p-button-secondary cancel-btn"
+                              (click)="goBackToDefault()">
+                      </button>
+                      <button pButton
+                              type="button"
+                              label="Update Part"
+                              class="p-button-primary update-btn"
+                              (click)="updatePart()">
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="no-selection">
+              <div class="no-selection-icon">🔧</div>
+              <h3 class="no-selection-title">Select a part</h3>
+              <p class="no-selection-text">Choose a part from the list to view its details and manage inventory.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Part Details Dialog (for Table View) -->
+    <p-dialog
+      [(visible)]="showPartDialog"
+      [modal]="true"
+      [style]="{'width': '800px'}"
+      [contentStyle]="{'max-height':'90vh','overflow':'auto'}"
+      [header]="selectedPartForDialog?.name || 'Part Details'"
+      (onHide)="closePartDialog()">
+
+      @if (selectedPartForDialog) {
+        <div class="part-dialog-content">
+          <div class="dialog-header-info">
+            <div class="part-number">{{ selectedPartForDialog.partNumber }}</div>
+            <span class="status-badge" [class]="getStatusBadgeClass(selectedPartForDialog.status)">
+              {{ getStatusIcon(selectedPartForDialog.status) }} {{ selectedPartForDialog.status | titlecase }}
+            </span>
+          </div>
+
+          <div class="dialog-section">
+            <label>Description</label>
+            <p>{{ selectedPartForDialog.description }}</p>
+          </div>
+
+          <div class="dialog-grid">
+            <div class="dialog-item">
+              <label>Category</label>
+              <span>{{ selectedPartForDialog.category }}</span>
+            </div>
+            <div class="dialog-item">
+              <label>Vendor</label>
+              <span>{{ selectedPartForDialog.vendor }}</span>
+            </div>
+          </div>
+
+          <div class="dialog-grid">
+            <div class="dialog-item">
+              <label>Location</label>
+              <span>{{ selectedPartForDialog.location }}</span>
+            </div>
+            <div class="dialog-item">
+              <label>Unit Cost</label>
+              <span>{{ formatCurrency(selectedPartForDialog.unitCost) }}</span>
+            </div>
+          </div>
+
+          <div class="dialog-grid">
+            <div class="dialog-item">
+              <label>Stock Level</label>
+              <span>{{ selectedPartForDialog.stockLevel }} {{ selectedPartForDialog.unit }}</span>
+            </div>
+            <div class="dialog-item">
+              <label>Minimum Stock</label>
+              <span>{{ selectedPartForDialog.minStock }} {{ selectedPartForDialog.unit }}</span>
+            </div>
+          </div>
+
+          <div class="dialog-section">
+            <label>Last Restocked</label>
+            <p>{{ formatDate(selectedPartForDialog.lastRestocked) }}</p>
+          </div>
+
+          <div class="dialog-actions">
+            <button pButton
+                    class="p-button-primary"
+                    label="Restock"
+                    (click)="closePartDialog(); openRestockDialog(selectedPartForDialog)">
+            </button>
+          </div>
+        </div>
+      }
+    </p-dialog>
+
+    <!-- Restock Dialog -->
+    <p-dialog
+      [(visible)]="showRestockDialog"
+      [modal]="true"
+      [style]="{'width': '500px'}"
+      [contentStyle]="{'max-height':'90vh','overflow':'auto'}"
+      header="Restock Items"
+      (onHide)="closeRestockDialog()">
+
+      @if (selectedPartForRestock) {
+        <div class="restock-dialog-content">
+          <!-- Quantity Controls -->
+          <div class="quantity-section">
+            <div class="quantity-controls">
+              <button class="quantity-btn decrease"
+                      (click)="decreaseQuantity()"
+                      [disabled]="restockRequest.quantity <= 0">
+                <i class="pi pi-minus"></i>
+              </button>
+              <input type="number"
+                     class="quantity-input"
+                     [(ngModel)]="restockRequest.quantity"
+                     min="0">
+              <button class="quantity-btn increase"
+                      (click)="increaseQuantity()">
+                <i class="pi pi-plus"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="form-section">
+            <label class="form-label">Location</label>
+            <p-dropdown
+              [options]="[{label: selectedPartForRestock.location, value: selectedPartForRestock.location}]"
+              [(ngModel)]="selectedPartForRestock.location"
+              placeholder="Select location"
+              styleClass="location-dropdown">
+            </p-dropdown>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-section">
+            <label class="form-label">You can leave a note explaining the change</label>
+            <textarea
+              class="notes-textarea"
+              [(ngModel)]="restockRequest.notes"
+              placeholder="Add a note..."
+              rows="4">
+            </textarea>
+          </div>
+
+          <!-- File Upload -->
+          <div class="form-section">
+            <div class="file-upload-area">
+              <div class="upload-content">
+                <i class="pi pi-camera upload-icon"></i>
+                <div class="upload-text">Add Pictures/Files</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dialog Actions -->
+          <div class="restock-actions">
+            <button type="button"
+                    class="cancel-btn"
+                    (click)="closeRestockDialog()">
+              Cancel
+            </button>
+            <button type="button"
+                    class="confirm-btn"
+                    (click)="submitRestockRequest()"
+                    [disabled]="restockRequest.quantity <= 0">
+              Confirm Restock
+            </button>
+          </div>
+        </div>
+      }
+    </p-dialog>
+  </div>
+</div>

@@ -1,0 +1,1373 @@
+/* Finance Operations Page Styles */
+.finance-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+
+  /* Buttons */
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem;
+    transition: all 0.2s ease;
+
+    &.btn-primary {
+      background-color: #007bff;
+      color: white;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+
+    &.btn-outline {
+      background-color: transparent;
+      color: #007bff;
+      border: 1px solid #007bff;
+
+      &:hover {
+        background-color: #007bff;
+        color: white;
+      }
+    }
+
+    &.btn-success {
+      background-color: #28a745;
+      color: white;
+
+      &:hover {
+        background-color: #218838;
+      }
+    }
+
+    &.btn-sm {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Page Header */
+  .page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 250px;
+
+    .header-content {
+      h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+  }
+
+  /* Navigation Tabs */
+  .view-tabs {
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0 2rem;
+    margin-left: 250px;
+
+    .tab-buttons {
+      display: flex;
+      gap: 0;
+
+      .tab-button {
+        background: none;
+        border: none;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6c757d;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: #495057;
+          background-color: #f8f9fa;
+        }
+
+        &.active {
+          color: #667eea;
+          border-bottom-color: #667eea;
+          background-color: #f8f9fa;
+        }
+
+        .tab-icon {
+          font-size: 1.2rem;
+        }
+
+        .tab-label {
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  /* Content Sections */
+  .content-section {
+    padding: 2rem;
+    margin-left: 250px;
+
+    h2 {
+      color: #333;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+    }
+  }
+
+  /* Dashboard View */
+  .dashboard-view {
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+
+      .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+
+        .kpi-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+
+          .kpi-icon {
+            font-size: 2rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+          }
+
+          .kpi-trend {
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+
+            &.positive {
+              background: #d4edda;
+              color: #155724;
+            }
+
+            &.negative {
+              background: #f8d7da;
+              color: #721c24;
+            }
+          }
+        }
+
+        .kpi-value {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #2c3e50;
+          margin-bottom: 0.5rem;
+        }
+
+        .kpi-label {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #6c757d;
+          margin-bottom: 0.25rem;
+        }
+
+        .kpi-detail {
+          font-size: 0.875rem;
+          color: #9ca3af;
+        }
+      }
+    }
+
+    /* Dashboard Content Layout */
+    .dashboard-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+
+      .dashboard-left {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .dashboard-right {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+    }
+
+    /* Chart Card */
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+
+        h3 {
+          margin: 0;
+          color: #2c3e50;
+          font-size: 1.25rem;
+        }
+
+        .chart-controls {
+          display: flex;
+          gap: 0.5rem;
+
+          .chart-btn {
+            padding: 0.25rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #6c757d;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: #f8f9fa;
+              border-color: #007bff;
+              color: #007bff;
+            }
+
+            &.active {
+              background: #007bff;
+              color: white;
+              border-color: #007bff;
+            }
+          }
+        }
+      }
+
+      .chart-container {
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        color: #6c757d;
+        font-style: italic;
+      }
+    }
+
+    /* Aging Cards */
+    .aging-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+
+      .aging-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+
+        h3 {
+          margin: 0 0 1rem 0;
+          color: #2c3e50;
+          font-size: 1.1rem;
+        }
+
+        .aging-breakdown {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+
+          .aging-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+
+            .aging-period {
+              font-weight: 500;
+              color: #495057;
+            }
+
+            .aging-amount {
+              font-weight: 600;
+              color: #2c3e50;
+            }
+
+            .aging-percent {
+              font-size: 0.875rem;
+              color: #6c757d;
+            }
+
+            &.current {
+              background: #d4edda;
+              .aging-amount { color: #155724; }
+            }
+
+            &.days-90 {
+              background: #f8d7da;
+              .aging-amount { color: #721c24; }
+            }
+          }
+        }
+      }
+    }
+
+    /* Quick Actions Card */
+    .quick-actions-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+
+      h3 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+        font-size: 1.1rem;
+      }
+
+      .quick-actions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+
+        .quick-action-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 1rem;
+          background: #f8f9fa;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          color: #495057;
+          text-decoration: none;
+
+          &:hover {
+            background: #e9ecef;
+            border-color: #007bff;
+            color: #007bff;
+          }
+
+          i {
+            font-size: 1.5rem;
+          }
+
+          span {
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+          }
+        }
+      }
+    }
+
+    /* Pending Items Card */
+    .pending-items-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+
+      h3 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+        font-size: 1.1rem;
+      }
+
+      .pending-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        .pending-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem;
+          background: #f8f9fa;
+          border-radius: 6px;
+
+          &.urgent {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+          }
+
+          .pending-icon {
+            font-size: 1.25rem;
+          }
+
+          .pending-content {
+            flex: 1;
+
+            .pending-title {
+              font-weight: 500;
+              color: #495057;
+              margin-bottom: 0.25rem;
+            }
+
+            .pending-detail {
+              font-size: 0.875rem;
+              color: #6c757d;
+            }
+          }
+
+          .pending-amount {
+            font-weight: 600;
+            color: #007bff;
+          }
+        }
+      }
+    }
+  }
+
+  /* AR/AP Views */
+  .ar-view, .ap-view {
+    .ar-header, .ap-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+
+      h2 {
+        margin: 0;
+      }
+
+      .ar-actions, .ap-actions {
+        display: flex;
+        gap: 1rem;
+      }
+    }
+
+    /* Summary Cards */
+    .ar-summary, .ap-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+
+      .summary-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .summary-icon {
+          font-size: 2rem;
+          background: #f8f9fa;
+          padding: 0.75rem;
+          border-radius: 8px;
+        }
+
+        .summary-content {
+          .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+          }
+
+          .summary-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+
+    /* Table Controls */
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      .search-filter {
+        display: flex;
+        gap: 1rem;
+
+        .search-input, .filter-select {
+          padding: 0.5rem;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          font-size: 0.875rem;
+
+          &:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+          }
+        }
+      }
+
+      .bulk-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+    }
+
+    /* AR Table */
+    .ar-table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+
+      .ar-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th, td {
+          padding: 0.75rem;
+          text-align: left;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+          background: #f8f9fa;
+          font-weight: 600;
+          color: #495057;
+          font-size: 0.875rem;
+        }
+
+        tbody tr {
+          &:hover {
+            background: #f8f9fa;
+          }
+
+          &.overdue {
+            background: #fff5f5;
+
+            .balance {
+              color: #dc2626;
+              font-weight: 600;
+            }
+          }
+
+          &.selected {
+            background: #e3f2fd;
+          }
+        }
+
+        .invoice-number {
+          font-weight: 500;
+          color: #007bff;
+        }
+
+        .customer-name {
+          font-weight: 500;
+        }
+
+        .amount, .balance {
+          font-weight: 600;
+          text-align: right;
+        }
+
+        .days {
+          text-align: center;
+
+          &.overdue {
+            color: #dc2626;
+            font-weight: 600;
+          }
+        }
+
+        .actions {
+          display: flex;
+          gap: 0.25rem;
+
+          .action-btn {
+            padding: 0.25rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #6c757d;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: #f8f9fa;
+              border-color: #007bff;
+              color: #007bff;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* AP-specific styles */
+  .ap-view {
+    .ap-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .bills-approval-section, .three-way-match-section {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      h3 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+      }
+    }
+
+    .bills-approval-list, .three-way-match-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .bill-approval-item, .match-item {
+      padding: 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .bill-info, .match-info {
+        .bill-vendor, .match-po {
+          font-weight: 500;
+          margin-bottom: 0.25rem;
+        }
+
+        .bill-number, .bill-date, .match-receipt, .match-invoice {
+          font-size: 0.875rem;
+          color: #6c757d;
+        }
+      }
+
+      .bill-amount {
+        font-weight: 600;
+        color: #28a745;
+      }
+
+      .match-amounts {
+        .amount-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.25rem;
+
+          .amount-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+          }
+
+          .amount-value {
+            font-weight: 500;
+          }
+        }
+      }
+
+      .bill-actions, .match-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  /* Cash & Bank View */
+  .cash-bank-view {
+    .cash-bank-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+
+      h2 {
+        margin: 0;
+      }
+
+      .cash-bank-actions {
+        display: flex;
+        gap: 1rem;
+      }
+    }
+
+    .bank-accounts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+
+      .bank-account-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+
+        &.account-checking {
+          border-left: 4px solid #007bff;
+        }
+
+        &.account-savings {
+          border-left: 4px solid #28a745;
+        }
+
+        &.account-credit {
+          border-left: 4px solid #dc3545;
+        }
+
+        .account-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+
+          .account-name {
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          .account-number {
+            font-size: 0.875rem;
+            color: #6c757d;
+          }
+        }
+
+        .account-balance {
+          margin-bottom: 1rem;
+
+          .balance-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+          }
+
+          .balance-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+          }
+        }
+
+        .account-status {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+
+            &.reconciled {
+              background: #28a745;
+            }
+
+            &.pending {
+              background: #ffc107;
+            }
+          }
+
+          .status-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+          }
+
+          .last-reconciled {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-left: auto;
+          }
+        }
+      }
+    }
+
+    .recent-transactions-section {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      h3 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+      }
+
+      .transactions-table-container {
+        overflow-x: auto;
+
+        .transactions-table {
+          width: 100%;
+          border-collapse: collapse;
+
+          th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+          }
+
+          th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.875rem;
+          }
+
+          .amount {
+            text-align: right;
+            font-weight: 500;
+
+            &.debit {
+              color: #dc2626;
+            }
+
+            &.credit {
+              color: #28a745;
+            }
+
+            &.balance {
+              font-weight: 600;
+            }
+          }
+
+          tbody tr:hover {
+            background: #f8f9fa;
+          }
+        }
+      }
+    }
+  }
+
+  /* Fixed Assets View */
+  .fixed-assets-view {
+    .fixed-assets-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+
+      h2 {
+        margin: 0;
+      }
+
+      .fixed-assets-actions {
+        display: flex;
+        gap: 1rem;
+      }
+    }
+
+    .asset-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+
+      .asset-summary-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .summary-icon {
+          font-size: 2rem;
+          background: #f8f9fa;
+          padding: 0.75rem;
+          border-radius: 8px;
+        }
+
+        .summary-content {
+          .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+          }
+
+          .summary-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+
+    .depreciation-status-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      h3 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+      }
+
+      .depreciation-info {
+        margin-bottom: 1.5rem;
+
+        .depreciation-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.5rem 0;
+          border-bottom: 1px solid #f1f5f9;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .depreciation-label {
+            font-weight: 500;
+            color: #495057;
+          }
+
+          .depreciation-value {
+            font-weight: 600;
+
+            &.pending {
+              color: #ffc107;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* Inventory View */
+  .inventory-view {
+    .inventory-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+
+      h2 {
+        margin: 0;
+      }
+
+      .inventory-actions {
+        display: flex;
+        gap: 1rem;
+      }
+    }
+
+    .inventory-variances-section {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      h3 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+      }
+
+      .variances-table-container {
+        overflow-x: auto;
+
+        .variances-table {
+          width: 100%;
+          border-collapse: collapse;
+
+          th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+          }
+
+          th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.875rem;
+          }
+
+          .amount {
+            text-align: right;
+            font-weight: 500;
+          }
+
+          .quantity {
+            text-align: center;
+          }
+
+          .percent, .variance, .total-variance {
+            text-align: right;
+            font-weight: 600;
+
+            &.positive {
+              color: #28a745;
+            }
+
+            &.negative {
+              color: #dc2626;
+            }
+          }
+
+          tbody tr {
+            &:hover {
+              background: #f8f9fa;
+            }
+
+            &.high-variance {
+              background: #fff3cd;
+            }
+
+            &.negative-variance {
+              background: #f8d7da;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* Tax & Compliance View */
+  .tax-view {
+    .tax-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+
+      h2 {
+        margin: 0;
+      }
+
+      .tax-actions {
+        display: flex;
+        gap: 1rem;
+      }
+    }
+
+    .tax-returns-section {
+      margin-bottom: 2rem;
+
+      h3 {
+        margin-bottom: 1rem;
+        color: #2c3e50;
+      }
+
+      .tax-returns-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+
+        .tax-return-card {
+          background: white;
+          border-radius: 8px;
+          padding: 1.5rem;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          border: 1px solid #e2e8f0;
+
+          &.status-overdue {
+            border-left: 4px solid #dc3545;
+          }
+
+          &.status-filed {
+            border-left: 4px solid #28a745;
+          }
+
+          &.status-draft {
+            border-left: 4px solid #ffc107;
+          }
+
+          .return-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+
+            .return-type {
+              font-weight: 600;
+              color: #2c3e50;
+            }
+
+            .return-period {
+              font-size: 0.875rem;
+              color: #6c757d;
+            }
+          }
+
+          .return-status {
+            margin-bottom: 1rem;
+          }
+
+          .return-details {
+            margin-bottom: 1rem;
+
+            .detail-item {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 0.5rem;
+
+              .detail-label {
+                font-size: 0.875rem;
+                color: #6c757d;
+              }
+
+              .detail-value {
+                font-weight: 500;
+
+                &.overdue {
+                  color: #dc2626;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .statements-section {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      h3 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+      }
+
+      .statements-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .statement-type-selector {
+          display: flex;
+          border: 1px solid #e2e8f0;
+          border-radius: 4px;
+          overflow: hidden;
+
+          .stmt-type-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+
+            &.active {
+              background: #007bff;
+              color: white;
+            }
+          }
+        }
+
+        .statement-actions {
+          display: flex;
+          gap: 1rem;
+          align-items: center;
+
+          .date-input {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+          }
+        }
+      }
+    }
+  }
+
+  /* Status Badges */
+  .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    &.status-open {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    &.status-overdue {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    &.status-paid {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    &.status-partial {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    &.status-pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    &.status-approved {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    &.status-cleared {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    &.status-reconciled {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    &.status-draft {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    &.status-filed {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    &.match-pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    &.match-matched {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    &.match-variance {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .dashboard-content {
+      grid-template-columns: 1fr;
+    }
+
+    .aging-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .ap-content {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+      margin-left: 0;
+
+      .header-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+    }
+
+    .view-tabs {
+      margin-left: 0;
+
+      .tab-buttons {
+        flex-wrap: wrap;
+
+        .tab-button {
+          flex: 1;
+          min-width: 120px;
+        }
+      }
+    }
+
+    .content-section {
+      margin-left: 0;
+      padding: 1rem;
+    }
+
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .quick-actions-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .bank-accounts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tax-returns-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .table-controls {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .statements-controls {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+  }
+}

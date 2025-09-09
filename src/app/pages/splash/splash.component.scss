@@ -1,0 +1,65 @@
+body, :host {
+  background: #162447;
+}
+
+.splash-bg {
+  position: fixed;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: url('/assets/images/background-splash-page.svg') no-repeat center;
+  background-size: cover;
+  z-index: 0;
+}
+
+.splash-center-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(22,36,71,0.98);
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  padding: 3rem 4rem 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.splash-ufo {
+  width: 260px;
+  margin-bottom: 2rem;
+}
+
+.splash-logo {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #8ee6ed;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: baseline;
+}
+.splash-logo .cloud {
+  color: #f7c6d9;
+  margin-left: 0.2em;
+}
+.by-ariga {
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 400;
+  margin-top: 0.5rem;
+  text-align: right;
+}
+
+.splash-footer {
+  position: fixed;
+  left: 0; right: 0; bottom: 1.5rem;
+  text-align: center;
+  color: #e0e6f6;
+  font-size: 0.95rem;
+  z-index: 2;
+}
+.splash-footer a {
+  color: #8ee6ed;
+  text-decoration: underline;
+  margin: 0 0.5em;
+} 

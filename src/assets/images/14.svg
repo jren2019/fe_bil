@@ -1,0 +1,846 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   shape-rendering="geometricPrecision"
+   text-rendering="geometricPrecision"
+   viewBox="0 0 653.9 792.1"
+   version="1.1"
+   id="svg86"
+   sodipodi:docname="workflow.svg"
+   inkscape:version="1.4.1 (1:1.4.1+202503302257+93de688d07)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview86"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="7.0883706"
+     inkscape:cx="252.66737"
+     inkscape:cy="472.46401"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg86" />
+  <defs
+     id="defs1">
+    <rect
+       id="b"
+       width="643.6"
+       height="736"
+       rx="0"
+       ry="0" />
+    <style
+       id="style1">
+      .database-element {
+        transition: transform 0.3s ease;
+      }
+      .database-element:hover {
+        transform: scale(1.1);
+      }
+      .connection-line {
+        stroke-dasharray: 2000;
+        stroke-dashoffset: 2000;
+        animation: draw 2s ease-in-out forwards;
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      .character-eye {
+        animation: blinkEyes 4s ease-in-out infinite;
+      }
+      @keyframes blinkEyes {
+        0%, 97%, 100% { transform: scaleY(1); }
+        98% { transform: scaleY(0.1); }
+      }
+      .character-arm.left {
+        animation: armWaveLeft 3s ease-in-out infinite;
+      }
+      .character-arm.right {
+        animation: armWaveRight 3s ease-in-out infinite;
+      }
+      @keyframes armWaveLeft {
+        0%, 100% { transform: rotate(20deg); }
+        50% { transform: rotate(40deg); }
+      }
+      @keyframes armWaveRight {
+        0%, 100% { transform: rotate(-20deg); }
+        50% { transform: rotate(-40deg); }
+      }
+      .pulsing-element {
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      .gauge-needle {
+        animation: rotateNeedle 4s ease-in-out infinite;
+      }
+      @keyframes rotateNeedle {
+        0%, 100% { transform: rotate(-40deg); }
+        50% { transform: rotate(20deg); }
+      }
+      .dashed-line {
+        stroke-dasharray: 5, 5;
+        animation: flowLine 2s linear infinite;
+      }
+      @keyframes flowLine {
+        to {
+          stroke-dashoffset: -20;
+        }
+      }
+      .badge {
+        animation: bounce 3s ease-in-out infinite;
+      }
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      .up-down-movement {
+        animation: moveUpDown 2s ease-in-out infinite;
+      }
+      @keyframes moveUpDown {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+      .height-adjust {
+        transform-origin: bottom;
+        animation: adjustHeight 2s ease-in-out infinite;
+      }
+      @keyframes adjustHeight {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(5px); }
+      }
+      .pointer-path {
+        transform-box: fill-box;
+        transform-origin: bottom;
+        animation: rotatePointer 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+      @keyframes rotatePointer {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(0deg); }
+        50% { transform: rotate(30deg); }
+        75% { transform: rotate(30deg); }
+        100% { transform: rotate(0deg); }
+      }
+      .toggle-switch-1 {
+        animation: toggleSwitch-1 4s ease-in-out infinite;
+      }
+      @keyframes toggleSwitch-1 {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(0); }
+        50% { transform: translateX(-15px); }
+        75% { transform: translateX(-15px); }
+        100% { transform: translateX(0); }
+      }
+      .toggle-switch-2 {
+        animation: toggleSwitch-2 4s ease-in-out infinite;
+      }
+      @keyframes toggleSwitch-2 {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(0); }
+        50% { transform: translateX(15px); }
+        75% { transform: translateX(15px); }
+        100% { transform: translateX(0); }
+      }
+      .face-move {
+        animation: moveFace 6s ease-in-out infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      @keyframes moveFace {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(-10px, -3px) rotate(-5deg); }
+        50% { transform: translate(0, 0) rotate(0deg); }
+        75% { transform: translate(10px, -5px) rotate(5deg); }
+      }
+      .circle-draw {
+        stroke-dasharray: 300;
+        stroke-dashoffset: 0;
+        animation: drawCircle 2s ease-out forwards, floatCircle 4s ease-in-out infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      @keyframes drawCircle {
+        0% { stroke-dashoffset: 300; }
+        100% { stroke-dashoffset: 0; }
+      }
+      @keyframes floatCircle {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(35px); }
+      }
+    </style>
+  </defs>
+  <g
+     clip-path="url(#a)"
+     id="g54">
+    <path
+       class="connection-line"
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M342.4 51.9h-315C15.6 51.9 6 61.5 6 73.4v258.9c0 11.9 9.6 21.5 21.5 21.5h315c11.9 0 21.5-9.6 21.5-21.5V73.4c-.1-11.9-9.7-21.5-21.6-21.5Z"
+       id="path2" />
+    <path
+       fill="#fff"
+       d="M175.3 228.3h-32.1c-7.6 0-13.7 6.1-13.7 13.7v82.9c0 7.6 6.1 13.7 13.7 13.7h32.1c7.6 0 13.7-6.1 13.7-13.7V242c0-7.5-6.1-13.7-13.7-13.7Z"
+       opacity=".05"
+       id="path3" />
+    <path
+       class="database-element"
+       fill="none"
+       stroke="#98e0ea"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M149.4 315.7h19.9c2.8 0 5-2.3 5-5s-2.3-5-5-5h-19.9c-2.8 0-5 2.3-5 5s2.2 5 5 5Z"
+       id="path4" />
+    <path
+       class="toggle-switch-1"
+       fill="#98e0ea"
+       d="M163.3 315.7h5.9c2.8 0 5-2.3 5-5s-2.3-5-5-5h-5.9c-2.8 0-5 2.3-5 5s2.2 5 5 5Z"
+       id="path5" />
+    <path
+       class="database-element"
+       fill="none"
+       stroke="#98e0ea"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M169.2 278.4h-19.9c-2.8 0-5 2.3-5 5s2.3 5 5 5h19.9c2.8 0 5-2.3 5-5s-2.2-5-5-5Z"
+       id="path6" />
+    <path
+       class="toggle-switch-2"
+       fill="#98e0ea"
+       d="M155.3 278.4h-5.9c-2.8 0-5 2.3-5 5s2.3 5 5 5h5.9c2.8 0 5-2.3 5-5s-2.2-5-5-5Z"
+       id="path7" />
+    <path
+       class="database-element"
+       fill="none"
+       stroke="#98e0ea"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M169.2 251.2h-19.9c-2.8 0-5 2.3-5 5 0 2.8 2.3 5 5 5h19.9c2.8 0 5-2.3 5-5 .1-2.7-2.2-5-5-5Z"
+       id="path8" />
+    <path
+       class="toggle-switch-2"
+       fill="#98e0ea"
+       d="M155.3 251.2h-5.9c-2.8 0-5 2.3-5 5 0 2.8 2.3 5 5 5h5.9c2.8 0 5-2.3 5-5 .1-2.7-2.2-5-5-5Z"
+       id="path9" />
+    <path
+       fill="#fff"
+       d="M125.4 112.3h-91c-7.6 0-13.7 6.1-13.7 13.7v82.9c0 7.6 6.1 13.7 13.7 13.7h91c7.6 0 13.7-6.1 13.7-13.7V126c0-7.6-6.1-13.7-13.7-13.7Z"
+       opacity=".05"
+       id="path10" />
+    <path
+       class="database-element floating-element"
+       fill="#98e0ea"
+       d="M68.7 143H51.8v48.9h16.9V143Z"
+       id="path11" />
+    <path
+       fill="#091139"
+       d="M63.3 154.1h-6.2v26.6h6.2v-26.6Z"
+       id="path12" />
+    <path
+       class="up-down-movement"
+       fill="#ffd6d6"
+       d="M73.7 156.2H46.8v8.1h26.9v-8.1Z"
+       id="path13" />
+    <path
+       class="database-element floating-element"
+       fill="#98e0ea"
+       d="M108 143H91.1v48.9H108V143Z"
+       id="path14" />
+    <path
+       fill="#091139"
+       d="M102.6 154.1h-6.2v26.6h6.2v-26.6Z"
+       id="path15" />
+    <path
+       class="up-down-movement"
+       fill="#ffd6d6"
+       d="M113 170H86.1v8.1H113V170Z"
+       id="path16" />
+    <path
+       fill="#fff"
+       d="M335.2 112.8H158.7c-7.6 0-13.7 6.1-13.7 13.7v82.9c0 7.6 6.1 13.7 13.7 13.7h176.5c7.6 0 13.7-6.1 13.7-13.7v-82.9c0-7.6-6.1-13.7-13.7-13.7Z"
+       opacity=".05"
+       id="path17" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="8"
+       d="M248.5 150.6c15.1 8.8 25.3 25.1 25.3 43.8M172.5 194.4c0-28 22.7-50.6 50.6-50.6 9.2 0 17.9 2.5 25.4 6.8"
+       id="path18" />
+    <path
+       class="database-element floating-element"
+       fill="#ffd6d6"
+       d="M301.5 148.3c2.6 0 4.6-2.1 4.6-4.6s-2.1-4.6-4.6-4.6-4.6 2.1-4.6 4.6 2.1 4.6 4.6 4.6ZM316.7 148.3c2.5 0 4.6-2.1 4.6-4.6s-2.1-4.6-4.6-4.6c-2.6 0-4.6 2.1-4.6 4.6s2.1 4.6 4.6 4.6Z"
+       id="path19" />
+    <path
+       class="database-element floating-element"
+       fill="#98e0ea"
+       d="M301.5 163.8c2.6 0 4.6-2.1 4.6-4.6s-2.1-4.6-4.6-4.6-4.6 2.1-4.6 4.6 2.1 4.6 4.6 4.6Z"
+       id="path20" />
+    <path
+       fill="none"
+       stroke="#98e0ea"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M105.2 250.9v57.4M39 250.9v64.8M83.1 250.9v54.8M61.1 250.9v63.8"
+       id="path21" />
+    <path
+       class="database-element floating-element"
+       fill="#98e0ea"
+       d="M316.7 163.8c2.5 0 4.6-2.1 4.6-4.6s-2.1-4.6-4.6-4.6c-2.6 0-4.6 2.1-4.6 4.6s2.1 4.6 4.6 4.6ZM301.5 179.2c2.6 0 4.6-2.1 4.6-4.6s-2.1-4.6-4.6-4.6-4.6 2.1-4.6 4.6 2.1 4.6 4.6 4.6ZM316.7 179.2c2.5 0 4.6-2.1 4.6-4.6s-2.1-4.6-4.6-4.6c-2.6 0-4.6 2.1-4.6 4.6s2.1 4.6 4.6 4.6ZM301.5 194.7c2.6 0 4.6-2.1 4.6-4.6s-2.1-4.6-4.6-4.6-4.6 2.1-4.6 4.6 2.1 4.6 4.6 4.6ZM316.7 194.7c2.5 0 4.6-2.1 4.6-4.6s-2.1-4.6-4.6-4.6c-2.6 0-4.6 2.1-4.6 4.6s2.1 4.6 4.6 4.6Z"
+       id="path22" />
+    <path
+       fill="#fff"
+       d="M110.1 228.3H34.4c-7.6 0-13.7 6.1-13.7 13.7v82.9c0 7.6 6.1 13.7 13.7 13.7h75.7c7.6 0 13.7-6.1 13.7-13.7V242c0-7.5-6.2-13.7-13.7-13.7Z"
+       opacity=".05"
+       id="path23" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M39 276.7V316"
+       id="path24" />
+    <path
+       fill="#ffd6d6"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M39.1 278.5c1.2 0 2.2-1 2.2-2.2s-1-2.2-2.2-2.2-2.2 1-2.2 2.2 1 2.2 2.2 2.2Z"
+       id="path25" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M61.1 294.6V316"
+       id="path26" />
+    <path
+       fill="#ffd6d6"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M61.2 296.5c1.2 0 2.2-1 2.2-2.2s-1-2.2-2.2-2.2-2.2 1-2.2 2.2.9 2.2 2.2 2.2Z"
+       id="path27" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M83.1 272.6V316"
+       id="path28" />
+    <path
+       fill="#ffd6d6"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M83.2 274.5c1.2 0 2.2-1 2.2-2.2s-1-2.2-2.2-2.2-2.2 1-2.2 2.2 1 2.2 2.2 2.2Z"
+       id="path29" />
+    <path
+       class="height-adjust"
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M105.2 284.6V316"
+       id="path30" />
+    <path
+       class="height-adjust"
+       fill="#ffd6d6"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M105.3 286.5c1.2 0 2.2-1 2.2-2.2s-1-2.2-2.2-2.2-2.2 1-2.2 2.2 1 2.2 2.2 2.2Z"
+       id="path31" />
+       
+    <path
+       fill="#fff"
+       d="M335.7 228.3H208.5c-7.6 0-13.7 6.1-13.7 13.7v82.9c0 7.6 6.1 13.7 13.7 13.7h127.2c7.6 0 13.7-6.1 13.7-13.7V242c0-7.5-6.1-13.7-13.7-13.7Z"
+       opacity=".05"
+       id="path32" />
+    <path
+       class="database-element"
+       fill="none"
+       stroke="#98e0ea"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M311.9 250.3h-81.2c-2.8 0-5.2 2.3-5.2 5.2 0 2.8 2.3 5.2 5.2 5.2h81.2c2.8 0 5.2-2.3 5.2-5.2s-2.3-5.2-5.2-5.2Z"
+       id="path33" />
+    <path
+       class="database-element"
+       fill="#98e0ea"
+       d="M266.9 250.3H231c-2.8 0-5.2 2.3-5.2 5.2 0 2.8 2.3 5.2 5.2 5.2h35.9c2.8 0 5.2-2.3 5.2-5.2-.1-2.9-2.4-5.2-5.2-5.2Z"
+       id="path34" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M243.9 316.7c10.4 0 18.8-8.4 18.8-18.8s-8.4-18.8-18.8-18.8-18.8 8.4-18.8 18.8c0 10.3 8.4 18.8 18.8 18.8Z"
+       id="path35" />
+    <path
+       class="database-element"
+       fill="#ffd6d6"
+       d="M243.9 308.3c5.8 0 10.5-4.7 10.5-10.5s-4.7-10.5-10.5-10.5-10.5 4.7-10.5 10.5 4.7 10.5 10.5 10.5Z"
+       id="path36" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M299.2 316.7c10.4 0 18.8-8.4 18.8-18.8s-8.4-18.8-18.8-18.8-18.8 8.4-18.8 18.8c0 10.3 8.4 18.8 18.8 18.8Z"
+       id="path37" />
+    <path
+       class="database-element"
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M299.2 308.3c5.8 0 10.5-4.7 10.5-10.5s-4.7-10.5-10.5-10.5-10.5 4.7-10.5 10.5 4.7 10.5 10.5 10.5Z"
+       id="path38" />
+    <path
+       fill="none"
+       stroke="#fff"
+       stroke-dasharray="2,4"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       d="M540 240.5v-41c0-6.6-5.4-12-12-12H364.2"
+       id="path39" />
+    <path
+       fill="none"
+       stroke="#fff"
+       stroke-dasharray="2,4"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       d="m477.4 289.4 31.5-25.4 31.5-25.4 31.5 25.4 31.5 25.4"
+       id="path40" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M606.3 398.4v29.8c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-12 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1V398"
+       id="path41" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M606.3 397.9c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-12 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1s1.6-5.5 4.9-8.1 8-5 14-7c12-4 28.5-6.5 46.9-6.5s34.9 2.5 46.9 6.5c6 2 10.8 4.4 14 7 3.3 2.6 4.9 5.4 4.9 8.1Z"
+       id="path42" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M606.3 363.9c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-12 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1 0-2.7 1.6-5.5 4.9-8.1s8-5 14-7c12-4 28.5-6.5 46.9-6.5s34.9 2.5 46.9 6.5c6 2 10.8 4.4 14 7 3.3 2.6 4.9 5.3 4.9 8.1Z"
+       id="path43" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M606.3 329.8c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-12 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1 0-2.7 1.6-5.5 4.9-8.1s8-5 14-7c12-4 28.5-6.5 46.9-6.5s34.9 2.5 46.9 6.5c6 2 10.8 4.4 14 7 3.3 2.7 4.9 5.4 4.9 8.1h0Z"
+       id="path44" />
+    <path
+       fill="none"
+       stroke="#fff"
+       stroke-dasharray="2,4"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       d="M606.3 295.8c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-12 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1 0-2.7 1.6-5.5 4.9-8.1s8-5 14-7c12-4 28.5-6.5 46.9-6.5s34.9 2.5 46.9 6.5c6 2 10.8 4.4 14 7 3.3 2.6 4.9 5.4 4.9 8.1Z"
+       id="path45" />
+    <path
+       class="database-element"
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M606.9 404.6c3.4.9 6.6 1.9 9.6 3 9.7 3.4 17.5 7.4 22.8 11.8s8 9 8 13.6-2.7 9.2-8 13.6-13.1 8.4-22.8 11.8c-19.4 6.8-46.3 11-76.1 11s-56.7-4.2-76.1-11c-9.7-3.4-17.5-7.4-22.8-11.8s-8-9-8-13.6 2.7-9.2 8-13.6 13.1-8.4 22.8-11.8c3.1-1.1 6.4-2.1 9.9-3.1M561.5 394.2c0 .9-.5 1.8-1.6 2.6-1 .8-2.6 1.6-4.5 2.2-3.8 1.3-9.1 2.1-14.9 2.1s-11.1-.8-14.9-2.1c-1.9-.6-3.4-1.4-4.5-2.2s-1.6-1.7-1.6-2.6.5-1.8 1.6-2.6c1-.8 2.6-1.6 4.5-2.2 3.8-1.3 9.1-2.1 14.9-2.1s11.1.8 14.9 2.1c1.9.6 3.4 1.4 4.5 2.2s1.6 1.7 1.6 2.6Z"
+       id="path46" />
+    <path
+       class="database-element"
+       fill="#ffd6d6"
+       d="M647.3 439 540.5 573.9 433.8 439s9.2 20.9 78.2 29.1c68.9 8.1 128.5-12.8 135.3-29.1Z"
+       id="path47" />
+    <path
+       fill="none"
+       stroke="#fff"
+       stroke-dasharray="2,4"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       d="M186 394.7v-41M123.4 443.6l31.5-25.4 31.5-25.4 31.5 25.4 31.5 25.4"
+       id="path48" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M252.3 484.5v29.8c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-11.9 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1v-30.2"
+       id="path49" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M252.3 484c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-11.9 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1 0-2.7 1.6-5.5 4.9-8.1s8-5 14-7c12-4 28.5-6.5 46.9-6.5s34.9 2.5 46.9 6.5c6 2 10.8 4.4 14 7 3.3 2.7 4.9 5.4 4.9 8.1Z"
+       id="path50" />
+    <path
+       fill="none"
+       stroke="#fff"
+       stroke-dasharray="2,4"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       d="M252.3 450c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-11.9 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1 0-2.7 1.6-5.5 4.9-8.1s8-5 14-7c12-4 28.5-6.5 46.9-6.5s34.9 2.5 46.9 6.5c6 2 10.8 4.4 14 7 3.3 2.6 4.9 5.4 4.9 8.1Z"
+       id="path51" />
+    <path
+       class="database-element"
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M252.9 490.7c3.4.9 6.6 1.9 9.6 3 9.7 3.4 17.5 7.4 22.8 11.8s8 9 8 13.6-2.7 9.2-8 13.6-13.1 8.4-22.8 11.8c-19.4 6.8-46.3 11-76.1 11s-56.7-4.2-76.1-11c-9.7-3.4-17.5-7.4-22.8-11.8s-8-9-8-13.6 2.7-9.2 8-13.6 13.1-8.4 22.8-11.8c3.1-1.1 6.4-2.1 9.9-3.1M207.5 480.3c0 .9-.5 1.7-1.6 2.6-1 .8-2.6 1.6-4.5 2.2-3.8 1.3-9.1 2.1-14.9 2.1s-11.1-.8-14.9-2.1c-1.9-.6-3.4-1.4-4.5-2.2-1-.8-1.6-1.7-1.6-2.6s.5-1.8 1.6-2.6c1-.8 2.6-1.6 4.5-2.2 3.8-1.3 9.1-2.1 14.9-2.1s11.1.8 14.9 2.1c1.9.6 3.4 1.4 4.5 2.2 1 .9 1.6 1.7 1.6 2.6Z"
+       id="path52" />
+    <path
+       class="database-element"
+       fill="#ffd6d6"
+       d="M293.2 525.1 186.5 660 79.7 525.1s9.2 20.9 78.2 29.1 128.5-12.7 135.3-29.1Z"
+       id="path53" />
+    <path
+       fill="none"
+       stroke="#ffd6d6"
+       stroke-linecap="round"
+       stroke-width="2"
+       d="M540.5 558.5V591c0 32.8-26.6 59.4-59.4 59.4s-59.4 26.6-59.4 59.4v-9.1V726c0 32.8-26.6 59.4-59.4 59.4H245.9c-32.8 0-59.4-26.6-59.4-59.4v-70.3"
+       id="path54" />
+    <clipPath
+       id="a">
+      <use
+         xlink:href="#b"
+         width="643.6"
+         height="736"
+         transform="translate(4.8 50.8)"
+         id="use54" />
+    </clipPath>
+    <a
+       id="a86"
+       transform="translate(0,20)">
+      <text
+         xml:space="preserve"
+         style="font-size:53.3333px;line-height:42.24px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;inline-size:280.715;display:inline;fill:#000000;stroke-width:1.30772"
+         x="40.955112"
+         y="81.645142"
+         id="text86"
+         transform="matrix(0.5126171,0,0,0.74053946,16.701317,21.040399)"><tspan
+           x="40.955112"
+           y="81.645142"
+           id="tspan4"><tspan
+             style="fill:#00ffff"
+             id="tspan3">AssetX</tspan></tspan></text>
+    </a>
+    <path
+       class="database-element floating-element"
+       fill="#fcff83"
+       d="m 362.14907,153.23488 c 0,0 14.1,-2.602 25,11.097 10.9,13.699 8.404,33.3 -2.296,41.4 -10.699,8.202 -28.299,10.803 -38.8,-0.196 -10.4,-11.1 -14.603,-44.399 16.096,-52.301 z"
+       id="path64-7" />
+  </g>
+  <g
+     class="pointer-path"
+     id="g57">
+    <path
+       fill="none"
+       stroke="#98e0ea"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       stroke-width="2"
+       d="m238.695 163.997-1.8-4.5-4.5 1.801"
+       id="path55" />
+    <path
+       fill="none"
+       stroke="#98e0ea"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="m222.1 193.2 14.495-33.002"
+       id="path56" />
+    <path
+       fill="#98e0ea"
+       d="M222.1 196.8c1.7 0 3.1-1.4 3.1-3.1s-1.4-3.1-3.1-3.1-3.1 1.4-3.1 3.1 1.4 3.1 3.1 3.1Z"
+       id="path57" />
+  </g>
+  <path
+     fill="none"
+     stroke="#98e0ea"
+     stroke-dasharray="107,107"
+     stroke-dashoffset="11.007"
+     stroke-linecap="round"
+     stroke-width="8"
+     d="M172.5 194.4c0-28 22.7-50.6 50.6-50.6 9.2 0 17.9 2.5 25.4 6.8"
+     id="path58" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M352.097 190.698S330.3 188.4 329.2 208.9c-1 18.8 23.7 31.9 35.701 28.9"
+     id="path59" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M359.195 202.998S334.6 199.3 334.7 219.8c0 18.8 16.601 21.8 28.201 32"
+     id="path60" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M345.197 184.698s-15.698.703-21.698 14.103c-5.8 13.1.701 19.799 10.801 25.499M402.5 198.8s-2.502 34.001-22.702-3.699M361.296 206.802s-6.999 7.503 1.704 30.498"
+     id="path61" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M402.5 198.8s-2.502 34.001-22.702-3.699"
+     id="path62" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M361.296 206.802s-6.999 7.503 1.704 30.498"
+     id="path63" />
+  <path
+     class="toggle-switch"
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M361.296 206.802s-6.999 7.503 1.704 30.498"
+     id="path64" />
+  <path
+     fill="#fff"
+     stroke="#17204e"
+     stroke-miterlimit="10"
+     d="M352.097 190.595c-2.1-4.8-1.401-9.8 1.599-11 3-1.3 7.1 1.6 9.2 6.4s1.401 9.8-1.599 11-7.1-1.6-9.2-6.4ZM370.996 183.994c-1-5.1.8-9.8 3.9-10.4 3.2-.6 6.6 3.1 7.6 8.199s-.8 9.8-3.9 10.4c-3.2.6-6.6-3.1-7.6-8.2Z"
+     id="path65" />
+  <path
+     id="eye1"
+     class="character-eye"
+     fill="#091139"
+     d="M361.996 184.795s-3.3-2.1-5.5 2c-2.1 4.1 3.901 10.6 4.101 10.5s6.6-3.4 1.4-12.5ZM381.496 180.393s-3-2.6-5.7 1.1 2.2 11 2.4 11 7.1-2.3 3.3-12.1Z" />
+  <path
+     id="path66"
+     class="circle-draw"
+     fill="none"
+     stroke="#ffd6d6"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M252.3 450c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-11.9 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1 0-2.7 1.6-5.5 4.9-8.1s8-5 14-7c12-4 28.5-6.5 46.9-6.5s34.9 2.5 46.9 6.5c6 2 10.8 4.4 14 7 3.3 2.6 4.9 5.4 4.9 8.1Z" />
+  <path
+     id="path67"
+     class="circle-draw"
+     fill="none"
+     stroke="#ffd6d6"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M606.3 295.8c0 2.7-1.6 5.5-4.9 8.1s-8 5-14 7c-12 4-28.5 6.5-46.9 6.5s-34.9-2.5-46.9-6.5c-6-2-10.8-4.4-14-7-3.3-2.6-4.9-5.3-4.9-8.1 0-2.7 1.6-5.5 4.9-8.1s8-5 14-7c12-4 28.5-6.5 46.9-6.5s34.9 2.5 46.9 6.5c6 2 10.8 4.4 14 7 3.3 2.6 4.9 5.4 4.9 8.1Z" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M250.439 455.206s-21.798-2.298-22.898 18.202c-1 18.8 23.7 31.9 35.7 28.9"
+     id="path68" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M257.537 467.506s-24.596-3.698-24.496 16.802c0 18.8 16.6 21.8 28.2 32"
+     id="path69" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M277.289 452.691s31.885 23.616 13.885 54.986"
+     id="path71" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M282.314 450.934s9.85 3.315 11.498 16.837-11.543 38.257-11.543 38.257"
+     id="path72" />
+  <g
+     id="g3"
+     class="face-move">
+    <path
+       fill="none"
+       stroke="#fcff83"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="2"
+       d="M241.03 440.41s-14.951 10.896-20.951 24.296c-5.8 13.1 2.462 18.402 12.562 24.102M275.343 504.049s25.065-23.416.508-42.445M259.638 471.31s-7 7.503 1.703 30.498"
+       id="path70" />
+    <path
+       class="database-element floating-element"
+       fill="#fcff83"
+       d="M261.835 422.003s14.1-2.601 25.001 11.098 8.403 33.3-2.296 41.4c-10.7 8.2-28.3 10.802-38.8-.197-10.401-11.099-14.604-44.399 16.095-52.301Z"
+       id="path73" />
+    <path
+       fill="#fff"
+       stroke="#17204e"
+       stroke-miterlimit="10"
+       d="M250.438 455.104c-2.1-4.8-1.4-9.8 1.6-11 3-1.3 7.1 1.6 9.2 6.399s1.4 9.8-1.6 11-7.1-1.6-9.2-6.4ZM269.657 449c-1.507-5.019-.21-9.898 2.912-10.728 3.135-.93 6.856 2.443 8.363 7.46s.21 9.898-2.912 10.728-6.856-2.443-8.363-7.46Z"
+       id="path74" />
+    <path
+       id="eye2"
+       class="character-eye"
+       fill="#091139"
+       d="M257.974 445.676s-2.481-3.167-4.68.933c-2.1 4.1 3.538 10.637 5.575 11.24 2.036.603 7.602.35-.895-12.173ZM278.096 440.493s-2.08-3.443-4.758.362c-2.578 3.817 2.232 10.986 4.18 11.83 1.95.843 7.506 1.262.578-12.192Z" />
+  </g>
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M478.934 389.791s20.564-1.127 21.664 19.373c1 18.8-14.895 29.694-29.495 32.22"
+     id="path75" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M470.014 403.436s24.596-3.698 24.496 16.802c0 18.8-16.6 21.8-28.2 32"
+     id="path76" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M448.642 392.252s-40.99 24.706-12.265 51.355"
+     id="path78" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M447.238 382.706s-21.899 5.615-25.268 23.303 17.407 35.656 17.407 35.656"
+     id="path79" />
+  <g
+     id="g2"
+     class="face-move">
+    <path
+       fill="none"
+       stroke="#fcff83"
+       stroke-linecap="round"
+       stroke-miterlimit="10"
+       stroke-width="1.86727"
+       d="m 485.22518,379.81976 c 0,0 10.74785,5.88167 16.26098,18.59367 5.32935,12.4274 -2.26222,17.45717 -11.54266,22.86452 m -39.23693,14.45942 c 0,0 -23.0311,-22.21469 -0.46678,-40.26667 m 14.89831,9.20766 c 0,0 6.43015,7.11777 -1.56573,28.93212"
+       id="path77" />
+    <g
+       id="g1"
+       transform="matrix(0.91885476,0,0,0.94865641,35.193096,18.347522)">
+      <path
+         class="database-element floating-element"
+         fill="#fcff83"
+         d="m 465.667,357.689 c 0,0 -14.1,-2.601 -25.001,11.098 -10.901,13.699 -8.403,33.299 2.297,41.4 10.699,8.2 28.299,10.802 38.8,-0.197 10.4,-11.099 14.603,-44.399 -16.096,-52.301 z"
+         id="path80" />
+      <path
+         fill="#ffffff"
+         stroke="#17204e"
+         stroke-miterlimit="10"
+         d="m 477.113,391.034 c 2.1,-4.8 1.4,-9.8 -1.6,-11 -2.999,-1.3 -7.1,1.6 -9.2,6.399 -2.1,4.799 -1.4,9.8 1.6,11 3,1.2 7.1,-1.6 9.2,-6.4 z m -18.9,-6.602 c 1,-5.1 -0.799,-9.8 -3.899,-10.4 -3.2,-0.6 -6.6,3.1 -7.6,8.2 -1,5.1 0.799,9.8 3.899,10.4 3.2,0.6 6.6,-3.1 7.6,-8.2 z"
+         id="path81" />
+      <path
+         id="eye3"
+         class="character-eye"
+         fill="#091139"
+         d="m 469.574,381.61 c 0,0 2.483,-3.166 4.684,0.93 2.103,4.093 -3.535,10.65 -5.573,11.248 -2.038,0.598 -7.6,0.338 0.89,-12.177 z m -19.578,-5.926 c 0,0 3.55,-3.806 5.756,0.293 1.867,3.732 -2.954,10.894 -5.496,12.248 -2.543,1.354 -7.872,-0.14 -0.26,-12.541 z" />
+    </g>
+  </g>
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M352.097 190.698S330.3 188.4 329.2 208.9c-1 18.8 23.7 31.9 35.701 28.9"
+     id="path82" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M359.195 202.998S334.6 199.3 334.7 219.8c0 18.8 16.601 21.8 28.201 32"
+     id="path83" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M345.197 184.698s-15.698.703-21.698 14.103c-5.8 13.1.701 19.799 10.801 25.499"
+     id="path84" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M402.5 198.8s-2.502 34.001-22.702-3.699"
+     id="path85" />
+  <path
+     fill="none"
+     stroke="#fcff83"
+     stroke-linecap="round"
+     stroke-miterlimit="10"
+     stroke-width="2"
+     d="M361.296 206.802s-6.999 7.503 1.704 30.498"
+     id="path86" />
+</svg>

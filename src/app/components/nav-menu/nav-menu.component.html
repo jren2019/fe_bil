@@ -1,0 +1,55 @@
+<nav class="nav-menu">
+  <div class="logo">
+    <img src="/assets/logo-x.svg" alt="Logo" />
+  </div>
+  <ul>
+    <li><a routerLink="/sales" routerLinkActive="active"><span class="icon">📋</span>Sales</a></li>
+    <li><a routerLink="/workorder" routerLinkActive="active"><span class="icon">📋</span>Projects/WO</a></li>
+    <li><a routerLink="/purchaseorders" routerLinkActive="active"><span class="icon">🛒</span> Purchase Orders</a></li>
+    <li><a routerLink="/requests" routerLinkActive="active"><span class="icon">📨</span> Requests</a></li>
+    <li><a routerLink="/assets" routerLinkActive="active"><span class="icon">💼</span> Assets</a></li>
+    <li><a routerLink="/messages" routerLinkActive="active"><span class="icon">💬</span> Messages</a></li>
+    <li><a routerLink="/categories" routerLinkActive="active"><span class="icon">🗂️</span> Categories</a></li>
+    <li><a routerLink="/parts" routerLinkActive="active"><span class="icon">🗂️</span> Parts Inventory</a></li>
+     <li><a routerLink="/manufacturing" routerLinkActive="active"><span class="icon">🗂️</span> Manufacturing</a></li>
+    <li><a routerLink="/library" routerLinkActive="active"><span class="icon">📚</span> Library</a></li>
+    <li><a routerLink="/meters" routerLinkActive="active"><span class="icon">⏱️</span> Meters</a></li>
+    <li><a routerLink="/automations" routerLinkActive="active"><span class="icon">⚡</span> Automations</a></li>
+    <li><a routerLink="/locations" routerLinkActive="active"><span class="icon">📍</span> Locations</a></li>
+    <li><a routerLink="/teams" routerLinkActive="active"><span class="icon">👥</span> Teams / Users</a></li>
+    <li><a routerLink="/vendors" routerLinkActive="active"><span class="icon">🏢</span> Vendors</a></li>
+    <!-- <li><a routerLink="/finance" routerLinkActive="active"><span class="icon">🏢</span> Finance</a></li>
+    <li><a routerLink="/accounting" routerLinkActive="active"><span class="icon">📊</span> Accounting</a></li> -->
+    <!-- <li><a routerLink="/reporting" routerLinkActive="active"><span class="icon">📊</span> Reporting</a></li> -->
+  </ul>
+  <div class="support">
+    <div class="user">
+      <img src="/assets/user-avatar.svg" alt="User" />
+      <span>Jun Ren</span>
+    </div>
+    <a href="#" (click)="openSettingsDialog($event)">&#64; Settings</a>
+  </div>
+  @if (showSettingsDialog) {
+    <div class="settings-dialog-overlay" (click)="closeSettingsDialog()"></div>
+  }
+  @if (showSettingsDialog) {
+    <div class="settings-dialog" (click)="$event.stopPropagation()">
+    <div class="settings-section-title">ORGANIZATION SETTINGS</div>
+    <a routerLink="/settings/general" (click)="navigateAndClose('/settings/general')">General</a>
+    <a routerLink="/settings/features" (click)="navigateAndClose('/settings/features')">Features</a>
+    <a routerLink="/settings/subscription" (click)="navigateAndClose('/settings/subscription')">Subscription</a>
+    <a routerLink="/settings/teammates" (click)="navigateAndClose('/settings/teammates')">Manage Teammates</a>
+    <a routerLink="/settings/customization" (click)="navigateAndClose('/settings/customization')">Customizations</a>
+    <a routerLink="/settings/integrations" (click)="navigateAndClose('/settings/integrations')">Integrations</a>
+    <a routerLink="/settings/privacy" (click)="navigateAndClose('/settings/privacy')">Data & Privacy</a>
+    <hr />
+    <div class="settings-section-title">MY ACCOUNT</div>
+    <a href="#">Profile Preferences</a>
+    <a href="#">Notification Settings</a>
+    <a href="#">Open Download Center</a>
+    <hr />
+    <a href="#" class="get-mobile-app">Get the Mobile App</a>
+    <button class="invite-users-btn">Invite Users</button>
+    </div>
+  }
+</nav>

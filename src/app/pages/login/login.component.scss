@@ -1,0 +1,199 @@
+html, body, :host {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.splash-bg {
+  position: fixed;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: url('/assets/images/background-splash-page.svg') no-repeat center;
+  background-size: cover;
+  z-index: 0;
+}
+
+body, :host {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-page-center {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.splash-center-card.login-card {
+  position: relative;
+  min-width: 350px;
+  max-width: 400px;
+  background: rgba(22,36,71,0.98);
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+  margin: 0;
+  top: auto;
+  left: auto;
+  transform: none;
+}
+
+.login-ufo {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 90px;
+  height: auto;
+  z-index: 2;
+}
+
+.splash-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.splash-logo > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #8ee6ed;
+  letter-spacing: 1px;
+}
+
+.splash-logo .AssetX {
+  color: #8ee6ed;
+}
+
+.splash-logo .cloud {
+  color: #f7c6d9;
+  margin-left: 0.2em;
+}
+
+.by-ariga {
+  font-size: 0.95rem;
+  color: #b6c6e3;
+  font-weight: 400;
+  margin-top: 0.3rem;
+  text-align: right;
+  align-self: flex-end;
+  width: 100%;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+}
+.login-form input {
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  border: 1.5px solid #8ee6ed;
+  font-size: 1.1rem;
+  background: #e0f6ff;
+  color: #222;
+  outline: none;
+}
+.login-form input:focus {
+  border-color: #f7c6d9;
+}
+.login-form button {
+  padding: 1rem 0;
+  border-radius: 8px;
+  border: none;
+  background: #8ee6ed;
+  color: #1a2540;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.login-form button:hover {
+  background: #f7c6d9;
+  color: #1a2540;
+}
+
+.splash-footer {
+  position: fixed;
+  left: 0; right: 0; bottom: 1.5rem;
+  text-align: center;
+  color: #e0e6f6;
+  font-size: 0.95rem;
+  z-index: 2;
+}
+.splash-footer a {
+  color: #8ee6ed;
+  text-decoration: underline;
+  margin: 0 0.5em;
+}
+
+.login-error {
+  color: #ff4d4f;
+  background: #fff0f0;
+  border: 1px solid #ffb3b3;
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  margin-bottom: 1em;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.login-actions {
+  margin-top: 1.2rem;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.signup-link {
+  background: none;
+  border: none;
+  color: #8ee6ed;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0.5em 1em;
+  transition: color 0.2s;
+}
+.signup-link:hover {
+  color: #f7c6d9;
+}
+
+.ufo-home-link {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: block;
+  border-radius: 50%;
+  transition: box-shadow 0.2s, transform 0.2s;
+  border: 2px solid red;
+  background: yellow;
+}
+.ufo-home-link:hover {
+  box-shadow: 0 0 0 4px #8ee6ed44;
+  transform: scale(1.08) rotate(-8deg);
+}
+
+.login-ufo {
+  width: 60px;
+  height: auto;
+  display: block;
+} 
