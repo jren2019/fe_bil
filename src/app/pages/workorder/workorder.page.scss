@@ -8149,6 +8149,11 @@
           z-index: 10;
           overflow: hidden;
           
+          // Ensure content can flow naturally within the block
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          
           // Add subtle border to indicate it's interactive
           border: 1px solid rgba(255, 255, 255, 0.2);
           
@@ -8172,9 +8177,15 @@
           }
 
           .entry-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; // Allow content to shrink
+            
             .entry-time {
               font-weight: 600;
               margin-bottom: 0.125rem;
+              flex-shrink: 0; // Keep time always visible
             }
 
             .entry-description {
@@ -8182,9 +8193,25 @@
               opacity: 0.9;
               line-height: 1.2;
               margin-bottom: 0.125rem;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+              hyphens: auto;
+              
+              // Allow text to wrap naturally within the available space
+              white-space: normal;
+              
+              // For very tall blocks, allow more lines; for short blocks, limit lines
+              display: -webkit-box;
+              -webkit-box-orient: vertical;
               overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
+              
+              // Dynamically limit lines based on available space
+              // This will show more text in taller time blocks
+              max-height: calc(100% - 1rem); // Leave space for time and padding
+              
+              // Ensure readability with proper spacing
+              flex: 1;
+              overflow-y: auto; // Allow scrolling if needed in very tall blocks
             }
 
             .entry-duration {
