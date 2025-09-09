@@ -1,5 +1,6 @@
 <div class="workorder-layout">
       <app-nav-menu></app-nav-menu>
+
       <div class="workorder-main" [class.table-view-mode]="currentViewMode === 'table'">
         <!-- Header -->
         <div class="workorder-header">
@@ -36,7 +37,18 @@
           <div class="header-right">
             <div class="search-container">
               <i class="pi pi-search search-icon"></i>
-              <input type="text" placeholder="Search Work Orders" class="search-input" />
+              <input 
+                type="text" 
+                placeholder="Search Work Orders" 
+                class="search-input"
+                [(ngModel)]="searchTerm"
+                (input)="onSearchChange($event)"
+                [value]="searchTerm" />
+              @if (searchTerm && searchTerm.length > 0) {
+                <button class="clear-search-btn" (click)="clearSearch()" title="Clear search">
+                  <i class="pi pi-times"></i>
+                </button>
+              }
             </div>
             <button pButton label="+ New Work Order" class="p-button-primary new-btn" (click)="openNewWorkOrderModal()"></button>
           </div>

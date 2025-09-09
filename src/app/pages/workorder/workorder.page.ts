@@ -219,6 +219,7 @@ export class WorkorderPageComponent implements OnInit {
   currentViewMode: string = 'todo';
   showViewDropdown = false;
   searchTerm = '';
+  filteredWorkOrdersCache: WorkOrder[] = [];
 
   // Sub-workorders navigation state
   currentView: 'details' | 'sub-workorders' = 'details';
@@ -919,25 +920,63 @@ export class WorkorderPageComponent implements OnInit {
     this.showViewDropdown = false;
   }
 
+  // Search functionality
+  onSearchChange(event: any) {
+    this.searchTerm = event.target.value;
+    console.log('Search term changed:', this.searchTerm);
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+  }
+
 
 
   get filteredWorkOrders(): WorkOrder[] {
+    let workOrders: WorkOrder[];
+    
     if (this.currentView === 'sub-workorders' && this.parentWorkOrder) {
-      const subWorkOrders = this.parentWorkOrder.subWorkOrders || [];
-      console.log('Filtered Work Orders - Sub View:', {
-        parentTitle: this.parentWorkOrder.title,
-        subWorkOrdersCount: subWorkOrders.length,
-        subWorkOrders: subWorkOrders.map(wo => ({ id: wo.id, title: wo.title, status: wo.status }))
-      });
-      return subWorkOrders;
+      workOrders = this.parentWorkOrder.subWorkOrders || [];
+    } else {
+      // Only show top-level work orders (no parentId) in the main list
+      workOrders = this.allWorkOrders.filter(workOrder => !workOrder.parentId);
     }
-    // Only show top-level work orders (no parentId) in the main list
-    const topLevel = this.allWorkOrders.filter(workOrder => !workOrder.parentId);
-    console.log('Filtered Work Orders - Main View:', {
-      count: topLevel.length,
-      workOrders: topLevel.map(wo => ({ id: wo.id, title: wo.title, status: wo.status }))
+
+    // Apply search filter if search term exists
+    if (this.searchTerm && this.searchTerm.trim().length > 0) {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      workOrders = workOrders.filter(workOrder => {
+        return (
+          // Search in title (e.g., "000866 - Blue Dragon Basket Line")
+          workOrder.title.toLowerCase().includes(searchLower) ||
+          // Search in ID (e.g., "1" matches ID 1)
+          workOrder.id.toString().includes(searchLower) ||
+          // Search in description
+          workOrder.description.toLowerCase().includes(searchLower) ||
+          // Search in assigned person
+          workOrder.assignedTo.toLowerCase().includes(searchLower) ||
+          // Search in requested by
+          workOrder.requestedBy.toLowerCase().includes(searchLower) ||
+          // Search in location
+          workOrder.location.toLowerCase().includes(searchLower) ||
+          // Search in category
+          workOrder.category.toLowerCase().includes(searchLower) ||
+          // Search in status
+          workOrder.status.toLowerCase().includes(searchLower)
+        );
+      });
+    }
+
+    console.log('Filtered Work Orders:', {
+      searchTerm: this.searchTerm,
+      originalCount: this.currentView === 'sub-workorders' ? 
+        (this.parentWorkOrder?.subWorkOrders?.length || 0) : 
+        this.allWorkOrders.filter(wo => !wo.parentId).length,
+      filteredCount: workOrders.length,
+      workOrders: workOrders.map(wo => ({ id: wo.id, title: wo.title, status: wo.status }))
     });
-    return topLevel;
+
+    return workOrders;
   }
 
   get selectedWorkOrder(): WorkOrder | undefined {
