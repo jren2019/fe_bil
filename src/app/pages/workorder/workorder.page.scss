@@ -8148,7 +8148,11 @@
           transition: all 0.2s ease;
           z-index: 10;
           overflow: hidden;
-
+          
+          // Add subtle border to indicate it's interactive
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          
+          // Visual feedback for double-click interaction
           &:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);

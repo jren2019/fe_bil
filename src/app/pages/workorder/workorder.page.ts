@@ -449,6 +449,8 @@ export class WorkorderPageComponent implements OnInit {
   selectedTimesheetDate: Date | null = null;
   selectedTimeSlot: string | null = null;
   isCalendarView: boolean = false; // Default to list view for better data display
+  isEditingTimeEntry: boolean = false;
+  editingTimeEntryId: string | null = null;
 
   // Dropdown options
   workTypeOptions = [
@@ -1992,6 +1994,25 @@ export class WorkorderPageComponent implements OnInit {
     this.showTimeEntryModal = false;
     this.selectedTimesheetDate = null;
     this.selectedTimeSlot = null;
+    this.isEditingTimeEntry = false;
+    this.editingTimeEntryId = null;
+  }
+
+  openEditTimeEntryModal(entry: TimesheetEntry) {
+    this.selectedTimesheetDate = entry.date;
+    // Set the selected work order ID to match the entry's work order
+    this.selectedWorkOrderId = entry.workOrderId;
+    this.isEditingTimeEntry = true;
+    this.editingTimeEntryId = entry.id;
+    
+    // Pre-populate the form with existing entry data
+    this.newTimeEntry = {
+      startTime: entry.startTime,
+      duration: entry.duration,
+      description: entry.description
+    };
+    
+    this.showTimeEntryModal = true;
   }
 
   addTimeEntry() {
@@ -2015,6 +2036,33 @@ export class WorkorderPageComponent implements OnInit {
     };
 
     this.timesheetEntries.push(newEntry);
+    this.closeTimeEntryModal();
+  }
+
+  saveTimeEntry() {
+    if (!this.selectedTimesheetDate || !this.selectedWorkOrder || !this.newTimeEntry?.startTime || 
+        (this.newTimeEntry?.duration || 0) <= 0 || !this.editingTimeEntryId) {
+      return;
+    }
+
+    // Find and update the existing entry
+    const entryIndex = this.timesheetEntries.findIndex(entry => entry.id === this.editingTimeEntryId);
+    if (entryIndex !== -1) {
+      // Update the existing entry
+      this.timesheetEntries[entryIndex] = {
+        ...this.timesheetEntries[entryIndex],
+        startTime: this.newTimeEntry.startTime!,
+        duration: this.newTimeEntry.duration!,
+        description: this.newTimeEntry.description!,
+        updatedAt: new Date()
+      };
+      
+      console.log('Updated time entry:', this.timesheetEntries[entryIndex]);
+      
+      // Clear the cached week data since entries have changed
+      this.clearTimesheetWeekCache();
+    }
+    
     this.closeTimeEntryModal();
   }
 
@@ -2099,101 +2147,101 @@ export class WorkorderPageComponent implements OnInit {
       updatedAt: new Date()
     });
 
-    // entries.push({
-    //   id: 'TE002',
-    //   workOrderId: workOrderId,
-    //   userId: 'user1',
-    //   userName: 'Jun Ren',
-    //   userType: 'staff',
-    //   date: monday,
-    //   startTime: '08:00',
-    //   duration: 90, // 1h 30m
-    //   description: 'Documentation and report writing',
-    //   status: 'submitted',
-    //   createdAt: new Date(),
-    //   updatedAt: new Date()
-    // });
+    entries.push({
+      id: 'TE002',
+      workOrderId: workOrderId,
+      userId: 'user1',
+      userName: 'Jun Ren',
+      userType: 'staff',
+      date: monday,
+      startTime: '08:00',
+      duration: 90, // 1h 30m
+      description: 'Documentation and report writing',
+      status: 'submitted',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
 
-    //   entries.push({
-    //     id: 'TE002B',
-    //     workOrderId: workOrderId,
-    //     userId: 'user1',
-    //     userName: 'Jun Ren',
-    //     userType: 'staff',
-    //     date: monday,
-    //     startTime: '14:00',
-    //     duration: 120, // 2h
-    //     description: 'Afternoon system testing',
-    //     status: 'submitted',
-    //     createdAt: new Date(),
-    //     updatedAt: new Date()
-    //   });
+      entries.push({
+        id: 'TE002B',
+        workOrderId: workOrderId,
+        userId: 'user1',
+        userName: 'Jun Ren',
+        userType: 'staff',
+        date: monday,
+        startTime: '14:00',
+        duration: 120, // 2h
+        description: 'Afternoon system testing',
+        status: 'submitted',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
 
-    //   entries.push({
-    //     id: 'TE002C',
-    //     workOrderId: workOrderId,
-    //     userId: 'user1',
-    //     userName: 'Jun Ren',
-    //     userType: 'staff',
-    //     date: monday,
-    //     startTime: '20:00',
-    //     duration: 60, // 1h
-    //     description: 'Evening security check',
-    //     status: 'submitted',
-    //     createdAt: new Date(),
-    //     updatedAt: new Date()
-    //   });
+      entries.push({
+        id: 'TE002C',
+        workOrderId: workOrderId,
+        userId: 'user1',
+        userName: 'Jun Ren',
+        userType: 'staff',
+        date: monday,
+        startTime: '20:00',
+        duration: 60, // 1h
+        description: 'Evening security check',
+        status: 'submitted',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
 
-    //   // Tuesday entries
-    //   const tuesday = new Date(weekStart);
-    //   tuesday.setDate(weekStart.getDate() + 1);
-    //   entries.push({
-    //     id: 'TE003',
-    //     workOrderId: workOrderId,
-    //     userId: 'user1',
-    //     userName: 'Jun Ren',
-    //     userType: 'staff',
-    //     date: tuesday,
-    //     startTime: '02:00',
-    //     duration: 60, // 1h
-    //     description: 'Equipment setup and preparation',
-    //     status: 'approved',
-    //     createdAt: new Date(),
-    //     updatedAt: new Date()
-    //   });
+      // Tuesday entries
+      const tuesday = new Date(weekStart);
+      tuesday.setDate(weekStart.getDate() + 1);
+      entries.push({
+        id: 'TE003',
+        workOrderId: workOrderId,
+        userId: 'user1',
+        userName: 'Jun Ren',
+        userType: 'staff',
+        date: tuesday,
+        startTime: '02:00',
+        duration: 60, // 1h
+        description: 'Equipment setup and preparation',
+        status: 'approved',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
 
-    //   entries.push({
-    //     id: 'TE004',
-    //     workOrderId: workOrderId,
-    //     userId: 'user1',
-    //     userName: 'Jun Ren',
-    //     userType: 'staff',
-    //     date: tuesday,
-    //     startTime: '10:30',
-    //     duration: 150, // 2h 30m
-    //     description: 'Main electrical work and connections',
-    //     status: 'approved',
-    //     createdAt: new Date(),
-    //     updatedAt: new Date()
-    //   });
+      entries.push({
+        id: 'TE004',
+        workOrderId: workOrderId,
+        userId: 'user1',
+        userName: 'Jun Ren',
+        userType: 'staff',
+        date: tuesday,
+        startTime: '10:30',
+        duration: 150, // 2h 30m
+        description: 'Main electrical work and connections',
+        status: 'approved',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
 
-    //   // Wednesday entries
-    //   const wednesday = new Date(weekStart);
-    //   wednesday.setDate(weekStart.getDate() + 2);
-    //   entries.push({
-    //     id: 'TE005',
-    //     workOrderId: workOrderId,
-    //     userId: 'user1',
-    //     userName: 'Jun Ren',
-    //     userType: 'staff',
-    //     date: wednesday,
-    //     startTime: '09:15',
-    //     duration: 60, // 1h
-    //     description: 'Final testing and verification',
-    //     status: 'draft',
-    //     createdAt: new Date(),
-    //     updatedAt: new Date()
-    //   });
+      // Wednesday entries
+      const wednesday = new Date(weekStart);
+      wednesday.setDate(weekStart.getDate() + 2);
+      entries.push({
+        id: 'TE005',
+        workOrderId: workOrderId,
+        userId: 'user1',
+        userName: 'Jun Ren',
+        userType: 'staff',
+        date: wednesday,
+        startTime: '09:15',
+        duration: 60, // 1h
+        description: 'Final testing and verification',
+        status: 'draft',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
 
     console.log(`Generated ${entries.length} sample timesheet entries for workOrder ${workOrderId}`);
     return entries;
@@ -2357,51 +2405,6 @@ export class WorkorderPageComponent implements OnInit {
     };
   }
 
-  saveTimeEntry() {
-    if (!this.editingEntry) {
-      return;
-    }
-
-    // Show loading state
-    this.isLoading = true;
-
-    if (this.editingEntry.id.startsWith('new-')) {
-      // Add new entry via API
-      this.saveTimesheetEntryToAPI(this.editingEntry).then(
-        (savedEntry) => {
-          this.timesheetEntries.push(savedEntry);
-          this.editingEntry = null;
-          this.isLoading = false;
-          this.showSuccessMessage('Timesheet entry saved successfully!');
-          this.refreshTimesheetData();
-        },
-        (error) => {
-          this.isLoading = false;
-          this.showErrorMessage('Failed to save timesheet entry. Please try again.');
-          console.error('Error saving timesheet entry:', error);
-        }
-      );
-    } else {
-      // Update existing entry via API
-      this.updateTimesheetEntryToAPI(this.editingEntry).then(
-        (updatedEntry) => {
-          const index = this.timesheetEntries.findIndex(e => e.id === updatedEntry.id);
-          if (index !== -1) {
-            this.timesheetEntries[index] = updatedEntry;
-          }
-          this.editingEntry = null;
-          this.isLoading = false;
-          this.showSuccessMessage('Timesheet entry updated successfully!');
-          this.refreshTimesheetData();
-        },
-        (error) => {
-          this.isLoading = false;
-          this.showErrorMessage('Failed to update timesheet entry. Please try again.');
-          console.error('Error updating timesheet entry:', error);
-        }
-      );
-    }
-  }
 
   private async updateTimesheetEntryToAPI(entry: TimesheetEntry): Promise<TimesheetEntry> {
     // Simulate API call for updating existing entry

@@ -2260,10 +2260,11 @@
                                            [class]="'status-' + entry.status"
                                            [style.top.%]="getEntryTopPosition(entry)"
                                            [style.height.%]="getEntryHeight(entry)"
-                                           (click)="$event.stopPropagation()">
+                                           (click)="$event.stopPropagation()"
+                                           (dblclick)="openEditTimeEntryModal(entry)">
                                         <div class="entry-content">
                                           <div class="entry-time">{{ entry.startTime }}</div>
-                                          <!-- <div class="entry-description">{{ entry.description }}</div> -->
+                                          <div class="entry-description">#{{entry.workOrderId}} - {{ entry.description }}</div>
                                           <!-- <div class="entry-duration">{{ formatDuration(entry.duration) }}</div> -->
                                         </div>
                                         <div class="entry-actions">
@@ -3487,7 +3488,7 @@
       </p-dialog>
 
       <!-- Time Entry Modal -->
-      <p-dialog header="Log Time" [(visible)]="showTimeEntryModal" [modal]="true" [style]="{width: '500px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}" (onHide)="closeTimeEntryModal()">
+      <p-dialog [header]="isEditingTimeEntry ? 'Edit Time Entry' : 'Log Time'" [(visible)]="showTimeEntryModal" [modal]="true" [style]="{width: '500px'}" [contentStyle]="{'max-height':'90vh','overflow':'auto'}" (onHide)="closeTimeEntryModal()">
         <div class="time-entry-form">
           @if (selectedTimesheetDate) {
             <div class="entry-date-info">
@@ -3557,9 +3558,9 @@
             <button
               type="button"
               class="btn btn-primary"
-              (click)="addTimeEntry()"
+              (click)="isEditingTimeEntry ? saveTimeEntry() : addTimeEntry()"
               [disabled]="!newTimeEntry.startTime || !newTimeEntry.duration || !newTimeEntry.description?.trim()">
-              Log Time
+              {{ isEditingTimeEntry ? 'Save Changes' : 'Log Time' }}
             </button>
           </div>
         </div>
