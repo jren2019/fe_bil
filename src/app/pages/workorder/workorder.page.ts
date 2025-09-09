@@ -216,6 +216,11 @@ export class WorkorderPageComponent implements OnInit {
     return mode ? mode.label : 'To Do View';
   }
 
+  getCurrentViewModeIcon(): string {
+    const mode = this.viewModes.find(vm => vm.value === this.currentViewMode);
+    return mode ? mode.icon : '📋';
+  }
+
   currentViewMode: string = 'todo';
   showViewDropdown = false;
   searchTerm = '';
