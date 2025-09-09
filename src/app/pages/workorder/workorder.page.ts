@@ -2288,13 +2288,15 @@ export class WorkorderPageComponent implements OnInit {
 
   getTimeEntriesForSlot(day: TimesheetDay, timeSlot: string): TimesheetEntry[] {
     console.log('getTimeEntriesForSlot', day, timeSlot);
+    const slotStart = this.parseTimeToMinutes(timeSlot);
+    
+    // CRITICAL FIX: Only return entries that START in this specific time slot
+    // This prevents entries from being rendered multiple times across different slots
     const entries = day.entries.filter(entry => {
       const entryStart = this.parseTimeToMinutes(entry.startTime);
-      const slotStart = this.parseTimeToMinutes(timeSlot);
-      const entryEnd = entryStart + entry.duration;
-      const slotEnd = slotStart + 15; // 15-minute slots
-
-      return (entryStart < slotEnd && entryEnd > slotStart);
+      const entryStartSlot = Math.floor(entryStart / 15) * 15; // Round down to nearest 15-minute slot
+      
+      return entryStartSlot === slotStart;
     });
 
     // Debug logging
@@ -2306,10 +2308,11 @@ export class WorkorderPageComponent implements OnInit {
   }
 
   getEntryTopPosition(entry: TimesheetEntry): number {
+    // Calculate position within the starting slot
     const entryStart = this.parseTimeToMinutes(entry.startTime);
-    const slotStart = this.parseTimeToMinutes('00:00'); // First slot
-    const minutesFromStart = entryStart - slotStart;
-    return (minutesFromStart / 15) * 100; // Each slot is 15 minutes
+    const entryStartSlot = Math.floor(entryStart / 15) * 15; // Round down to nearest 15-minute slot
+    const offsetWithinSlot = entryStart - entryStartSlot; // Minutes past the slot start
+    return (offsetWithinSlot / 15) * 100; // Position within the slot (0-100%)
   }
 
   getEntryHeight(entry: TimesheetEntry): number {
