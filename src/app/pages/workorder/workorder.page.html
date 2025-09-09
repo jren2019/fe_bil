@@ -2257,11 +2257,19 @@
                                     @for (entry of getTimeEntriesForSlot(day, timeSlot.time); track entry.id) {
 
                                       <div class="time-entry-block"
-                                           [class]="'status-' + entry.status"
+                                           [class]="'status-' + entry.status + (isResizing && resizingEntry?.id === entry.id ? ' resizing' : '')"
                                            [style.top.%]="getEntryTopPosition(entry)"
                                            [style.height.%]="getEntryHeight(entry)"
                                            (click)="$event.stopPropagation()"
                                            (dblclick)="openEditTimeEntryModal(entry)">
+                                        
+                                        <!-- Top resize handle -->
+                                        <div class="resize-handle resize-top"
+                                             (mousedown)="startResize($event, entry, 'top')"
+                                             (click)="$event.stopPropagation()"
+                                             title="Drag to adjust start time">
+                                        </div>
+                                        
                                         <div class="entry-content">
                                           <div class="entry-time">{{ entry.startTime }}</div>
                                           <div class="entry-description">#{{entry.workOrderId}} - {{ entry.description }}</div>
@@ -2276,6 +2284,13 @@
                                               <i class="pi pi-trash"></i>
                                             </button>
                                           }
+                                        </div>
+                                        
+                                        <!-- Bottom resize handle -->
+                                        <div class="resize-handle resize-bottom"
+                                             (mousedown)="startResize($event, entry, 'bottom')"
+                                             (click)="$event.stopPropagation()"
+                                             title="Drag to adjust duration">
                                         </div>
                                       </div>
                                     }

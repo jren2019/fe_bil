@@ -8157,11 +8157,70 @@
           // Add subtle border to indicate it's interactive
           border: 1px solid rgba(255, 255, 255, 0.2);
           
+          // Resizing state
+          &.resizing {
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+            z-index: 50;
+            
+            .resize-handle {
+              opacity: 1;
+              background: rgba(255, 255, 255, 1);
+            }
+          }
+          
           // Visual feedback for double-click interaction
           &:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
             z-index: 20;
+            
+            // Show resize handles on hover
+            .resize-handle {
+              opacity: 1;
+            }
+          }
+          
+          // Resize handles
+          .resize-handle {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            cursor: ns-resize;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 30;
+            
+            &:hover {
+              background: rgba(255, 255, 255, 1);
+              height: 6px;
+            }
+            
+            // Top resize handle
+            &.resize-top {
+              top: -2px;
+              border-radius: 2px 2px 0 0;
+            }
+            
+            // Bottom resize handle
+            &.resize-bottom {
+              bottom: -2px;
+              border-radius: 0 0 2px 2px;
+            }
+            
+            // Visual indicator dots
+            &::before {
+              content: '';
+              position: absolute;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+              width: 20px;
+              height: 2px;
+              background: rgba(0, 0, 0, 0.3);
+              border-radius: 1px;
+            }
           }
 
           &.status-draft {

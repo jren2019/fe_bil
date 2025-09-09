@@ -451,6 +451,14 @@ export class WorkorderPageComponent implements OnInit {
   isCalendarView: boolean = false; // Default to list view for better data display
   isEditingTimeEntry: boolean = false;
   editingTimeEntryId: string | null = null;
+  
+  // Resize functionality
+  isResizing: boolean = false;
+  resizingEntry: TimesheetEntry | null = null;
+  resizeHandle: 'top' | 'bottom' | null = null;
+  resizeStartY: number = 0;
+  resizeStartTime: number = 0;
+  resizeStartDuration: number = 0;
 
   // Dropdown options
   workTypeOptions = [
@@ -2064,6 +2072,89 @@ export class WorkorderPageComponent implements OnInit {
     }
     
     this.closeTimeEntryModal();
+  }
+
+  startResize(event: MouseEvent, entry: TimesheetEntry, handle: 'top' | 'bottom') {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.isResizing = true;
+    this.resizingEntry = entry;
+    this.resizeHandle = handle;
+    this.resizeStartY = event.clientY;
+    this.resizeStartTime = this.parseTimeToMinutes(entry.startTime);
+    this.resizeStartDuration = entry.duration;
+    
+    // Add global mouse event listeners
+    document.addEventListener('mousemove', this.handleResize.bind(this));
+    document.addEventListener('mouseup', this.stopResize.bind(this));
+    
+    // Prevent text selection during resize
+    document.body.style.userSelect = 'none';
+  }
+
+  handleResize(event: MouseEvent) {
+    if (!this.isResizing || !this.resizingEntry) return;
+    
+    const deltaY = event.clientY - this.resizeStartY;
+    // Convert pixel movement to minutes (each 15-minute slot is roughly 20px)
+    const minutesPerPixel = 15 / 20; // Adjust this based on your actual slot height
+    const deltaMinutes = Math.round(deltaY * minutesPerPixel / 15) * 15; // Snap to 15-minute intervals
+    
+    if (this.resizeHandle === 'top') {
+      // Resizing from top - adjust start time and duration
+      const newStartTime = this.resizeStartTime + deltaMinutes;
+      const newDuration = this.resizeStartDuration - deltaMinutes;
+      
+      // Ensure minimum duration of 15 minutes
+      if (newDuration >= 15 && newStartTime >= 0 && newStartTime < 24 * 60) {
+        this.resizingEntry.startTime = this.minutesToTimeString(newStartTime);
+        this.resizingEntry.duration = newDuration;
+      }
+    } else if (this.resizeHandle === 'bottom') {
+      // Resizing from bottom - adjust duration only
+      const newDuration = this.resizeStartDuration + deltaMinutes;
+      
+      // Ensure minimum duration of 15 minutes and doesn't exceed 24 hours
+      const maxEndTime = 24 * 60;
+      const currentStartTime = this.parseTimeToMinutes(this.resizingEntry.startTime);
+      
+      if (newDuration >= 15 && (currentStartTime + newDuration) <= maxEndTime) {
+        this.resizingEntry.duration = newDuration;
+      }
+    }
+    
+    // Update the entry in the array
+    const entryIndex = this.timesheetEntries.findIndex(e => e.id === this.resizingEntry!.id);
+    if (entryIndex !== -1) {
+      this.timesheetEntries[entryIndex] = { ...this.resizingEntry, updatedAt: new Date() };
+      // Clear cache to trigger re-render
+      this.clearTimesheetWeekCache();
+    }
+  }
+
+  stopResize(event: MouseEvent) {
+    if (!this.isResizing) return;
+    
+    // Remove global event listeners
+    document.removeEventListener('mousemove', this.handleResize.bind(this));
+    document.removeEventListener('mouseup', this.stopResize.bind(this));
+    
+    // Restore text selection
+    document.body.style.userSelect = '';
+    
+    // Reset resize state
+    this.isResizing = false;
+    this.resizingEntry = null;
+    this.resizeHandle = null;
+    
+    console.log('Resize completed');
+  }
+
+  private minutesToTimeString(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   }
 
   deleteTimeEntry(entryId: string) {
