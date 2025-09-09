@@ -2248,8 +2248,10 @@
                                        (click)="!isWeekend(day.date) ? openTimeEntryModalForSlot(day.date, timeSlot.time) : null"
                                        [class.has-entry]="hasTimeEntryAtSlot(day, timeSlot.time)"
                                        [class.current-time]="isCurrentTime(timeSlot.time)">
+
                                     <!-- Time Entry Blocks -->
                                     @for (entry of getTimeEntriesForSlot(day, timeSlot.time); track entry.id) {
+
                                       <div class="time-entry-block"
                                            [class]="'status-' + entry.status"
                                            [style.top.%]="getEntryTopPosition(entry)"
@@ -2257,8 +2259,8 @@
                                            (click)="$event.stopPropagation()">
                                         <div class="entry-content">
                                           <div class="entry-time">{{ entry.startTime }}</div>
-                                          <div class="entry-description">{{ entry.description }}</div>
-                                          <div class="entry-duration">{{ formatDuration(entry.duration) }}</div>
+                                          <!-- <div class="entry-description">{{ entry.description }}</div> -->
+                                          <!-- <div class="entry-duration">{{ formatDuration(entry.duration) }}</div> -->
                                         </div>
                                         <div class="entry-actions">
                                           @if (currentUserRole.permissions.canEditOwnTimesheet && entry.userId === 'current-user') {

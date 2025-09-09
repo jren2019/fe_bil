@@ -2222,6 +2222,7 @@ export class WorkorderPageComponent implements OnInit {
   }
 
   getTimeEntriesForSlot(day: TimesheetDay, timeSlot: string): TimesheetEntry[] {
+    console.log('getTimeEntriesForSlot', day, timeSlot);
     const entries = day.entries.filter(entry => {
       const entryStart = this.parseTimeToMinutes(entry.startTime);
       const slotStart = this.parseTimeToMinutes(timeSlot);
@@ -3065,6 +3066,7 @@ export class WorkorderPageComponent implements OnInit {
   }
 
   initializeSampleTimesheetEntries() {
+
     // Clear existing entries
     this.timesheetEntries = [];
 
@@ -3091,34 +3093,34 @@ export class WorkorderPageComponent implements OnInit {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-      {
-        id: 'TE002',
-        workOrderId: 1,
-        userId: 'user1',
-        userName: 'John Smith',
-        userType: 'staff',
-        date: currentWeek.days[0].date,
-        startTime: '10:30',
-        duration: 90, // 1.5 hours
-        description: 'Documentation and report writing',
-        status: 'approved',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 'TE003',
-        workOrderId: 1,
-        userId: 'user1',
-        userName: 'John Smith',
-        userType: 'staff',
-        date: currentWeek.days[0].date,
-        startTime: '14:00',
-        duration: 180, // 3 hours
-        description: 'System testing and validation',
-        status: 'submitted',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
+      // {
+      //   id: 'TE002',
+      //   workOrderId: 1,
+      //   userId: 'user1',
+      //   userName: 'John Smith',
+      //   userType: 'staff',
+      //   date: currentWeek.days[0].date,
+      //   startTime: '10:30',
+      //   duration: 90, // 1.5 hours
+      //   description: 'Documentation and report writing',
+      //   status: 'approved',
+      //   createdAt: new Date(),
+      //   updatedAt: new Date()
+      // },
+      // {
+      //   id: 'TE003',
+      //   workOrderId: 1,
+      //   userId: 'user1',
+      //   userName: 'John Smith',
+      //   userType: 'staff',
+      //   date: currentWeek.days[0].date,
+      //   startTime: '14:00',
+      //   duration: 180, // 3 hours
+      //   description: 'System testing and validation',
+      //   status: 'submitted',
+      //   createdAt: new Date(),
+      //   updatedAt: new Date()
+      // },
 
       // Tuesday entries
       {
