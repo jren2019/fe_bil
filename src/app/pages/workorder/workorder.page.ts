@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { NavMenuComponent } from '../../components/nav-menu/nav-menu.component';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -13,6 +14,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TabViewModule } from 'primeng/tabview';
 import { PaginatorModule } from 'primeng/paginator';
+import { FiltersContainerComponent } from '../../components/filters/filters-container/filters-container.component';
+import { FilterService } from '../../components/filters/filter.service';
 
 interface WorkOrder {
   id: number;
@@ -196,13 +199,17 @@ interface TimesheetDay {
     CheckboxModule,
     FileUploadModule,
     TabViewModule,
-    PaginatorModule
+    PaginatorModule,
+    FiltersContainerComponent
   ],
   templateUrl: './workorder.page.html',
   styleUrls: ['./workorder.page.scss']
 })
-export class WorkorderPageComponent implements OnInit {
-  // constructor(private cdr: ChangeDetectorRef) {}
+export class WorkorderPageComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  
+  // Filter-related properties
+  activeFilters: { [key: string]: any } = {};
 
   viewModes: ViewMode[] = [
     { value: 'todo', label: 'To Do View', icon: '📋' },
@@ -354,8 +361,8 @@ export class WorkorderPageComponent implements OnInit {
   selectedDate: Date | null = null;
   selectedStartDate: Date | null = null;
 
-  // Filter data arrays
-  activeFilters: string[] = [];
+  // Filter data arrays (legacy - replaced by new filter system)
+  legacyActiveFilters: string[] = [];
   filteredTeams: any[] = [];
   filteredUsers: any[] = [];
   filteredAvailableFilters: any[] = [
@@ -873,7 +880,10 @@ export class WorkorderPageComponent implements OnInit {
     }
   ];
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private filterService: FilterService
+  ) {}
 
   ngOnInit() {
     this.initializeWorkOrders();
@@ -884,6 +894,174 @@ export class WorkorderPageComponent implements OnInit {
 
     // Ensure calendar view has proper data
     console.log('Component initialized - Timesheet entries:', this.timesheetEntries.length);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // Filter handling methods
+  onFiltersChange(filters: { [key: string]: any }) {
+    this.activeFilters = filters;
+    console.log('Active filters changed:', filters);
+    // The filteredWorkOrders getter will automatically use these filters
+  }
+
+  private applyAdvancedFilters(workOrders: WorkOrder[]): WorkOrder[] {
+    let filtered = workOrders;
+
+    // Apply assigned-to filter
+    if (this.activeFilters['assigned-to']) {
+      filtered = this.applyAssignedToFilter(filtered, this.activeFilters['assigned-to']);
+    }
+
+    // Apply due-date filter
+    if (this.activeFilters['due-date']) {
+      filtered = this.applyDueDateFilter(filtered, this.activeFilters['due-date']);
+    }
+
+    // Apply priority filter
+    if (this.activeFilters['priority']) {
+      filtered = this.applyPriorityFilter(filtered, this.activeFilters['priority']);
+    }
+
+    // Apply location filter
+    if (this.activeFilters['location']) {
+      filtered = this.applyLocationFilter(filtered, this.activeFilters['location']);
+    }
+
+    // Apply asset-status filter
+    if (this.activeFilters['asset-status']) {
+      filtered = this.applyAssetStatusFilter(filtered, this.activeFilters['asset-status']);
+    }
+
+    return filtered;
+  }
+
+  private applyAssignedToFilter(workOrders: WorkOrder[], filterData: any): WorkOrder[] {
+    const selectedUsers = filterData.selectedUsers || [];
+    const selectedTeams = filterData.selectedTeams || [];
+    
+    if (selectedUsers.length === 0 && selectedTeams.length === 0) {
+      return workOrders;
+    }
+
+    const selectedUserNames = selectedUsers.map((u: any) => u.name);
+    const selectedTeamNames = selectedTeams.map((t: any) => t.name);
+
+    return workOrders.filter(wo => {
+      const matchesUser = selectedUserNames.length === 0 || selectedUserNames.includes(wo.assignedTo);
+      const matchesTeam = selectedTeamNames.length === 0; // TODO: Implement team matching when we have team data
+      
+      if (filterData.condition === 'one-of') {
+        return matchesUser || matchesTeam;
+      } else {
+        return !matchesUser && !matchesTeam;
+      }
+    });
+  }
+
+  private applyDueDateFilter(workOrders: WorkOrder[], filterData: any): WorkOrder[] {
+    const selectedPresets = filterData.selectedPresets || [];
+    const selectedDate = filterData.selectedDate;
+
+    if (selectedPresets.length === 0 && !selectedDate) {
+      return workOrders;
+    }
+
+    return workOrders.filter(wo => {
+      if (!wo.dueDate) return false;
+
+      let matches = false;
+
+      // Check preset matches
+      selectedPresets.forEach((preset: any) => {
+        switch (preset.id) {
+          case 'today':
+            matches = matches || this.isSameDay(wo.dueDate!, new Date());
+            break;
+          case 'tomorrow':
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            matches = matches || this.isSameDay(wo.dueDate!, tomorrow);
+            break;
+          case 'this-week':
+            matches = matches || this.isThisWeek(wo.dueDate!);
+            break;
+          case 'next-week':
+            matches = matches || this.isNextWeek(wo.dueDate!);
+            break;
+          case 'overdue':
+            matches = matches || wo.dueDate! < new Date();
+            break;
+        }
+      });
+
+      // Check custom date match
+      if (selectedDate) {
+        matches = matches || this.isSameDay(wo.dueDate!, selectedDate);
+      }
+
+      return filterData.condition === 'one-of' ? matches : !matches;
+    });
+  }
+
+  private applyPriorityFilter(workOrders: WorkOrder[], filterData: any): WorkOrder[] {
+    const selectedPriorities = filterData.selectedPriorities || [];
+    
+    if (selectedPriorities.length === 0) {
+      return workOrders;
+    }
+
+    const selectedPriorityIds = selectedPriorities.map((p: any) => p.id);
+
+    return workOrders.filter(wo => {
+      const matches = selectedPriorityIds.includes(wo.priority);
+      return filterData.condition === 'one-of' ? matches : !matches;
+    });
+  }
+
+  private applyLocationFilter(workOrders: WorkOrder[], filterData: any): WorkOrder[] {
+    const selectedLocations = filterData.selectedLocations || [];
+    
+    if (selectedLocations.length === 0) {
+      return workOrders;
+    }
+
+    const selectedLocationNames = selectedLocations.map((l: any) => l.name);
+
+    return workOrders.filter(wo => {
+      const matches = selectedLocationNames.includes(wo.location);
+      return filterData.condition === 'one-of' ? matches : !matches;
+    });
+  }
+
+  private applyAssetStatusFilter(workOrders: WorkOrder[], filterData: any): WorkOrder[] {
+    // This would need to be implemented based on how asset status is stored in work orders
+    // For now, return all work orders since we don't have asset status in the WorkOrder interface
+    return workOrders;
+  }
+
+  // Helper methods for date filtering
+  private isThisWeek(date: Date): boolean {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    
+    return date >= startOfWeek && date <= endOfWeek;
+  }
+
+  private isNextWeek(date: Date): boolean {
+    const today = new Date();
+    const startOfNextWeek = new Date(today);
+    startOfNextWeek.setDate(today.getDate() - today.getDay() + 7);
+    const endOfNextWeek = new Date(startOfNextWeek);
+    endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
+    
+    return date >= startOfNextWeek && date <= endOfNextWeek;
   }
 
   private initializeWorkOrders() {
@@ -971,6 +1149,9 @@ export class WorkorderPageComponent implements OnInit {
         );
       });
     }
+
+    // Apply advanced filters
+    workOrders = this.applyAdvancedFilters(workOrders);
 
     console.log('Filtered Work Orders:', {
       searchTerm: this.searchTerm,
@@ -1512,10 +1693,10 @@ export class WorkorderPageComponent implements OnInit {
     this.selectedStartDate = event;
   }
 
-  // Filter management
+  // Filter management (legacy methods - kept for compatibility)
   addFilter(filterId: string) {
-    if (!this.activeFilters.includes(filterId)) {
-      this.activeFilters.push(filterId);
+    if (!this.legacyActiveFilters.includes(filterId)) {
+      this.legacyActiveFilters.push(filterId);
     }
     this.closeAddFilterDialog();
   }

@@ -1,0 +1,63 @@
+<div class="filters-bar">
+  <!-- Dynamic Active Filters -->
+  @for (filter of enabledFilters; track filter.id) {
+    @if (filter.enabled) {
+      @if (filter.type === 'assigned-to') {
+        <app-assigned-to-filter
+          [data]="getFilterData(filter.id)"
+          (dataChange)="onFilterDataChange(filter.id, $event)"
+          (filterToggle)="onFilterToggle(filter.id, $event)"
+          (filterClose)="onFilterClose(filter.id)">
+        </app-assigned-to-filter>
+      } @else if (filter.type === 'due-date') {
+        <app-due-date-filter
+          [data]="getFilterData(filter.id)"
+          (dataChange)="onFilterDataChange(filter.id, $event)"
+          (filterToggle)="onFilterToggle(filter.id, $event)"
+          (filterClose)="onFilterClose(filter.id)">
+        </app-due-date-filter>
+      } @else if (filter.type === 'priority') {
+        <app-priority-filter
+          [data]="getFilterData(filter.id)"
+          (dataChange)="onFilterDataChange(filter.id, $event)"
+          (filterToggle)="onFilterToggle(filter.id, $event)"
+          (filterClose)="onFilterClose(filter.id)">
+        </app-priority-filter>
+      }
+    }
+  }
+  
+  <!-- Add Filter Component -->
+  <app-add-filter
+    [data]="getAddFilterData()"
+    (dataChange)="onAddFilterDataChange($event)"
+    (filterAdd)="onFilterAdd($event)">
+  </app-add-filter>
+  
+  <!-- Filter Actions -->
+  <div class="filter-actions">
+    <div class="more-actions-container">
+      <button 
+        class="more-actions-btn" 
+        (click)="toggleMoreActions()"
+        title="More actions">
+        <i class="pi pi-ellipsis-h"></i>
+      </button>
+
+      <!-- More Actions Dropdown -->
+      @if (showMoreActions) {
+        <div class="more-actions-overlay" (click)="closeMoreActions()"></div>
+        <div class="more-actions-dropdown" (click)="$event.stopPropagation()">
+          <div class="more-actions-item" (click)="openMyFilters()">
+            <i class="pi pi-cog"></i>
+            <span>My Filters</span>
+          </div>
+          <div class="more-actions-item" (click)="resetAllFilters()">
+            <i class="pi pi-refresh"></i>
+            <span>Reset All</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

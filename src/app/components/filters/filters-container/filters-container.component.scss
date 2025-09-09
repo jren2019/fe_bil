@@ -1,0 +1,152 @@
+// Import shared filter styles
+@import '../filter.component.scss';
+
+// Specific styles for the filters container
+.filters-bar {
+  display: flex;
+
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  flex-wrap: wrap;
+
+  // Override filter button styles for pill-like appearance
+  :ng-deep .filter-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 1.25rem; // Pill shape
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: rgba(255, 255, 255, 1);
+      transform: translateY(-1px);
+    }
+
+    .filter-icon {
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+  }
+
+  // Active filter state
+  :ng-deep .filter-active .filter-button {
+    background: rgba(103, 184, 197, 0.2);
+    border-color: rgba(103, 184, 197, 0.4);
+    color: rgba(103, 184, 197, 1);
+
+    &:hover {
+      background: rgba(103, 184, 197, 0.25);
+      border-color: rgba(103, 184, 197, 0.5);
+    }
+
+    .filter-icon {
+      opacity: 1;
+    }
+  }
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.more-actions-container {
+  position: relative;
+}
+
+.more-actions-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%; // Circular button
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(56, 230, 13, 0.1);
+    border-color: #000;
+    color: #000;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0px);
+  }
+
+  .pi-ellipsis-h {
+    font-size: 0.875rem;
+  }
+}
+
+.more-actions-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: transparent;
+}
+
+.more-actions-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  min-width: 160px;
+  background: #0d153b;
+  border: 1px solid #232b4d;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  overflow: hidden;
+}
+
+.more-actions-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #1e254d;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  i {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    width: 1rem;
+  }
+
+  span {
+    white-space: nowrap;
+  }
+}

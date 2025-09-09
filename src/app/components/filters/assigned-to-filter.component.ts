@@ -57,6 +57,7 @@ import { AssignedToFilterData, TeamOption, UserOption } from './filter.types';
                 type="text"
                 placeholder="Search"
                 [(ngModel)]="data.searchTerm"
+                (input)="onSearchChange()"
                 class="search-input"
               />
             </div>
@@ -121,15 +122,17 @@ export class AssignedToFilterComponent {
 
   get filteredTeams(): TeamOption[] {
     if (!this.data.searchTerm) return this.data.teams;
-    return this.data.teams.filter(team =>
-      team.name.toLowerCase().includes(this.data.searchTerm.toLowerCase())
+    const searchLower = this.data.searchTerm.toLowerCase();
+    return this.data.teams.filter(team => 
+      team.name.toLowerCase().includes(searchLower)
     );
   }
 
   get filteredUsers(): UserOption[] {
     if (!this.data.searchTerm) return this.data.users;
-    return this.data.users.filter(user =>
-      user.name.toLowerCase().includes(this.data.searchTerm.toLowerCase())
+    const searchLower = this.data.searchTerm.toLowerCase();
+    return this.data.users.filter(user => 
+      user.name.toLowerCase().includes(searchLower)
     );
   }
 
@@ -159,6 +162,10 @@ export class AssignedToFilterComponent {
 
   getConditionLabel(): string {
     return this.data.condition === 'one-of' ? 'One of' : 'None of';
+  }
+
+  onSearchChange() {
+    this.dataChange.emit(this.data);
   }
 
   toggleTeamsExpanded() {

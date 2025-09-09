@@ -83,3 +83,14 @@ export interface AddFilterData {
   availableFilters: AvailableFilter[];
   activeFilters: string[];
 }
+
+export type FilterType = 'assigned-to' | 'due-date' | 'priority' | 'location' | 'asset-status';
+
+export interface FilterConfiguration {
+  id: string;
+  type: FilterType;
+  label: string;
+  icon: string;
+  enabled: boolean;
+  order: number;
+}
